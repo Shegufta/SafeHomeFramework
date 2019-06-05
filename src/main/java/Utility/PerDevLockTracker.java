@@ -41,4 +41,28 @@ public class PerDevLockTracker
         else
             this.rtnWaitingList.add(_routineID);
     }
+
+    public void unregisterRoutineID(int _routineID)
+    {
+        if(this.currentlyExecutingRtnID == _routineID)
+        {
+            this.currentlyExecutingRtnID = -1;
+        }
+        else
+        {
+            this.rtnWaitingList.remove(_routineID);
+
+            /*
+            for(Integer routineID : this.rtnWaitingList)
+            {
+                if(routineID == _routineID)
+                {
+                    this.rtnWaitingList.remove(routineID);
+                    break;
+                }
+            }
+            */
+        }
+    }
+
 }
