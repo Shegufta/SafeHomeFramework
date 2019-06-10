@@ -1,11 +1,17 @@
 package ConcurrencyController;
 
+import Executor.ExecutorSingleton;
 import Executor.SelfExecutingRoutine;
 import Utility.Device;
+import Utility.NextStep;
 import Utility.Routine;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Shegufta Ahsan
@@ -16,17 +22,18 @@ import java.util.List;
 public class ConcurrencyControllerSingleton
 {
     private static ConcurrencyControllerSingleton singleton;
+
     private boolean isDisposed;
-    //Map<String, PerDevLockTracker> lockTable;
     private LockTable lockTable;
 
-    //List<SelfExecutingRoutine> selfExecutingRoutineList;
+    private ScheduledFuture<?> scheduledFuture;
+    private ScheduledExecutorService scheduledExecutorService;
 
     private ConcurrencyControllerSingleton()
     {
         this.isDisposed = false;
-        //this.selfExecutingRoutineList = new ArrayList<>();
         this.lockTable = new LockTable();
+        this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(); // init the executor
     }
 
     public void InitDeviceList(List<Device> devList)
@@ -37,12 +44,15 @@ public class ConcurrencyControllerSingleton
     public void RegisterRoutine(Routine _routine)
     {
         this.lockTable.registerRoutine(_routine);
+        this.ScheduleExecutor(0); // schedule immediately
     }
 
+    /*
     public List<Integer> getPrepareToExecuteRoutineIDlist()
     {
         return this.lockTable.getPrepareToExecuteRoutineIDlist();
     }
+    */
 
     public void FinishRoutineExecution(Integer _routineID)
     {
@@ -52,27 +62,34 @@ public class ConcurrencyControllerSingleton
     private void UnregisterRoutine(Integer _routineID)
     {
         this.lockTable.unregisterRoutine(_routineID);
+        this.ScheduleExecutor(0); // schedule immediately
     }
 
-    public void CommandExecuted(SelfExecutingRoutine _selfExecutingRoutine, int finishedCommandIndex)
+
+    public NextStep getNextStep(int routineID, int successExecutedCmdIdx)
     {
-        //TODO: we will use it for pre/post lease. for now leave it empty
+        return this.lockTable.getNextStep(routineID, successExecutedCmdIdx);
     }
 
 
-
-
-    /*
-    private void startRoutineExecution(SelfExecutingRoutine _selfExecutingRoutine)
+    private void checkForAvailableRoutines()
     {
-        _selfExecutingRoutine.StartRoutineExecution();
+        System.out.println("Check for available routines....");
+        List<Integer> routineToInitiateList = this.lockTable.getPrepareToExecuteRoutineIDlist();
+        if(!routineToInitiateList.isEmpty())
+        {
+            ExecutorSingleton.getInstance().ExecuteRoutines(routineToInitiateList);
+        }
     }
-    */
 
-
-
-
-
+    private synchronized void ScheduleExecutor(int scheduleIntervalInMilliSec)
+    {
+        this.scheduledFuture = this.scheduledExecutorService.schedule(
+                ()-> {this.checkForAvailableRoutines();},
+                scheduleIntervalInMilliSec,
+                TimeUnit.MILLISECONDS
+        ); // reschedule
+    }
 
     public static synchronized ConcurrencyControllerSingleton getInstance()
     {
@@ -87,7 +104,6 @@ public class ConcurrencyControllerSingleton
 
         return ConcurrencyControllerSingleton.singleton;
     }
-
 
     public void Dispose()
     {

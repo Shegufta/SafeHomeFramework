@@ -1,8 +1,7 @@
 package CentralController;
 
 import ConcurrencyController.ConcurrencyControllerSingleton;
-import ConcurrencyController.LockTable;
-import Executor.Executor;
+import Executor.ExecutorSingleton;
 import Utility.Command;
 import Utility.DEV_STATUS;
 import Utility.Device;
@@ -24,20 +23,17 @@ public class Controller// implements ControllerInterface
     //public static final String DEV_NAME_TV = "TV";
     public static final String DEV_NAME_WATER_SPRINKLER = "waterSprinkler";
     public static final String DEV_NAME_OVEN = "Oven";
-
-    private Executor executor;
+    public static final String DEV_NAME_DUMMY = "Dummy";
 
     public Controller()
     {
-        this.executor = new Executor();
     }
 
 
     public void ReceiveRoutine(Routine _routine)
     {
         //TODO: validate the routine
-
-        this.executor.ReceiveRoutine(_routine);
+        ExecutorSingleton.getInstance().ReceiveRoutine(_routine);
     }
 
     public void initialize()
@@ -71,16 +67,27 @@ public class Controller// implements ControllerInterface
     {// TODO: replace it with automated method
         Routine routine1 = new Routine();
         routine1.addCommand( new Command(DEV_NAME_FAN, DEV_STATUS.ON, 0) );
-        routine1.addCommand( new Command(DEV_NAME_OVEN, DEV_STATUS.ON, 5) );
+        routine1.addCommand( new Command(DEV_NAME_OVEN, DEV_STATUS.ON, 0) );
+        routine1.addCommand( new Command(DEV_NAME_DUMMY, DEV_STATUS.WAIT, 5000) );
+        routine1.addCommand( new Command(DEV_NAME_OVEN, DEV_STATUS.OFF, 0) );
         routine1.addCommand( new Command(DEV_NAME_LIGHT, DEV_STATUS.ON, 0) );
-
         return routine1;
     }
+
+    /**
+     * [WS1-ON, WS2-ON, WAIT-n_min, WS1-OFF]
+     *
+     * <WS1-ON. nnnnn jOFF>
+     *
+     * @return
+     */
 
     public static Routine generateRoutine2()
     {// TODO: replace it with automated method
         Routine routine2 = new Routine();
-        routine2.addCommand( new Command(DEV_NAME_WATER_SPRINKLER, DEV_STATUS.ON, 7) );
+        routine2.addCommand( new Command(DEV_NAME_WATER_SPRINKLER, DEV_STATUS.ON, 0) );
+        routine2.addCommand( new Command(DEV_NAME_DUMMY, DEV_STATUS.WAIT, 7000) );
+        routine2.addCommand( new Command(DEV_NAME_WATER_SPRINKLER, DEV_STATUS.OFF, 0) );
         routine2.addCommand( new Command(DEV_NAME_LIGHT, DEV_STATUS.ON, 0) );
 
         return routine2;

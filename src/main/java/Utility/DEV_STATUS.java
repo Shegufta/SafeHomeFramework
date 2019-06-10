@@ -12,5 +12,6 @@ public enum DEV_STATUS
     OFF,
     FAILED,
     UNKNOWN,
-    NOT_INITIALIZED
+    NOT_INITIALIZED,
+    WAIT
 }

@@ -1,5 +1,7 @@
 package Utility;
 
+import CentralController.Controller;
+
 /**
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
@@ -8,28 +10,26 @@ package Utility;
  */
 public class Command
 {
-    public Command(String _devName, DEV_STATUS _desiredStatus, int _durationSecond)
+    public String devName;
+    public DEV_STATUS desiredStatus;
+    public int durationMilliSec; // 0 means short command.
+
+    public Command(String _devName, DEV_STATUS _desiredStatus, int _durationMilliSec)
     {
         this.devName = _devName;
         this.desiredStatus = _desiredStatus;
-        this.durationSecond = _durationSecond; // 0 for one time commands e.g. turn on light. A value for long running routine e.g. turn on light for 30 min
+        this.durationMilliSec = _durationMilliSec;
 
-    }
-
-    public String devName;
-    public DEV_STATUS desiredStatus;
-    public int durationSecond; // 0 means short command.
-
-    public boolean isLongCommand()
-    {
-        if(0 < this.durationSecond)
-            return true;
+        if(0 < this.durationMilliSec)
+        {
+            assert(this.devName.equals(Controller.DEV_NAME_DUMMY));
+            assert(this.desiredStatus == DEV_STATUS.WAIT);
+        }
         else
-            return false;
+        {
+            assert(!this.devName.equals(Controller.DEV_NAME_DUMMY));
+            assert(this.desiredStatus != DEV_STATUS.WAIT);
+        }
     }
 
-    public int getDurationInSecond()
-    {
-        return this.durationSecond;
-    }
 }

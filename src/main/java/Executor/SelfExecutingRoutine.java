@@ -1,15 +1,15 @@
 package Executor;
 
+import CentralController.Controller;
 import Utility.Command;
 import Utility.DEV_STATUS;
+import Utility.NextStep;
 import Utility.Routine;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -29,18 +29,19 @@ public class SelfExecutingRoutine
     private Routine routine;
     public int uniqueRoutineID;
     private boolean isDisposed;
-    private boolean isStarted;
+    public boolean isStarted;
     public boolean handledByConcurrencyController;
 
-    private int currentlyExecutingCmdIdx;
+    //private int currentlyExecutingCmdIdx;
+    private int successfullyExecutedCmdIdx;
 
-    private boolean isLongCmdEndPending;
-    private DEV_STATUS longRunningEndingStatus;
+    //private boolean isLongCmdEndPending;
+    //private DEV_STATUS longRunningEndingStatus;
     Command currentCommand;
-    Executor parentExecutor;
+    ExecutorSingleton parentExecutor;
 
 
-    public SelfExecutingRoutine(Routine _routine, Executor _parentExecutor)
+    public SelfExecutingRoutine(Routine _routine, ExecutorSingleton _parentExecutor)
     {
         //this.commandList = new ArrayList<>();
         this.routine = _routine;
@@ -59,9 +60,9 @@ public class SelfExecutingRoutine
 
         this.isStarted = true;
         this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(); // init the executor
-        this.isLongCmdEndPending = false;
-        this.longRunningEndingStatus = DEV_STATUS.NOT_INITIALIZED;
-        this.currentlyExecutingCmdIdx = 0;
+        //this.isLongCmdEndPending = false;
+        //this.longRunningEndingStatus = DEV_STATUS.NOT_INITIALIZED;
+        this.successfullyExecutedCmdIdx = -1;
 
         this.ScheduleExecutor(0); // reschedule immediately
     }
@@ -71,54 +72,69 @@ public class SelfExecutingRoutine
         if(this.isDisposed)
             return;
 
-        if( this.commandList.size() <= currentlyExecutingCmdIdx)
-        {
-            this.EndRoutineExecution();
-            return;
-        }
+        //int successExecutedCmdIdx = this.currentlyExecutingCmdIdx;
+        NextStep nextStep = this.parentExecutor.getNextStep(this.uniqueRoutineID, this.successfullyExecutedCmdIdx);
 
-        if(!this.isLongCmdEndPending)
-        {
-            this.currentCommand = this.commandList.get(this.currentlyExecutingCmdIdx);
-            this.isLongCmdEndPending = this.currentCommand.isLongCommand();
-            int rescheduleIntervalInSec;
+        int pauseOrHaultIntervalMS = -1;
 
-            if(this.isLongCmdEndPending)
-            {// save the current state and turn the device back to this state once the long-running command ends
-                this.longRunningEndingStatus = this.getCurrentDevStatus(this.currentCommand);
-                rescheduleIntervalInSec = this.currentCommand.durationSecond;
+        if(nextStep.nextCommandIndex != NextStep.HALT)
+        {
+            assert(nextStep.nextCommandIndex < this.commandList.size());
+
+            assert ((this.successfullyExecutedCmdIdx + 1) == nextStep.nextCommandIndex); //TODO: as "NextIndex = 1 + current index" is obvious. I think, we can simplify this logic
+
+            int currentlyExecutingCmdIdx = nextStep.nextCommandIndex;
+            boolean isLastCommand = ( currentlyExecutingCmdIdx == (this.commandList.size() - 1) ); // zero indexing !
+
+            this.currentCommand = this.commandList.get(currentlyExecutingCmdIdx); // get the command to be executed
+
+            if(this.currentCommand.devName.equals(Controller.DEV_NAME_DUMMY))
+            {   // wait command
+                if (isLastCommand)
+                {// ignore the last wait command
+                    System.out.println("Ignoring the last wait command in Routine: " + this.uniqueRoutineID);
+                    this.EndRoutineExecution();
+                }
+                else
+                {
+                    pauseOrHaultIntervalMS = currentCommand.durationMilliSec; // get the waiting interval. This pause time will come as a part of the routine (user input)
+                }
             }
             else
             {
-                this.longRunningEndingStatus = DEV_STATUS.NOT_INITIALIZED;
-                rescheduleIntervalInSec = 0;
-                currentlyExecutingCmdIdx++;
+                this.sendCommandToLowerLayer(this.currentCommand.devName, this.currentCommand.desiredStatus); //Execute command
+
+                if( isLastCommand )
+                {
+                    this.EndRoutineExecution(); // The last command has been executed... no need to reschedule... call the finish-routine command.
+                }
+                else
+                {
+                    this.ScheduleExecutor(0); // there are more commands... reschedule the Execution immediately
+                }
             }
 
-            this.sendCommandToLowerLayer(this.currentCommand.devName, this.currentCommand.desiredStatus); //Execute command
-
-            this.ScheduleExecutor(rescheduleIntervalInSec); // reschedule
-
+            this.successfullyExecutedCmdIdx = currentlyExecutingCmdIdx; // update successfully executed command idx
         }
         else
-        {// execute the end part of the long command
-            this.isLongCmdEndPending = false; // reset the flag
-
-            this.sendCommandToLowerLayer(this.currentCommand.devName, this.longRunningEndingStatus); //Execute command
-
-            this.longRunningEndingStatus = DEV_STATUS.NOT_INITIALIZED;
-            currentlyExecutingCmdIdx++;
-
-            this.ScheduleExecutor(0); // reschedule immediately
+        {
+            pauseOrHaultIntervalMS = nextStep.waitTimeMilliSecond; // this pause will be provided by the concurrency controller (calculated automatically)
         }
+
+        if(0 < pauseOrHaultIntervalMS)
+        {
+            System.out.println("Routine : " + this.uniqueRoutineID + " | pausing execution for " + pauseOrHaultIntervalMS + " ms");
+            this.ScheduleExecutor(pauseOrHaultIntervalMS); // reschedule after that interval
+        }
+
     }
 
-    private void ScheduleExecutor(int scheduleIntervalInSec)
+    private void ScheduleExecutor(int scheduleIntervalInMilliSec)
     {
         this.scheduledFuture = this.scheduledExecutorService.schedule(
                 ()-> {this.Execute();},
-                scheduleIntervalInSec,
-                TimeUnit.SECONDS
+                scheduleIntervalInMilliSec,
+                TimeUnit.MILLISECONDS
         ); // reschedule
     }
 
@@ -152,72 +168,4 @@ public class SelfExecutingRoutine
         this.isDisposed = true;
         this.EndRoutineExecution();
     }
-
-    public static void main(String[] args)
-    {
-        /*
-        System.out.println("calling R1");
-        SelfExecutingRoutine selfExecutingRoutine1 = new SelfExecutingRoutine(generateRoutine1());
-        selfExecutingRoutine1.StartRoutineExecution();
-
-        System.out.println("calling R2");
-        SelfExecutingRoutine selfExecutingRoutine2 = new SelfExecutingRoutine(generateRoutine2());
-        selfExecutingRoutine2.StartRoutineExecution();
-
-        System.out.println("---------------------");
-        */
-
-        /*
-        Map<Integer, Integer> tempMap = new HashMap<>();
-
-        int key = 1;
-        tempMap.put(key,key);
-
-        key = 2;
-        tempMap.put(key,key);
-
-        key = 3;
-        tempMap.put(key,key);
-
-        for(Map.Entry<Integer, Integer> entry: tempMap.entrySet())
-        {
-            System.out.println("Key = " + entry.getKey() + " : value = " + entry.getValue() );
-        }
-
-        key = 30;
-        tempMap.remove(key);
-
-        for(Map.Entry<Integer, Integer> entry: tempMap.entrySet())
-        {
-            System.out.println("Key = " + entry.getKey() + " : value = " + entry.getValue() );
-        }
-        */
-
-    }
-/*
-    public static Routine generateRoutine1()
-    {// TODO: replace it with automated method
-        Routine routine1 = new Routine();
-        routine1.addCommand( new Command("fan_R1", DEV_STATUS.ON, 0) );
-        routine1.addCommand( new Command("oven_R1", DEV_STATUS.ON, (10)) );
-        routine1.addCommand( new Command("fan2_R1", DEV_STATUS.ON, 0) );
-        routine1.addCommand( new Command("fan3_R1", DEV_STATUS.ON, 0) );
-
-        return routine1;
-    }
-
-    public static Routine generateRoutine2()
-    {// TODO: replace it with automated method
-        Routine routine2 = new Routine();
-        routine2.addCommand( new Command("dev1_R2", DEV_STATUS.ON, 0) );
-        routine2.addCommand( new Command("dev1_R2", DEV_STATUS.ON, (2)) );
-        routine2.addCommand( new Command("dev1_R2", DEV_STATUS.ON, 2) );
-        routine2.addCommand( new Command("dev1_R2", DEV_STATUS.ON, 2) );
-
-        return routine2;
-    }
-    */
-
-
-
 }
