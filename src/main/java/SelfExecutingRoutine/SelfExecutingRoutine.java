@@ -250,7 +250,7 @@ public class SelfExecutingRoutine
         return str;
     }
 
-
+/**
     public static void main(String[] args)
     {
         List<Command> cmdChain = new ArrayList<>();
@@ -299,6 +299,6 @@ public class SelfExecutingRoutine
             System.out.println(ex);
         }
     }
-
+*/
 
 }

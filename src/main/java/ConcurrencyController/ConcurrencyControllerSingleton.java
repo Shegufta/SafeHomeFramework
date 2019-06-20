@@ -1,6 +1,5 @@
 package ConcurrencyController;
 
-import Executor.ExecutorSingleton;
 import SelfExecutingRoutine.SelfExecutingRoutine;
 import Utility.*;
 
@@ -70,54 +69,6 @@ public class ConcurrencyControllerSingleton
     //////////////////////////////////////////////////////////////////////////
 
 
-    public void InitDeviceList(List<Device> devList)
-    {
-        this.lockTable.initLockTable(devList);
-    }
-
-
-
-    public void RegisterRoutine(Routine _routine)
-    {
-        this.lockTable.registerRoutine(_routine);
-        this.ScheduleExecutor(0); // schedule immediately
-    }
-
-    /*
-    public List<Integer> getPrepareToExecuteRoutineIDlist()
-    {
-        return this.lockTable.getPrepareToExecuteRoutineIDlist();
-    }
-    */
-
-    public void FinishRoutineExecution(Integer _routineID)
-    {
-        this.UnregisterRoutine(_routineID);
-    }
-
-    private void UnregisterRoutine(Integer _routineID)
-    {
-        this.lockTable.unregisterRoutine(_routineID);
-        this.ScheduleExecutor(0); // schedule immediately
-    }
-
-
-    public NextStep getNextStep(int routineID, int successExecutedCmdIdx)
-    {
-        return this.lockTable.getNextStep(routineID, successExecutedCmdIdx);
-    }
-
-
-    private void checkForAvailableRoutines()
-    {
-        System.out.println("Check for available routines....");
-        List<RoutineTracker> routineToInitiateList = this.lockTable.getPrepareToExecuteRoutineIDlist();
-
-        if(!routineToInitiateList.isEmpty())
-        {
-            ExecutorSingleton.getInstance().ExecuteRoutines(routineToInitiateList);
-        }
-    }
 
     private synchronized void ScheduleExecutor(int scheduleIntervalInMilliSec)
     {
@@ -126,11 +77,6 @@ public class ConcurrencyControllerSingleton
                 scheduleIntervalInMilliSec,
                 TimeUnit.MILLISECONDS
         ); // reschedule
-//        this.scheduledFuture = this.scheduledExecutorService.schedule(
-//                ()-> {this.checkForAvailableRoutines();},
-//                scheduleIntervalInMilliSec,
-//                TimeUnit.MILLISECONDS
-//        ); // reschedule
     }
 
     public static synchronized ConcurrencyControllerSingleton getInstance()
