@@ -3,14 +3,11 @@ package Executor;
 import ConcurrencyController.ConcurrencyControllerSingleton;
 import Utility.NextStep;
 import Utility.Routine;
+import Utility.RoutineTracker;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Shegufta Ahsan
@@ -22,7 +19,7 @@ public class ExecutorSingleton
 {
     private static ExecutorSingleton singleton;
 
-    private Map<Integer, SelfExecutingRoutine> routineID_selfExcRtnMap;
+    private Map<Integer, SelfExctinRtn> routineID_selfExcRtnMap;
     //private ScheduledFuture<?> scheduledFuture;
     //private ScheduledExecutorService scheduledExecutorService;
 
@@ -38,7 +35,7 @@ public class ExecutorSingleton
         int routineID = _routine.uniqueRoutineID;
         assert(!this.routineID_selfExcRtnMap.containsKey(routineID));
 
-        this.routineID_selfExcRtnMap.put(routineID, new SelfExecutingRoutine(_routine, this));
+        this.routineID_selfExcRtnMap.put(routineID, new SelfExctinRtn(_routine, this));
 
         ConcurrencyControllerSingleton.getInstance().RegisterRoutine(_routine);
 
@@ -47,16 +44,17 @@ public class ExecutorSingleton
 
     /**
      * Called from ConcurrencyController
-     * @param readyRoutineIDList
+     * @param readyRoutineTrackerList
      */
-    public synchronized void ExecuteRoutines(List<Integer> readyRoutineIDList)
+    public synchronized void ExecuteRoutines(List<RoutineTracker> readyRoutineTrackerList)
     {
-        for(int routineID : readyRoutineIDList)
+        for(RoutineTracker routineTracker : readyRoutineTrackerList)
         {
-            assert(this.routineID_selfExcRtnMap.containsKey(routineID));
-            assert(!this.routineID_selfExcRtnMap.get(routineID).isStarted);
+            assert(this.routineID_selfExcRtnMap.containsKey(routineTracker.getRoutineID()));
+            assert(!this.routineID_selfExcRtnMap.get(routineTracker.getRoutineID()).isStarted);
 
-            this.routineID_selfExcRtnMap.get(routineID).StartRoutineExecution();
+            routineTracker.scheduleRoutine(); // init the routine and its locks
+            this.routineID_selfExcRtnMap.get(routineTracker.getRoutineID()).StartRoutineExecution();
         }
     }
 

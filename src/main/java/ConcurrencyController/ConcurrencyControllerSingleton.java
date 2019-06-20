@@ -1,13 +1,11 @@
 package ConcurrencyController;
 
 import Executor.ExecutorSingleton;
-import Executor.SelfExecutingRoutine;
-import Utility.Device;
-import Utility.NextStep;
-import Utility.Routine;
+import SelfExecutingRoutine.SelfExecutingRoutine;
+import Utility.*;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -32,14 +30,52 @@ public class ConcurrencyControllerSingleton
     private ConcurrencyControllerSingleton()
     {
         this.isDisposed = false;
-        this.lockTable = new LockTable();
+        //this.lockTable = new LockTable();
         this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(); // init the executor
     }
+
+    public synchronized void initDeviceList(final Set<DEV_ID> devIDSet)
+    {
+        this.lockTable = new LockTable(devIDSet);
+    }/// SBA: new API
+
+    public synchronized void registerRoutine(SelfExecutingRoutine newRoutine)
+    {
+        this.lockTable.registerRoutine(newRoutine);
+    }
+
+    public synchronized void commitRoutine(int committedRoutineID)
+    {
+        this.lockTable.commitRoutine(committedRoutineID);
+    }
+
+    public synchronized void commandFinishes()
+    {
+        this.scheduleCheckForAvailableLockAndNotify();
+    }
+
+    public synchronized void scheduleCheckForAvailableLockAndNotify()
+    {
+        this.ScheduleExecutor(0); // schedule immediately
+    }
+
+    private synchronized void checkForAvailableLockAndNotify()
+    {
+        synchronized (this.lockTable.lockTable)
+        {
+            this.lockTable.allocateAvailableLocksAndNotify();
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+
 
     public void InitDeviceList(List<Device> devList)
     {
         this.lockTable.initLockTable(devList);
     }
+
+
 
     public void RegisterRoutine(Routine _routine)
     {
@@ -75,7 +111,8 @@ public class ConcurrencyControllerSingleton
     private void checkForAvailableRoutines()
     {
         System.out.println("Check for available routines....");
-        List<Integer> routineToInitiateList = this.lockTable.getPrepareToExecuteRoutineIDlist();
+        List<RoutineTracker> routineToInitiateList = this.lockTable.getPrepareToExecuteRoutineIDlist();
+
         if(!routineToInitiateList.isEmpty())
         {
             ExecutorSingleton.getInstance().ExecuteRoutines(routineToInitiateList);
@@ -85,10 +122,15 @@ public class ConcurrencyControllerSingleton
     private synchronized void ScheduleExecutor(int scheduleIntervalInMilliSec)
     {
         this.scheduledFuture = this.scheduledExecutorService.schedule(
-                ()-> {this.checkForAvailableRoutines();},
+                ()-> {this.checkForAvailableLockAndNotify();},
                 scheduleIntervalInMilliSec,
                 TimeUnit.MILLISECONDS
         ); // reschedule
+//        this.scheduledFuture = this.scheduledExecutorService.schedule(
+//                ()-> {this.checkForAvailableRoutines();},
+//                scheduleIntervalInMilliSec,
+//                TimeUnit.MILLISECONDS
+//        ); // reschedule
     }
 
     public static synchronized ConcurrencyControllerSingleton getInstance()

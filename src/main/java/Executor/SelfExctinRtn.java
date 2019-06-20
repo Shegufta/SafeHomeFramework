@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * @date 6/4/2019
  * @time 5:14 PM
  */
-public class SelfExecutingRoutine
+public class SelfExctinRtn
 {
     private ScheduledFuture<?> scheduledFuture;
     private ScheduledExecutorService scheduledExecutorService;
@@ -41,7 +41,7 @@ public class SelfExecutingRoutine
     ExecutorSingleton parentExecutor;
 
 
-    public SelfExecutingRoutine(Routine _routine, ExecutorSingleton _parentExecutor)
+    public SelfExctinRtn(Routine _routine, ExecutorSingleton _parentExecutor)
     {
         //this.commandList = new ArrayList<>();
         this.routine = _routine;

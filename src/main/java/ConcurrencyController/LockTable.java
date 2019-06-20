@@ -1,12 +1,11 @@
 package ConcurrencyController;
 
 import CentralController.Controller;
+import SelfExecutingRoutine.SelfExecutingRoutine;
 import Utility.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Shegufta Ahsan
@@ -16,230 +15,334 @@ import java.util.Map;
  */
 public class LockTable
 {
-    public static final int UNLOCKED = -1;
+    Map<DEV_ID, PerDevLockListManager> lockTable;
 
-    public class RoutineIDDevListRoutineStatus
+    public LockTable(final Set<DEV_ID> _devIdSet)
     {
-        public int routineID;
-        public boolean isRoutineScheduled;
-        public Map<String, DEV_LOCK> devNameLockStatusMap;
-        public List<String> devAccessSequence;
-        public int successfullyExecutedCmdIdx;
-        public int currentlyExecutingCmdIdx;
+        lockTable = new ConcurrentHashMap<>();
 
-        public RoutineIDDevListRoutineStatus(Routine routine)
+        for(DEV_ID devID : _devIdSet)
         {
-            this.routineID = routine.uniqueRoutineID;
-            this.isRoutineScheduled = false;
-            this.devNameLockStatusMap = new HashMap<>();
-            this.devAccessSequence = new ArrayList<>();
-            this.successfullyExecutedCmdIdx = -1;
-            this.currentlyExecutingCmdIdx = -1;
-
-            for(Command cmd: routine.commandList)
-            {
-                String devName = cmd.devName;
-                this.devAccessSequence.add(devName); // store the command sequence
-
-                if(devName.equals(Controller.DEV_NAME_DUMMY))
-                    continue;
-
-                this.devNameLockStatusMap.put(devName, DEV_LOCK.NOT_ACQUIRED); // create a list of devices touched by the routine
-            }
-        }
-
-        public DEV_LOCK devLockStatus(String devName)
-        {
-            assert(devName != Controller.DEV_NAME_DUMMY);
-
-            if(!devNameLockStatusMap.containsKey(devName))
-                return DEV_LOCK.NEVER_ACCESSED;
-
-            return this.devNameLockStatusMap.get(devName);
-        }
-
-        public void scheduleRoutine()
-        {
-            this.isRoutineScheduled = true;
-            this.successfullyExecutedCmdIdx = -1;
-
-            for(String devName: this.devNameLockStatusMap.keySet())
-            {
-                this.devNameLockStatusMap.put(devName, DEV_LOCK.ACQUIRED);
-            }
-        }
-
-        private void recordCmdExcCompletion(int _successfullyExecutedCmdIdx)
-        {
-            if(-1 == _successfullyExecutedCmdIdx)
-                return; // nothing to record yet.
-
-            assert( (this.successfullyExecutedCmdIdx + 1) == _successfullyExecutedCmdIdx);
-
-            this.successfullyExecutedCmdIdx = _successfullyExecutedCmdIdx;
-
-            String succsExecutedDevName = this.devAccessSequence.get(this.successfullyExecutedCmdIdx);
-
-            if(!succsExecutedDevName.equals(Controller.DEV_NAME_DUMMY))
-            {
-                boolean isUsedInFuture = false;
-                String currentDeviceName = this.devAccessSequence.get(this.successfullyExecutedCmdIdx);
-
-                for(int idx = (this.successfullyExecutedCmdIdx + 1) ; idx < this.devAccessSequence.size() ; ++idx)
-                {
-                    String futureDevices = this.devAccessSequence.get(idx);
-
-                    if(futureDevices.equals(currentDeviceName))
-                    {
-                        isUsedInFuture = true;
-                        break;
-                    }
-                }
-
-                if(!isUsedInFuture)
-                    this.devNameLockStatusMap.put(succsExecutedDevName, DEV_LOCK.RELEASED);
-            }
-        }
-
-        public int getNextCmdToExecute(int successfullyExecutedCmdIdx)
-        {
-            assert(this.isRoutineScheduled);
-
-            this.recordCmdExcCompletion(successfullyExecutedCmdIdx);
-
-            this.currentlyExecutingCmdIdx = 1 + this.successfullyExecutedCmdIdx;
-
-            assert(this.currentlyExecutingCmdIdx < devAccessSequence.size());
-
-            String currentlyExecutingDevName = this.devAccessSequence.get(this.currentlyExecutingCmdIdx);
-
-            if(!currentlyExecutingDevName.equals(Controller.DEV_NAME_DUMMY))
-                this.devNameLockStatusMap.put(currentlyExecutingDevName, DEV_LOCK.EXECUTING);
-
-            return this.currentlyExecutingCmdIdx;
+            lockTable.put(devID, new PerDevLockListManager(devID, DEV_STATUS.OFF));
+            // TODO: currently all devices are initialized with "OFF"... fix this constraint
         }
     }
 
-    /////////////Map<String, PerDevLockTracker> lockTable;
-    Map<String, Integer> devName_LockedRtnIDMap;
-    Map<Integer, RoutineIDDevListRoutineStatus> routineID_DeviceListMAP;
+    public synchronized void allocateAvailableLocksAndNotify()
+    {
+        synchronized (this.lockTable)
+        {
+            for(Map.Entry<DEV_ID, PerDevLockListManager> entry : this.lockTable.entrySet())
+            {
+                entry.getValue().checkForAvailableLockAndNotify();
+            }
+        }
+    }
+
+    public synchronized void commitRoutine(int committedRoutineID)
+    {
+        synchronized (this.lockTable)
+        {
+            for(Map.Entry<DEV_ID, PerDevLockListManager> entry : this.lockTable.entrySet())
+            {
+                entry.getValue().commitRoutine(committedRoutineID);
+            }
+        }
+    }
+
+    public synchronized void registerRoutine(SelfExecutingRoutine newRoutine)
+    {
+        synchronized (this.lockTable)
+        {
+            boolean canScheduleBeforeAllAcquiredLock = true;
+
+            Set<Integer> preRtnSet = new HashSet<>();
+            Set<Integer> postRtnSet = new HashSet<>();
+            final Set<DEV_ID> devNameSet = newRoutine.getAllTouchedDevID();
+
+            for(DEV_ID devID : devNameSet)
+            {
+                preRtnSet.addAll( this.lockTable.get(devID).getPreSet()); //TODO: assuming that we will add the new routine before all 'A' locks. fix this assumption
+                postRtnSet.addAll(this.lockTable.get(devID).getPostSet());//TODO: assuming that we will add the new routine before all 'A' locks. fix this assumption
+
+                Set<Integer> intersection = new HashSet<>(preRtnSet);
+                intersection.retainAll(postRtnSet);
+
+                if (!intersection.isEmpty())
+                {
+                    canScheduleBeforeAllAcquiredLock = false;
+                    break;
+                }
+            }
+
+            for(DEV_ID devID : devNameSet)
+            {
+                this.lockTable.get(devID).registerRoutine(newRoutine, canScheduleBeforeAllAcquiredLock);
+            }
+            newRoutine.startExecution(); // NOTE: dont forget to add this step!
+        }
+
+        this.allocateAvailableLocksAndNotify();
+
+
+
+/**
+ * TODO: do not remove this code now... this is the old algorithm
+        for (RoutineTracker unscheduledRtn : unScheduledRoutineList)
+        {
+            boolean canSchedule = true;
+
+            Set<Integer> preRtnSet = new HashSet<>();
+            Set<Integer> postRtnSet = new HashSet<>();
+
+            List<String> devNameList = unscheduledRtn.getDevNameListUsedInThisRtn();
+
+            for (String devName : devNameList)
+            {
+                List<PerDevLockTracker.RtnIDLckStatusTuple> perDevLckStatusLst = this.devLockTable.get(devName).getLockStatus();
+
+
+                for (PerDevLockTracker.RtnIDLckStatusTuple perRtnLkStatus : perDevLckStatusLst)
+                {
+                    if (perRtnLkStatus.lockStatus == DEV_LOCK.RELEASED || perRtnLkStatus.lockStatus == DEV_LOCK.EXECUTING)
+                    {
+                        preRtnSet.add(perRtnLkStatus.routineID);
+                        preRtnSet.addAll(perRtnLkStatus.preRoutineSet);
+                    }
+                    else if (perRtnLkStatus.lockStatus == DEV_LOCK.ACQUIRED)
+                    {
+                        postRtnSet.add(perRtnLkStatus.routineID);
+                        postRtnSet.addAll(perRtnLkStatus.postRoutineSet);
+                    }
+                    else
+                    {
+                        System.out.println("ERROR: RtnID: " + perRtnLkStatus.routineID + ", lock status = " + perRtnLkStatus.lockStatus.name());
+                        assert (false); // should not execute this line
+                    }
+                }
+
+                Set<Integer> intersection = new HashSet<>(preRtnSet);
+                intersection.retainAll(postRtnSet);
+
+                if (!intersection.isEmpty())
+                {
+                    canSchedule = false;
+                    break;
+                }
+            }
+
+            if (canSchedule)
+            {
+                rtnTrkrlist_PreparedToSchedule.add(unscheduledRtn);
+
+                unscheduledRtn.scheduleRoutine();
+                for (String devName : devNameList)
+                {
+                    this.devLockTable.get(devName).registerRoutine(unscheduledRtn);
+                }
+            }
+
+
+        }//for (RoutineTracker unscheduledRtn : unScheduledRoutineList)
+        */
+    }
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+
+    List<RoutineTracker> routineTrackerList;
+    Map<String, PerDevLockTracker> devLockTable;
 
     public LockTable()
     {
-        /////////////this.lockTable = new HashMap<>();
-        this.devName_LockedRtnIDMap = new HashMap<>();
-        this.routineID_DeviceListMAP = new HashMap<>();
+        this.devLockTable = new HashMap<>();
+        this.routineTrackerList = new ArrayList<>();
     }
 
     public void initLockTable(List<Device> devList)
     {
         for(Device dev:devList)
         {
-            assert(!this.devName_LockedRtnIDMap.containsKey(dev.deviceName));
+            assert(!this.devLockTable.containsKey(dev.deviceName));
 
             if(dev.deviceName.equals(Controller.DEV_NAME_DUMMY))
                 continue;
 
-            this.devName_LockedRtnIDMap.put(dev.deviceName, UNLOCKED);
+            this.devLockTable.put(dev.deviceName, new PerDevLockTracker(dev.deviceName,  DEV_STATUS.OFF)); // set the initial status to OFF // TODO: change the initial status
         }
     }
 
-    public void unregisterRoutine(int routineID)
+    private synchronized boolean isRoutineTrackerListContainsRoutineID(int routineID)
     {
-        assert(!devName_LockedRtnIDMap.isEmpty());
-        assert(this.routineID_DeviceListMAP.containsKey(routineID));
-
-        for(String devName : this.routineID_DeviceListMAP.get(routineID).devNameLockStatusMap.keySet())
+        for(RoutineTracker rtnTracker : this.routineTrackerList)
         {
-            assert(this.devName_LockedRtnIDMap.containsKey(devName));
-
-            if(this.devName_LockedRtnIDMap.get(devName) == routineID)
+            if(rtnTracker.getRoutineID() == routineID);
             {
-                this.devName_LockedRtnIDMap.put(devName, UNLOCKED); // unlock allocated resources
+                return true;
             }
         }
-
-        this.routineID_DeviceListMAP.remove(routineID);
+        return false;
     }
+
+
 
     public synchronized void registerRoutine(Routine _routine)
     {
+        assert(!this.devLockTable.isEmpty());
+
         int routineID = _routine.uniqueRoutineID;
 
-        assert(!devName_LockedRtnIDMap.isEmpty());
-        assert(!this.routineID_DeviceListMAP.containsKey(routineID));
+        assert(!isRoutineTrackerListContainsRoutineID(routineID)); // check for fresh ID
 
-        //if(!this.routineID_DeviceListMAP.containsKey(routineID))
-        this.routineID_DeviceListMAP.put(routineID, new RoutineIDDevListRoutineStatus(_routine));
+        this.routineTrackerList.add(new RoutineTracker(_routine));
+    }
+
+    private RoutineTracker helper_getRoutineTracker(int routineID)
+    {
+        RoutineTracker routineTracker = null;
+
+        for(RoutineTracker rt : this.routineTrackerList)
+        {
+            if(routineTracker.getRoutineID() == routineID)
+            {
+                routineTracker = rt;
+                break;
+            }
+        }
+
+        assert(routineTracker != null); // dont try to get a stale routine... this assumption should be ok for the primary version...
+
+        return routineTracker;
+    }
+
+    private RoutineTracker helper_removeRoutineTracker(int routineID)
+    {
+        RoutineTracker routineTracker = this.helper_getRoutineTracker(routineID);
+        this.routineTrackerList.remove(routineTracker);
+
+        return routineTracker;
+    }
+
+    public synchronized List<RoutineTracker> helper_getUnschduledRoutineList()
+    {
+        List<Integer> unScheduledRoutineID = new ArrayList<>();
+        List<RoutineTracker> unscheduledRtnTrkrLst = new ArrayList<>();
+
+        for(RoutineTracker routineTracker : this.routineTrackerList)
+        {
+            if(!routineTracker.isRoutineScheduled)
+                unScheduledRoutineID.add(routineTracker.getRoutineID());
+        }
+
+        for(int rtnID : unScheduledRoutineID)
+        {
+            unscheduledRtnTrkrLst.add(helper_getRoutineTracker(rtnID));
+        }
+
+        return unscheduledRtnTrkrLst;
     }
 
 
     public NextStep getNextStep(int routineID, int successExecutedCmdIdx)
     {
-        int nextCmdIdx = routineID_DeviceListMAP.get(routineID).getNextCmdToExecute(successExecutedCmdIdx);
+        assert(isRoutineTrackerListContainsRoutineID(routineID)); // ensure that routine already exists...
+
+        int nextCmdIdx = this.routineTrackerList.get(routineID).getNextCmdToExecute(successExecutedCmdIdx);
 
         NextStep nextStep = new NextStep(routineID, nextCmdIdx, 0);
 
         return nextStep;
     }
-    public synchronized void recordCmdExcCompletion(int routineID, int successfullyExecutedCmdIdx)
+
+
+    public synchronized void unregisterRoutine(int routineID)
     {
-        routineID_DeviceListMAP.get(routineID).successfullyExecutedCmdIdx = successfullyExecutedCmdIdx;
-    }
-
-    public synchronized List<Integer> getPrepareToExecuteRoutineIDlist()
-    {
-
-        List<Integer> routineListToSchedule = new ArrayList<>();
-
-        ///////////////////// Get the available device list
-
-        List<String> availableDevList = new ArrayList<>();
-        for(Map.Entry<String, Integer> tuple : this.devName_LockedRtnIDMap.entrySet())
+        synchronized (this.devLockTable)
         {
-            if(tuple.getValue() == UNLOCKED)
+            RoutineTracker routineTracker = this.helper_removeRoutineTracker(routineID);
+            List<String> devNameList = routineTracker.getDevNameListUsedInThisRtn();
+
+            for (String devName : devNameList)
             {
-                availableDevList.add(tuple.getKey());
+                this.devLockTable.get(devName).commitRoutine(routineID);
             }
         }
 
-        for( RoutineIDDevListRoutineStatus routineIDDevListRoutineStatus : this.routineID_DeviceListMAP.values())
-        {
-            if(routineIDDevListRoutineStatus.isRoutineScheduled)
-                continue;
-
-            int candidateRoutineID = routineIDDevListRoutineStatus.routineID;
-            boolean isAllLocksAvailable = true;
-
-            for(String devName : routineIDDevListRoutineStatus.devNameLockStatusMap.keySet())
-            {
-                if(devName.equals(Controller.DEV_NAME_DUMMY))
-                    continue;
-
-                if(!availableDevList.contains(devName))
-                {
-                    isAllLocksAvailable = false;
-                    break;
-                }
-            }
-
-            if(isAllLocksAvailable)
-            {
-                routineListToSchedule.add(candidateRoutineID);
-                routineID_DeviceListMAP.get(candidateRoutineID).isRoutineScheduled = true;
-
-                for(String devName : routineIDDevListRoutineStatus.devNameLockStatusMap.keySet())
-                {
-                    if(devName.equals(Controller.DEV_NAME_DUMMY))
-                        continue;
-
-                    assert(availableDevList.contains(devName));
-                    availableDevList.remove(devName);
-                    this.devName_LockedRtnIDMap.put(devName, candidateRoutineID); // Update device Lock
-                }
-            }
-        }
-
-        return routineListToSchedule;
     }
+
+
+    public synchronized List<RoutineTracker> getPrepareToExecuteRoutineIDlist()
+    {
+        synchronized (this.devLockTable)
+        {
+            List<RoutineTracker> rtnTrkrlist_PreparedToSchedule = new ArrayList<>();
+
+            List<RoutineTracker> unScheduledRoutineList = this.helper_getUnschduledRoutineList();
+            if (unScheduledRoutineList.isEmpty())
+                return rtnTrkrlist_PreparedToSchedule; // return empty list. nothing to schedule
+
+            for (RoutineTracker unscheduledRtn : unScheduledRoutineList)
+            {
+                boolean canSchedule = true;
+
+                Set<Integer> preRtnSet = new HashSet<>();
+                Set<Integer> postRtnSet = new HashSet<>();
+
+                List<String> devNameList = unscheduledRtn.getDevNameListUsedInThisRtn();
+
+                for (String devName : devNameList)
+                {
+                    List<PerDevLockTracker.RtnIDLckStatusTuple> perDevLckStatusLst = this.devLockTable.get(devName).getLockStatus();
+
+
+                    for (PerDevLockTracker.RtnIDLckStatusTuple perRtnLkStatus : perDevLckStatusLst)
+                    {
+                        if (perRtnLkStatus.lockStatus == DEV_LOCK.RELEASED || perRtnLkStatus.lockStatus == DEV_LOCK.EXECUTING)
+                        {
+                            preRtnSet.add(perRtnLkStatus.routineID);
+                            preRtnSet.addAll(perRtnLkStatus.preRoutineSet);
+                        }
+                        else if (perRtnLkStatus.lockStatus == DEV_LOCK.ACQUIRED)
+                        {
+                            postRtnSet.add(perRtnLkStatus.routineID);
+                            postRtnSet.addAll(perRtnLkStatus.postRoutineSet);
+                        }
+                        else
+                        {
+                            System.out.println("ERROR: RtnID: " + perRtnLkStatus.routineID + ", lock status = " + perRtnLkStatus.lockStatus.name());
+                            assert (false); // should not execute this line
+                        }
+                    }
+
+                    Set<Integer> intersection = new HashSet<>(preRtnSet);
+                    intersection.retainAll(postRtnSet);
+
+                    if (!intersection.isEmpty())
+                    {
+                        canSchedule = false;
+                        break;
+                    }
+                }
+
+                if (canSchedule)
+                {
+                    rtnTrkrlist_PreparedToSchedule.add(unscheduledRtn);
+
+                    unscheduledRtn.scheduleRoutine();
+                    for (String devName : devNameList)
+                    {
+                        this.devLockTable.get(devName).registerRoutine(unscheduledRtn);
+                    }
+                }
+
+
+            }//for (RoutineTracker unscheduledRtn : unScheduledRoutineList)
+
+            return rtnTrkrlist_PreparedToSchedule;
+        }//synchronized (this.devLockTable)
+    }
+
 }
