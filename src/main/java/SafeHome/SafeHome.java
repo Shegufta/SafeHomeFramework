@@ -55,7 +55,7 @@ public class SafeHome
         List<Command> cmdChain = new ArrayList<>();
 
         cmdChain.add(new Command(DEV_ID.FAN, DEV_STATUS.ON, 0));
-        cmdChain.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.NOT_INITIALIZED, 5000));
+        //cmdChain.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.NOT_INITIALIZED, 5000));
         cmdChain.add(new Command(DEV_ID.LIGHT, DEV_STATUS.ON, 0));
         cmdChain.add(new Command(DEV_ID.FAN, DEV_STATUS.OFF, 0));
 

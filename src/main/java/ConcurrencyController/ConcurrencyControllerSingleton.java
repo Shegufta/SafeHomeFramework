@@ -3,7 +3,6 @@ package ConcurrencyController;
 import SelfExecutingRoutine.SelfExecutingRoutine;
 import Utility.*;
 
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,7 +20,7 @@ public class ConcurrencyControllerSingleton
     private static ConcurrencyControllerSingleton singleton;
 
     private boolean isDisposed;
-    private LockTable lockTable;
+    private LockTable globalLockTable;
 
     private ScheduledFuture<?> scheduledFuture;
     private ScheduledExecutorService scheduledExecutorService;
@@ -29,41 +28,37 @@ public class ConcurrencyControllerSingleton
     private ConcurrencyControllerSingleton()
     {
         this.isDisposed = false;
-        //this.lockTable = new LockTable();
         this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(); // init the executor
     }
 
-    public synchronized void initDeviceList(final Set<DEV_ID> devIDSet)
+    public void initDeviceList(final Set<DEV_ID> devIDSet)
     {
-        this.lockTable = new LockTable(devIDSet);
+        this.globalLockTable = new LockTable(devIDSet);
     }/// SBA: new API
 
-    public synchronized void registerRoutine(SelfExecutingRoutine newRoutine)
+    public void registerRoutine(SelfExecutingRoutine newRoutine)
     {
-        this.lockTable.registerRoutine(newRoutine);
+        this.globalLockTable.registerRoutine(newRoutine);
     }
 
-    public synchronized void commitRoutine(int committedRoutineID)
+    public void commitRoutine(int committedRoutineID)
     {
-        this.lockTable.commitRoutine(committedRoutineID);
+        this.globalLockTable.commitRoutine(committedRoutineID);
     }
 
-    public synchronized void commandFinishes()
+    public void commandFinishes()
     {
         this.scheduleCheckForAvailableLockAndNotify();
     }
 
-    public synchronized void scheduleCheckForAvailableLockAndNotify()
+    public void scheduleCheckForAvailableLockAndNotify()
     {
         this.ScheduleExecutor(0); // schedule immediately
     }
 
-    private synchronized void checkForAvailableLockAndNotify()
+    private void checkForAvailableLockAndNotify()
     {
-        synchronized (this.lockTable.lockTable)
-        {
-            this.lockTable.allocateAvailableLocksAndNotify();
-        }
+        this.globalLockTable.allocateAvailableLocksAndNotify();
     }
 
     //////////////////////////////////////////////////////////////////////////

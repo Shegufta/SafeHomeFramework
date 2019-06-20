@@ -14,44 +14,44 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class LockTable
 {
-    Map<DEV_ID, PerDevLockListManager> lockTable;
+    Map<DEV_ID, PerDevLockListManager> globalLockTable;
 
     public LockTable(final Set<DEV_ID> _devIdSet)
     {
-        lockTable = new ConcurrentHashMap<>();
+        this.globalLockTable = new ConcurrentHashMap<>();
 
         for(DEV_ID devID : _devIdSet)
         {
-            lockTable.put(devID, new PerDevLockListManager(devID, DEV_STATUS.OFF));
+            globalLockTable.put(devID, new PerDevLockListManager(devID, DEV_STATUS.OFF));
             // TODO: currently all devices are initialized with "OFF"... fix this constraint
         }
     }
 
-    public synchronized void allocateAvailableLocksAndNotify()
+    public void allocateAvailableLocksAndNotify()
     {
-        synchronized (this.lockTable)
+        synchronized (this.globalLockTable)
         {
-            for(Map.Entry<DEV_ID, PerDevLockListManager> entry : this.lockTable.entrySet())
+            for(Map.Entry<DEV_ID, PerDevLockListManager> entry : this.globalLockTable.entrySet())
             {
                 entry.getValue().checkForAvailableLockAndNotify();
             }
         }
     }
 
-    public synchronized void commitRoutine(int committedRoutineID)
+    public void commitRoutine(int committedRoutineID)
     {
-        synchronized (this.lockTable)
+        synchronized (this.globalLockTable)
         {
-            for(Map.Entry<DEV_ID, PerDevLockListManager> entry : this.lockTable.entrySet())
+            for(Map.Entry<DEV_ID, PerDevLockListManager> entry : this.globalLockTable.entrySet())
             {
                 entry.getValue().commitRoutine(committedRoutineID);
             }
         }
     }
 
-    public synchronized void registerRoutine(SelfExecutingRoutine newRoutine)
+    public void registerRoutine(SelfExecutingRoutine newRoutine)
     {
-        synchronized (this.lockTable)
+        synchronized (this.globalLockTable)
         {
             boolean canScheduleBeforeAllAcquiredLock = true;
 
@@ -61,8 +61,8 @@ public class LockTable
 
             for(DEV_ID devID : devNameSet)
             {
-                preRtnSet.addAll( this.lockTable.get(devID).getPreSet()); //TODO: assuming that we will add the new routine before all 'A' locks. fix this assumption
-                postRtnSet.addAll(this.lockTable.get(devID).getPostSet());//TODO: assuming that we will add the new routine before all 'A' locks. fix this assumption
+                preRtnSet.addAll( this.globalLockTable.get(devID).getPreSet()); //TODO: assuming that we will add the new routine before all 'A' locks. fix this assumption
+                postRtnSet.addAll(this.globalLockTable.get(devID).getPostSet());//TODO: assuming that we will add the new routine before all 'A' locks. fix this assumption
 
                 Set<Integer> intersection = new HashSet<>(preRtnSet);
                 intersection.retainAll(postRtnSet);
@@ -76,7 +76,7 @@ public class LockTable
 
             for(DEV_ID devID : devNameSet)
             {
-                this.lockTable.get(devID).registerRoutine(newRoutine, canScheduleBeforeAllAcquiredLock);
+                this.globalLockTable.get(devID).registerRoutine(newRoutine, canScheduleBeforeAllAcquiredLock);
             }
             newRoutine.startExecution(); // NOTE: dont forget to add this step!
         }

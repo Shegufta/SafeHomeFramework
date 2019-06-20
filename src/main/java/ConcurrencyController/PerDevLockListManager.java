@@ -64,19 +64,24 @@ public class PerDevLockListManager
 
     public synchronized void checkForAvailableLockAndNotify()
     {
-        System.out.println("inside notify function");
+        System.out.println("\t\t\t #### inside notify function");
         for(SelfExecutingRoutine routine : this.accessedRoutineList)
         {
             if(routine.getLockStatus(this.devID) == DEV_LOCK.RELEASED)
+            {
+                System.out.println("\t\t\t\t #### lock for " + this.devID.name() + " is => " + DEV_LOCK.RELEASED.name());
                 continue;
+            }
 
             if(routine.getLockStatus(this.devID) == DEV_LOCK.EXECUTING)
             {
+                System.out.println("\t\t\t\t #### lock for " + this.devID.name() + " is => " + DEV_LOCK.EXECUTING.name());
                 break;
             }
             else if(routine.getLockStatus(this.devID) == DEV_LOCK.ACQUIRED)
             {
-                System.out.println("++++ Notify to device" + this.devID.name());
+                System.out.println("\t\t\t\t #### lock for " + this.devID.name() + " is => " + DEV_LOCK.ACQUIRED.name());
+                System.out.println("\t\t\t\t\t #### set lock to Executing and Notify device" + this.devID.name());
                 routine.setLockStatus(this.devID, DEV_LOCK.EXECUTING);
                 routine.notifyToCheckLockInRelevantCommandChain(this.devID);
                 break;

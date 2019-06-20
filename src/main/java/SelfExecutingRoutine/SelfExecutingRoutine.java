@@ -49,7 +49,7 @@ public class SelfExecutingRoutine
     }
 
     public List<SelfExecutingCmdChain> cmdChainList;
-    public Map<DEV_ID, DevLockStatusCmdChainID> lockTable;
+    public Map<DEV_ID, DevLockStatusCmdChainID> routineLockTable;
     public Boolean isStarted;// SBA: do not use "boolean", use "Boolean"... this object is used to thread synchronization
     public boolean isDisposed ;
     public int routineID;
@@ -59,65 +59,76 @@ public class SelfExecutingRoutine
     public SelfExecutingRoutine()
     {
         this.cmdChainList = Collections.synchronizedList(new ArrayList());
-        this.lockTable = new ConcurrentHashMap<>();
+        this.routineLockTable = new ConcurrentHashMap<>();
         this.isStarted = false;
         this.isDisposed = false;
         this.preRoutineSet = new HashSet<>();
         this.postRoutineSet = new HashSet<>();
     }
 
-    public synchronized DEV_STATUS getLastSuccessfullySetDevStatus(DEV_ID _devID)
+    public DEV_STATUS getLastSuccessfullySetDevStatus(DEV_ID _devID)
     {
-        return this.lockTable.get(_devID).getLastSuccessfullySetDevStatus();
+        synchronized (this.routineLockTable)
+        {
+            return this.routineLockTable.get(_devID).getLastSuccessfullySetDevStatus();
+        }
     }
 
-    public synchronized DEV_LOCK getLockStatus(DEV_ID _devID)
+    public  DEV_LOCK getLockStatus(DEV_ID _devID)
     {
-        assert(this.lockTable.containsKey(_devID));
-
-        return this.lockTable.get(_devID).dev_lock;
+        synchronized (this.routineLockTable)
+        {
+            assert(this.routineLockTable.containsKey(_devID));
+            return this.routineLockTable.get(_devID).dev_lock;
+        }
     }
 
-    public synchronized void setLockStatus(DEV_ID devID, DEV_LOCK devLock)
+    public void setLockStatus(DEV_ID devID, DEV_LOCK devLock)
     {
-        assert(this.lockTable.containsKey(devID));
+        synchronized (this.routineLockTable)
+        {
+            assert(this.routineLockTable.containsKey(devID));
 
-        System.out.println("\t\t" + devID.name() + " : lock status > " + devLock.name());
+            System.out.println("\t\t" + devID.name() + " : lock status > " + devLock.name());
 
-        this.lockTable.get(devID).setDevLock(devLock);
+            this.routineLockTable.get(devID).setDevLock(devLock);
+        }
     }
 
     public void notifyToCheckLockInRelevantCommandChain(DEV_ID _devID)
     {
-        assert(this.lockTable.containsKey(_devID));
-
-        int commandChainIndex = this.lockTable.get(_devID).commandChainIndex;
-
-        SelfExecutingCmdChain selfExecutingCmdChain = this.cmdChainList.get(commandChainIndex);
-
-        if(!selfExecutingCmdChain.isFinished)
+        synchronized (this.routineLockTable)
         {
+            assert(this.routineLockTable.containsKey(_devID));
+
+            int commandChainIndex = this.routineLockTable.get(_devID).commandChainIndex;
+
+            SelfExecutingCmdChain selfExecutingCmdChain = this.cmdChainList.get(commandChainIndex);
+
             synchronized (selfExecutingCmdChain)
             {
-                selfExecutingCmdChain.notify();
+                if(!selfExecutingCmdChain.isFinished)
+                    selfExecutingCmdChain.notify();
             }
         }
+
+
     }
 
-    public void notifyToCheckLockInAllCmdChains()
-    {
-        System.out.println(System.currentTimeMillis() + " : notify");
-        for(SelfExecutingCmdChain selfExecutingCmdChain : this.cmdChainList)
-        {
-            if(!selfExecutingCmdChain.isFinished)
-            {
-                synchronized (selfExecutingCmdChain)
-                {
-                    selfExecutingCmdChain.notify();
-                }
-            }
-        }
-    }
+//    public void notifyToCheckLockInAllCmdChains()
+//    {
+//        System.out.println(System.currentTimeMillis() + " : notify");
+//        for(SelfExecutingCmdChain selfExecutingCmdChain : this.cmdChainList)
+//        {
+//            if(!selfExecutingCmdChain.isFinished)
+//            {
+//                synchronized (selfExecutingCmdChain)
+//                {
+//                    selfExecutingCmdChain.notify();
+//                }
+//            }
+//        }
+//    }
 
     public void Dispose()
     {
@@ -134,41 +145,45 @@ public class SelfExecutingRoutine
     }
 
 
-    public synchronized void reportCommandCompletion(Command _completedCommand, boolean _isDevUsedInFuture, boolean _wasTheLastCommand)
+    public void reportCommandCompletion(Command _completedCommand, boolean _isDevUsedInFuture, boolean _wasTheLastCommand)
     {
-        //System.out.println("\t\tCommand executed...");
-
-        DEV_ID devID = _completedCommand.devID;
-        DEV_STATUS successfulStatus = _completedCommand.desiredStatus;
-
-        if(devID != DEV_ID.DUMMY_WAIT)
+        synchronized (this.routineLockTable)
         {
-            this.lockTable.get(devID).setLastSuccessfullySetDevStatus(successfulStatus);
+            System.out.println("\t\tCommand executed..." + _completedCommand);
 
-            if(!_isDevUsedInFuture)
+            DEV_ID devID = _completedCommand.devID;
+            DEV_STATUS successfulStatus = _completedCommand.desiredStatus;
+
+            if(devID != DEV_ID.DUMMY_WAIT)
             {
-                this.setLockStatus(devID, DEV_LOCK.RELEASED);
+                this.routineLockTable.get(devID).setLastSuccessfullySetDevStatus(successfulStatus);
+
+                if(!_isDevUsedInFuture)
+                {
+                    this.setLockStatus(devID, DEV_LOCK.RELEASED);
+                }
+                else
+                    System.out.println("\t\t\t%%%% " + devID.name() + " will be used in future.... do not release the lock");
             }
             else
-                System.out.println("\t\t\t%%%% " + devID.name() + " will be used in future.... do not release the lock");
-        }
-        else
-            System.out.println("\t\t\t %%%%% DUMMY_WAIT command end...");
+                System.out.println("\t\t\t %%%%% DUMMY_WAIT command end...");
 
 
-        if(_wasTheLastCommand && this.isRoutineFinished() )
-        {
-            assert(!_isDevUsedInFuture);
+            if(_wasTheLastCommand && this.isRoutineFinished() )
+            {
+                assert(!_isDevUsedInFuture);
 
-            ConcurrencyControllerSingleton.getInstance().commitRoutine(this.routineID);
+                ConcurrencyControllerSingleton.getInstance().commitRoutine(this.routineID);
+            }
+            else
+            {
+                ConcurrencyControllerSingleton.getInstance().commandFinishes();
+            }
         }
-        else
-        {
-            ConcurrencyControllerSingleton.getInstance().commandFinishes();
-        }
+
     }
 
-    private synchronized boolean isRoutineFinished()
+    private boolean isRoutineFinished()
     {
         for(SelfExecutingCmdChain cmdChain : cmdChainList)
         {
@@ -189,7 +204,7 @@ public class SelfExecutingRoutine
             this.isStarted = true;
         }
 
-        for(DEV_ID dev_id : lockTable.keySet())
+        for(DEV_ID dev_id : routineLockTable.keySet())
         {// Locks have been acquired...
             this.setLockStatus(dev_id, DEV_LOCK.ACQUIRED);
         }
@@ -202,7 +217,7 @@ public class SelfExecutingRoutine
 
     public Set<DEV_ID> getAllTouchedDevID()
     {
-        return lockTable.keySet();
+        return routineLockTable.keySet();
     }
 
     public void addCmdChain(List<Command> _commandList)
@@ -229,9 +244,9 @@ public class SelfExecutingRoutine
 
         for(DEV_ID devID : newCmdChain.devicesSet)
         {
-            assert(!lockTable.containsKey(devID));
+            assert(!routineLockTable.containsKey(devID));
 
-            lockTable.put(devID, new DevLockStatusCmdChainID(devID, newCmdChain.cmdChainIndx));
+            routineLockTable.put(devID, new DevLockStatusCmdChainID(devID, newCmdChain.cmdChainIndx));
         }
     }
 
