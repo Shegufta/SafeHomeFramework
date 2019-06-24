@@ -1,5 +1,6 @@
 package SelfExecutingRoutine;
 
+import ConcurrencyController.ConcurrencyControllerSingleton;
 import Utility.Command;
 import Utility.DEV_ID;
 import Utility.DEV_LOCK;
@@ -23,13 +24,16 @@ public class SelfExecutingCmdChain implements Runnable
     public Set<DEV_ID> devicesSet;
     public int cmdChainIndx;
     private SelfExecutingRoutine parentRtn;
-    private DEV_ID currentDevice;
+    public DEV_ID currentDevice;
     public boolean isFinished;
 
-    public DEV_ID getCurrentCmdChainHeadDev()
-    {
-        return this.currentDevice;
-    }
+//    public DEV_ID getCurrentCmdChainHeadDev()
+//    {
+//        return this.currentDevice;
+//    }
+
+    private static String TAGstart;
+    private static String TAGclassName;
 
     public SelfExecutingCmdChain(SelfExecutingRoutine _parentRtn, int _cmdChainID, List<Command> _commandChain)
     {
@@ -37,8 +41,15 @@ public class SelfExecutingCmdChain implements Runnable
         this.cmdChainIndx = _cmdChainID;
         this.commandChain = new ArrayList<>(_commandChain);
         this.devicesSet = new HashSet<>();
-        this.currentDevice = DEV_ID.DEV_NOT_ASSIGNED;
+
         this.isFinished = false;
+
+        assert(!this.commandChain.isEmpty());
+        //this.currentDevice = DEV_ID.DEV_NOT_ASSIGNED;
+        this.currentDevice = commandChain.get(0).devID;
+
+        SelfExecutingCmdChain.TAGstart = "@@@";
+        SelfExecutingCmdChain.TAGclassName = this.getClass().getSimpleName();
 
         for(Command cmd : this.commandChain)
         {
@@ -51,7 +62,8 @@ public class SelfExecutingCmdChain implements Runnable
 
     public synchronized void Start()
     {
-        this.thread = new Thread(this);
+        String threadName = "parentRoutineID_" + this.parentRtn.routineID + "-cmdChainID_" + this.cmdChainIndx;
+        this.thread = new Thread(this, threadName);
         this.thread.start();
     }
 
@@ -66,16 +78,30 @@ public class SelfExecutingCmdChain implements Runnable
         return false;
     }
 
+    private String TAGaddThrdTime(final String TAG)
+    {
+        final int elapsedTimeMS = (int)(ConcurrencyControllerSingleton.getInstance().getElapsedTimeNanoSec()/1000000);
+        final String threadName = Thread.currentThread().getName();
+
+        return TAG +" | ThrdName = " + threadName + " | MS = " + elapsedTimeMS + " | ";
+    }
+
     @Override
     public void run()
     {
+        final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
+        final String TAG  =  this.TAGstart + " - "+ this.TAGclassName + functionName;
 
         for( int currentCommandIdx = 0; !this.isDisposed && (currentCommandIdx < this.commandChain.size()) ; currentCommandIdx++)
         {
             Command currentCommand = commandChain.get(currentCommandIdx);
             this.currentDevice = currentCommand.devID;
 
-            System.out.println("\t\t\t ==== Current Dev: " + this.currentDevice);
+            System.out.println(this.TAGaddThrdTime(TAG)
+                    + "routineID:" + this.parentRtn.routineID
+                    + " | cmdChainID:" + this.cmdChainIndx
+                    + " | crntCmdIndx:" + currentCommandIdx
+                    + " | currentDev:" + this.currentDevice);
 
             if(this.currentDevice == DEV_ID.DUMMY_WAIT)
             {
@@ -87,9 +113,10 @@ public class SelfExecutingCmdChain implements Runnable
                     long sleepStartTimeMS = System.currentTimeMillis();
                     try
                     {
-                        System.out.println("\t\t\t ;;;;;; Command Level Sleep Start");
+                        System.out.println(this.TAGaddThrdTime(TAG) + "sleep command start (ms) - " + sleepTimeMS);
                         Thread.sleep(sleepTimeMS);
-                        System.out.println("\t\t\t ;;;;;; Command Level Sleep END");
+                        System.out.println(this.TAGaddThrdTime(TAG) + "sleep command end");
+
                         this.isFinished = (currentCommandIdx == (this.commandChain.size()-1));
                         this.parentRtn.reportCommandCompletion(currentCommand, false, this.isFinished);
                         break;
@@ -113,14 +140,12 @@ public class SelfExecutingCmdChain implements Runnable
                 {
                     DEV_LOCK devLock = this.parentRtn.getLockStatus(this.currentDevice);
 
-                    System.out.println("\t\t\t\t @@@@ Dev Lock for  " + this.currentDevice.name() + " is " + devLock.name() );
+                    System.out.println(this.TAGaddThrdTime(TAG) + "Lock(" + this.currentDevice.name() + ") = " + devLock);
 
                     assert(devLock != DEV_LOCK.RELEASED); // Once released, it should not search for the lock.
 
                     if(devLock == DEV_LOCK.EXECUTING)
                     {
-                        System.out.println("\t\t\t\t @@@@ Execute" );
-
                         this.executeCommand(currentCommand);
                         boolean isDevUsedInFuture = this.isDevUsedInFuture(currentCommandIdx);
                         this.isFinished = (currentCommandIdx == (this.commandChain.size()-1));
@@ -165,7 +190,12 @@ public class SelfExecutingCmdChain implements Runnable
 
     public void executeCommand(Command cmd)
     {
-        System.out.println("\t\t\t\t @@@ Set Device: " + cmd.devID + " to " + cmd.desiredStatus);
+        final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
+        final String TAG  =  this.TAGstart + " - "+ this.TAGclassName + functionName;
+
+        System.out.println("\t" + this.TAGaddThrdTime(TAG)
+                + "EXECUTING : " + cmd
+        );
     }
     public synchronized void Dispose()
     {

@@ -52,18 +52,36 @@ public class SafeHome
 
     public static SelfExecutingRoutine getRoutine1()
     {
-        List<Command> cmdChain = new ArrayList<>();
+        List<Command> cmdChain1 = new ArrayList<>();
 
-        cmdChain.add(new Command(DEV_ID.FAN, DEV_STATUS.ON, 0));
-        //cmdChain.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.NOT_INITIALIZED, 5000));
-        cmdChain.add(new Command(DEV_ID.LIGHT, DEV_STATUS.ON, 0));
-        cmdChain.add(new Command(DEV_ID.FAN, DEV_STATUS.OFF, 0));
+        cmdChain1.add(new Command(DEV_ID.FAN, DEV_STATUS.ON, 0));
+        cmdChain1.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.NOT_INITIALIZED, 1000));
+        cmdChain1.add(new Command(DEV_ID.LIGHT, DEV_STATUS.ON, 0));
+        cmdChain1.add(new Command(DEV_ID.FAN, DEV_STATUS.OFF, 0));
+        cmdChain1.add(new Command(DEV_ID.LIGHT, DEV_STATUS.OFF, 0));
 
-        SelfExecutingRoutine selfExcRtn = new SelfExecutingRoutine();
-        selfExcRtn.addCmdChain(cmdChain);
+        SelfExecutingRoutine selfExcRtn1 = new SelfExecutingRoutine();
+        selfExcRtn1.addCmdChain(cmdChain1);
 
-        return selfExcRtn;
+        return selfExcRtn1;
     }
+
+    public static SelfExecutingRoutine getRoutine2()
+    {
+        List<Command> cmdChain2 = new ArrayList<>();
+
+        cmdChain2.add(new Command(DEV_ID.FAN, DEV_STATUS.ON, 0));
+        cmdChain2.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.NOT_INITIALIZED, 1000));
+        cmdChain2.add(new Command(DEV_ID.LIGHT, DEV_STATUS.ON, 0));
+        cmdChain2.add(new Command(DEV_ID.FAN, DEV_STATUS.OFF, 0));
+        cmdChain2.add(new Command(DEV_ID.LIGHT, DEV_STATUS.OFF, 0));
+
+        SelfExecutingRoutine selfExcRtn2 = new SelfExecutingRoutine();
+        selfExcRtn2.addCmdChain(cmdChain2);
+
+        return selfExcRtn2;
+    }
+
 
     public static Set<DEV_ID> getDevIDSet()
     {

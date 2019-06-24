@@ -1,6 +1,7 @@
 package SelfExecutingRoutine;
 
 import ConcurrencyController.ConcurrencyControllerSingleton;
+import ConcurrencyController.DevBasedRoutineMetadata;
 import Utility.Command;
 import Utility.DEV_ID;
 import Utility.DEV_LOCK;
@@ -56,6 +57,9 @@ public class SelfExecutingRoutine
     public Set<Integer> preRoutineSet;
     public Set<Integer> postRoutineSet;
 
+    private static String TAGstart;
+    private static String TAGclassName;
+
     public SelfExecutingRoutine()
     {
         this.cmdChainList = Collections.synchronizedList(new ArrayList());
@@ -64,6 +68,20 @@ public class SelfExecutingRoutine
         this.isDisposed = false;
         this.preRoutineSet = new HashSet<>();
         this.postRoutineSet = new HashSet<>();
+
+        SelfExecutingRoutine.TAGstart = "@@@";
+        SelfExecutingRoutine.TAGclassName = this.getClass().getSimpleName();
+    }
+
+    public synchronized boolean isWaitingForExecution(DEV_ID _devID)
+    {
+        for( SelfExecutingCmdChain cmdChain : this.cmdChainList)
+        {
+            System.out.println("isFinished = " + cmdChain.isFinished + " | what is the current dev = " + cmdChain.currentDevice);
+            if(!cmdChain.isFinished && (cmdChain.currentDevice == _devID) )
+                return true;
+        }
+        return false;
     }
 
     public DEV_STATUS getLastSuccessfullySetDevStatus(DEV_ID _devID)
@@ -85,11 +103,20 @@ public class SelfExecutingRoutine
 
     public void setLockStatus(DEV_ID devID, DEV_LOCK devLock)
     {
+        final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
+        final String TAG  =  this.TAGstart + " - "+ this.TAGclassName + functionName;
+
+        System.out.println(this.TAGaddThrdTime(TAG) + " trying to enter synchronized(this.routineLockTable) | devID = "
+        + devID.name()
+        + " | devLock = " + devLock.name() );
+
         synchronized (this.routineLockTable)
         {
             assert(this.routineLockTable.containsKey(devID));
 
-            System.out.println("\t\t" + devID.name() + " : lock status > " + devLock.name());
+            System.out.println("\t" + this.TAGaddThrdTime(TAG) + " INSIDE synchronized(this.routineLockTable) | devID = "
+                    + devID.name()
+                    + " | devLock = " + devLock.name() );
 
             this.routineLockTable.get(devID).setDevLock(devLock);
         }
@@ -97,38 +124,20 @@ public class SelfExecutingRoutine
 
     public void notifyToCheckLockInRelevantCommandChain(DEV_ID _devID)
     {
-        synchronized (this.routineLockTable)
+
+        assert(this.routineLockTable.containsKey(_devID));
+
+        int commandChainIndex = this.routineLockTable.get(_devID).commandChainIndex;
+
+        SelfExecutingCmdChain selfExecutingCmdChain = this.cmdChainList.get(commandChainIndex);
+
+        synchronized (selfExecutingCmdChain)
         {
-            assert(this.routineLockTable.containsKey(_devID));
-
-            int commandChainIndex = this.routineLockTable.get(_devID).commandChainIndex;
-
-            SelfExecutingCmdChain selfExecutingCmdChain = this.cmdChainList.get(commandChainIndex);
-
-            synchronized (selfExecutingCmdChain)
-            {
-                if(!selfExecutingCmdChain.isFinished)
-                    selfExecutingCmdChain.notify();
-            }
+            if(!selfExecutingCmdChain.isFinished)
+                selfExecutingCmdChain.notify();
         }
-
-
     }
 
-//    public void notifyToCheckLockInAllCmdChains()
-//    {
-//        System.out.println(System.currentTimeMillis() + " : notify");
-//        for(SelfExecutingCmdChain selfExecutingCmdChain : this.cmdChainList)
-//        {
-//            if(!selfExecutingCmdChain.isFinished)
-//            {
-//                synchronized (selfExecutingCmdChain)
-//                {
-//                    selfExecutingCmdChain.notify();
-//                }
-//            }
-//        }
-//    }
 
     public void Dispose()
     {
@@ -144,42 +153,58 @@ public class SelfExecutingRoutine
         }
     }
 
+    private String TAGaddThrdTime(final String TAG)
+    {
+        final int elapsedTimeMS = (int)(ConcurrencyControllerSingleton.getInstance().getElapsedTimeNanoSec()/1000000);
+        final String threadName = Thread.currentThread().getName();
+
+        return TAG +" | ThrdName = " + threadName + " | MS = " + elapsedTimeMS + " | ";
+    }
 
     public void reportCommandCompletion(Command _completedCommand, boolean _isDevUsedInFuture, boolean _wasTheLastCommand)
     {
-        synchronized (this.routineLockTable)
+        final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
+        final String TAG  =  this.TAGstart + " - "+ this.TAGclassName + functionName;
+
+//        System.out.println(this.TAGaddThrdTime(TAG) + " trying to enter synchronized(this.routineLockTable) | DevID = "
+//                + _completedCommand.devID
+//                + " | _isDevUsedInFuture = " + _isDevUsedInFuture
+//                + " | _wasTheLastCommand = " + _wasTheLastCommand
+//        );
+
+        System.out.println("\n\t\t\t $$$$$$ RoutineID " + this.routineID + " : Command Done -> " + _completedCommand + "\n");
+
+
+        //System.out.println("\t" + this.TAGaddThrdTime(TAG) + " inside synchronized(this.routineLockTable)");
+
+        DEV_ID devID = _completedCommand.devID;
+        DEV_STATUS successfulStatus = _completedCommand.desiredStatus;
+
+        if(devID != DEV_ID.DUMMY_WAIT)
         {
-            System.out.println("\t\tCommand executed..." + _completedCommand);
-
-            DEV_ID devID = _completedCommand.devID;
-            DEV_STATUS successfulStatus = _completedCommand.desiredStatus;
-
-            if(devID != DEV_ID.DUMMY_WAIT)
+            synchronized (this.routineLockTable)
             {
                 this.routineLockTable.get(devID).setLastSuccessfullySetDevStatus(successfulStatus);
 
-                if(!_isDevUsedInFuture)
-                {
+                if (!_isDevUsedInFuture)
                     this.setLockStatus(devID, DEV_LOCK.RELEASED);
-                }
-                else
-                    System.out.println("\t\t\t%%%% " + devID.name() + " will be used in future.... do not release the lock");
-            }
-            else
-                System.out.println("\t\t\t %%%%% DUMMY_WAIT command end...");
-
-
-            if(_wasTheLastCommand && this.isRoutineFinished() )
-            {
-                assert(!_isDevUsedInFuture);
-
-                ConcurrencyControllerSingleton.getInstance().commitRoutine(this.routineID);
-            }
-            else
-            {
-                ConcurrencyControllerSingleton.getInstance().commandFinishes();
+                //else
+                    //System.out.println("\t" + this.TAGaddThrdTime(TAG) + devID.name() + " will be used in future.... do not release the lock");
             }
         }
+
+        if(_wasTheLastCommand && this.isRoutineFinished() )
+        {
+            assert(!_isDevUsedInFuture);
+            //System.out.println("\t\t" + this.TAGaddThrdTime(TAG) + " | TODO: commit Routine");
+            ConcurrencyControllerSingleton.getInstance().commitRoutine(this.routineID);
+        }
+        else
+        {
+            //System.out.println("\t\t" + this.TAGaddThrdTime(TAG) + " | TODO: send command end signal");
+            ConcurrencyControllerSingleton.getInstance().commandFinishes(this.routineID, _completedCommand);
+        }
+
 
     }
 

@@ -17,15 +17,66 @@ public class PerDevLockListManager
     public DEV_STATUS committedStatus;
     public List<SelfExecutingRoutine> accessedRoutineList;
 
+    private static String TAGstart;
+    private static String TAGclassName;
+
+    public List<DevBasedRoutineMetadata> getMetadataList()
+    {
+        List<DevBasedRoutineMetadata> metadataList = new ArrayList<>();
+
+        for(SelfExecutingRoutine routine : this.accessedRoutineList)
+        {
+            metadataList.add(new DevBasedRoutineMetadata(this.devID, routine));
+        }
+
+        return metadataList;
+    }
+
+    @Override
+    public String toString()
+    {
+        synchronized (this.accessedRoutineList)
+        {
+            String str = "";
+
+            if(this.accessedRoutineList.isEmpty())
+            {
+                str = " EMPTY ";
+            }
+            else
+            {
+                for(SelfExecutingRoutine routine : this.accessedRoutineList)
+                {
+                    int routineID = routine.routineID;
+                    DEV_LOCK lockStatus = routine.getLockStatus(this.devID);
+                    str += " [RtnID:" + routineID + "|" + lockStatus + "] ";
+                }
+            }
+
+            return str;
+        }
+    }
+
     public PerDevLockListManager(DEV_ID _devID, DEV_STATUS _initialStatus)
     {
         this.devID = _devID;
         this.committedStatus = _initialStatus;
         this.accessedRoutineList = Collections.synchronizedList(new ArrayList());
+
+        PerDevLockListManager.TAGstart = "+++";
+        PerDevLockListManager.TAGclassName = this.getClass().getSimpleName();
     }
 
-    public synchronized int getRoutineIndex(int routineID)
+    private String TAGaddThrdTime(final String TAG)
     {
+        final int elapsedTimeMS = (int)(ConcurrencyControllerSingleton.getInstance().getElapsedTimeNanoSec()/1000000);
+        final String threadName = Thread.currentThread().getName();
+
+        return TAG +" | ThrdName = " + threadName + " | MS = " + elapsedTimeMS + " | ";
+    }
+
+    public int getRoutineIndex(int routineID)
+    {//NOTE: call from a synchronize block
         int routineIndex = -1;
 
         for(SelfExecutingRoutine routine : this.accessedRoutineList)
@@ -41,17 +92,25 @@ public class PerDevLockListManager
 
     public synchronized void commitRoutine(int committedRoutineID)
     {
-        int committedRoutineIndex = getRoutineIndex(committedRoutineID);
+        final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
+        final String TAG  =  this.TAGstart + " - "+ this.TAGclassName + functionName;
+        System.out.println(this.TAGaddThrdTime(TAG) + "committedRoutineID = " + committedRoutineID);
 
-        if(committedRoutineIndex != -1)
+        synchronized (this.accessedRoutineList)
         {
-            this.committedStatus = this.accessedRoutineList.get(committedRoutineIndex).getLastSuccessfullySetDevStatus(this.devID);
-            this.removeAccessedRoutineSubList(0, committedRoutineIndex);
+            int committedRoutineIndex = getRoutineIndex(committedRoutineID);
+
+            if(committedRoutineIndex != -1)
+            {
+                this.committedStatus = this.accessedRoutineList.get(committedRoutineIndex).getLastSuccessfullySetDevStatus(this.devID);
+                this.removeAccessedRoutineSubList(0, committedRoutineIndex);
+            }
         }
+
     }
 
-    private synchronized void removeAccessedRoutineSubList(int startInclusiveIndex, int endInclusiveIndex)
-    {
+    private void removeAccessedRoutineSubList(int startInclusiveIndex, int endInclusiveIndex)
+    { // NOTE: call from inside synchronized block
         assert(startInclusiveIndex <= endInclusiveIndex);
 
         for(int I = startInclusiveIndex ; I <= endInclusiveIndex ; I++)
@@ -64,26 +123,35 @@ public class PerDevLockListManager
 
     public synchronized void checkForAvailableLockAndNotify()
     {
-        System.out.println("\t\t\t #### inside notify function");
+        final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
+        final String TAG  =  this.TAGstart + " - "+ this.TAGclassName + functionName;
+
         for(SelfExecutingRoutine routine : this.accessedRoutineList)
         {
             if(routine.getLockStatus(this.devID) == DEV_LOCK.RELEASED)
             {
-                System.out.println("\t\t\t\t #### lock for " + this.devID.name() + " is => " + DEV_LOCK.RELEASED.name());
+                System.out.println("\t" + this.TAGaddThrdTime(TAG) + "Lock(" + this.devID + ") = " + DEV_LOCK.RELEASED);
                 continue;
             }
 
             if(routine.getLockStatus(this.devID) == DEV_LOCK.EXECUTING)
             {
-                System.out.println("\t\t\t\t #### lock for " + this.devID.name() + " is => " + DEV_LOCK.EXECUTING.name());
+                System.out.println("\t" + this.TAGaddThrdTime(TAG) + "Lock(" + this.devID + ") = " + DEV_LOCK.EXECUTING);
                 break;
             }
-            else if(routine.getLockStatus(this.devID) == DEV_LOCK.ACQUIRED)
+            else if(routine.getLockStatus(this.devID) == DEV_LOCK.ACQUIRED )
             {
-                System.out.println("\t\t\t\t #### lock for " + this.devID.name() + " is => " + DEV_LOCK.ACQUIRED.name());
-                System.out.println("\t\t\t\t\t #### set lock to Executing and Notify device" + this.devID.name());
-                routine.setLockStatus(this.devID, DEV_LOCK.EXECUTING);
-                routine.notifyToCheckLockInRelevantCommandChain(this.devID);
+                //System.out.println("\n\n\n+++++++++++++++++++++++++++++++++++++++++");
+                System.out.println("\t" + this.TAGaddThrdTime(TAG) + "Lock(" + this.devID + ") = " + DEV_LOCK.ACQUIRED);
+
+                boolean isInFront = routine.isWaitingForExecution(this.devID);
+                if(isInFront)
+                {
+                    System.out.println("\t\t" + this.TAGaddThrdTime(TAG) + "set lock to Executing and Notify device" + this.devID.name());
+                    routine.setLockStatus(this.devID, DEV_LOCK.EXECUTING);
+                    routine.notifyToCheckLockInRelevantCommandChain(this.devID);
+                }
+
                 break;
             }
         }
