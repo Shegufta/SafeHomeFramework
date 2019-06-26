@@ -1,6 +1,7 @@
 package SelfExecutingRoutine;
 
 import ConcurrencyController.ConcurrencyControllerSingleton;
+import LockTableManager.LockTableSingleton;
 import Utility.Command;
 import Utility.DEV_ID;
 import Utility.DEV_LOCK;
@@ -26,15 +27,13 @@ public class SelfExecutingCmdChain implements Runnable
     private SelfExecutingRoutine parentRtn;
     public DEV_ID currentDevice;
     public boolean isFinished;
+    private boolean isStarted;
 
-//    public DEV_ID getCurrentCmdChainHeadDev()
-//    {
-//        return this.currentDevice;
-//    }
 
     private static String TAGstart;
     private static String TAGclassName;
 
+    ///////////////////////////////////////////////////////////////////////////
     public SelfExecutingCmdChain(SelfExecutingRoutine _parentRtn, int _cmdChainID, List<Command> _commandChain)
     {
         this.parentRtn = _parentRtn;
@@ -43,6 +42,7 @@ public class SelfExecutingCmdChain implements Runnable
         this.devicesSet = new HashSet<>();
 
         this.isFinished = false;
+        this.isStarted = false;
 
         assert(!this.commandChain.isEmpty());
         //this.currentDevice = DEV_ID.DEV_NOT_ASSIGNED;
@@ -59,14 +59,19 @@ public class SelfExecutingCmdChain implements Runnable
             this.devicesSet.add(cmd.devID);
         }
     }
-
+    ///////////////////////////////////////////////////////////////////////////
     public synchronized void Start()
     {
-        String threadName = "parentRoutineID_" + this.parentRtn.routineID + "-cmdChainID_" + this.cmdChainIndx;
+        if(isStarted)
+            return;
+
+        isStarted = true;
+
+        String threadName = "[parentRoutineID_" + this.parentRtn.routineID + "-cmdChainID_" + this.cmdChainIndx + "]";
         this.thread = new Thread(this, threadName);
         this.thread.start();
     }
-
+    ///////////////////////////////////////////////////////////////////////////
     public boolean isDevUsedInFuture(int _currentCmdIndex)
     {
         for( int futureIdx = _currentCmdIndex + 1; futureIdx < this.commandChain.size() ; futureIdx++)
@@ -77,15 +82,7 @@ public class SelfExecutingCmdChain implements Runnable
 
         return false;
     }
-
-    private String TAGaddThrdTime(final String TAG)
-    {
-        final int elapsedTimeMS = (int)(ConcurrencyControllerSingleton.getInstance().getElapsedTimeNanoSec()/1000000);
-        final String threadName = Thread.currentThread().getName();
-
-        return TAG +" | ThrdName = " + threadName + " | MS = " + elapsedTimeMS + " | ";
-    }
-
+    ///////////////////////////////////////////////////////////////////////////
     @Override
     public void run()
     {
@@ -118,6 +115,14 @@ public class SelfExecutingCmdChain implements Runnable
                         System.out.println(this.TAGaddThrdTime(TAG) + "sleep command end");
 
                         this.isFinished = (currentCommandIdx == (this.commandChain.size()-1));
+                        if(this.isFinished)
+                        {
+                            this.currentDevice = DEV_ID.DEV_NOT_ASSIGNED;
+                        }
+                        else
+                        {
+                            this.currentDevice = commandChain.get(currentCommandIdx + 1).devID;
+                        }
                         this.parentRtn.reportCommandCompletion(currentCommand, false, this.isFinished);
                         break;
                         // SBA: make sure not to acquire any thread level locks....
@@ -149,6 +154,16 @@ public class SelfExecutingCmdChain implements Runnable
                         this.executeCommand(currentCommand);
                         boolean isDevUsedInFuture = this.isDevUsedInFuture(currentCommandIdx);
                         this.isFinished = (currentCommandIdx == (this.commandChain.size()-1));
+
+                        if(this.isFinished)
+                        {
+                            this.currentDevice = DEV_ID.DEV_NOT_ASSIGNED;
+                        }
+                        else
+                        {
+                            this.currentDevice = commandChain.get(currentCommandIdx + 1).devID;
+                        }
+
                         this.parentRtn.reportCommandCompletion(currentCommand, isDevUsedInFuture, this.isFinished);
                         break;
                     }
@@ -187,7 +202,7 @@ public class SelfExecutingCmdChain implements Runnable
         System.out.println("End execution of this command chain : " + this);
 
     }
-
+    ///////////////////////////////////////////////////////////////////////////
     public void executeCommand(Command cmd)
     {
         final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
@@ -197,6 +212,7 @@ public class SelfExecutingCmdChain implements Runnable
                 + "EXECUTING : " + cmd
         );
     }
+    ///////////////////////////////////////////////////////////////////////////
     public synchronized void Dispose()
     {
         if(this.isDisposed)
@@ -205,7 +221,15 @@ public class SelfExecutingCmdChain implements Runnable
         isDisposed = true;
         this.thread.interrupt();
     }
+    ///////////////////////////////////////////////////////////////////////////
+    private String TAGaddThrdTime(final String TAG)
+    {
+        final int elapsedTimeMS = (int)(LockTableSingleton.getInstance().getElapsedTimeNanoSec()/1000000);
+        final String threadName = Thread.currentThread().getName();
 
+        return TAG +" | ThrdName = " + threadName + " | MS = " + elapsedTimeMS + " | ";
+    }
+    ///////////////////////////////////////////////////////////////////////////
     @Override
     public String toString()
     {

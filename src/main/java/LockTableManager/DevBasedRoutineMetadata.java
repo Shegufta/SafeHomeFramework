@@ -1,4 +1,4 @@
-package ConcurrencyController;
+package LockTableManager;
 
 import SelfExecutingRoutine.SelfExecutingRoutine;
 import Utility.DEV_ID;
@@ -32,5 +32,19 @@ public class DevBasedRoutineMetadata
         this.routineID = routine.routineID;
         this.preRoutineSet = new HashSet<>(routine.preRoutineSet);
         this.postRoutineSet = new HashSet<>(routine.postRoutineSet);
+    }
+
+    @Override
+    public String toString()
+    {
+        String str = "[";
+
+        str += "devID:" + this.devID;
+        str += "|routineID:" + this.routineID;
+        str += "|devLockStatus:" + this.devLockStatus;
+
+        str += "]";
+
+        return str;
     }
 }

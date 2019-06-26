@@ -1,6 +1,7 @@
 package SafeHome;
 
 import ConcurrencyController.ConcurrencyControllerSingleton;
+import LockTableManager.LockTableSingleton;
 import SelfExecutingRoutine.SelfExecutingRoutine;
 import Utility.Command;
 import Utility.DEV_ID;
@@ -21,12 +22,12 @@ public class SafeHome
 {
     public SafeHome(Set<DEV_ID> _devIDset)
     {
-        ConcurrencyControllerSingleton.getInstance().initDeviceList(_devIDset); //Init Concurrency Controller
+        LockTableSingleton.getInstance().initDeviceList(_devIDset);
     }
 
     public void registerRoutine(SelfExecutingRoutine newRoutine)
     {
-        ConcurrencyControllerSingleton.getInstance().registerRoutine(newRoutine);
+        LockTableSingleton.getInstance().registerRoutine(newRoutine);
     }
 
     public static void main(String[] args)
@@ -36,7 +37,9 @@ public class SafeHome
         System.out.println("=============================");
         safeHome.registerRoutine(getRoutine1());
         System.out.println("=============================");
-
+        System.out.println("=============================");
+        safeHome.registerRoutine(getRoutine2());
+        System.out.println("=============================");
 
         try
         {
@@ -55,10 +58,10 @@ public class SafeHome
         List<Command> cmdChain1 = new ArrayList<>();
 
         cmdChain1.add(new Command(DEV_ID.FAN, DEV_STATUS.ON, 0));
-        cmdChain1.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.NOT_INITIALIZED, 1000));
+        cmdChain1.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.WAIT, 5000));
         cmdChain1.add(new Command(DEV_ID.LIGHT, DEV_STATUS.ON, 0));
         cmdChain1.add(new Command(DEV_ID.FAN, DEV_STATUS.OFF, 0));
-        cmdChain1.add(new Command(DEV_ID.LIGHT, DEV_STATUS.OFF, 0));
+        //cmdChain1.add(new Command(DEV_ID.LIGHT, DEV_STATUS.OFF, 0));
 
         SelfExecutingRoutine selfExcRtn1 = new SelfExecutingRoutine();
         selfExcRtn1.addCmdChain(cmdChain1);
@@ -71,10 +74,10 @@ public class SafeHome
         List<Command> cmdChain2 = new ArrayList<>();
 
         cmdChain2.add(new Command(DEV_ID.FAN, DEV_STATUS.ON, 0));
-        cmdChain2.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.NOT_INITIALIZED, 1000));
+        cmdChain2.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.WAIT, 5000));
         cmdChain2.add(new Command(DEV_ID.LIGHT, DEV_STATUS.ON, 0));
         cmdChain2.add(new Command(DEV_ID.FAN, DEV_STATUS.OFF, 0));
-        cmdChain2.add(new Command(DEV_ID.LIGHT, DEV_STATUS.OFF, 0));
+        //cmdChain2.add(new Command(DEV_ID.LIGHT, DEV_STATUS.OFF, 0));
 
         SelfExecutingRoutine selfExcRtn2 = new SelfExecutingRoutine();
         selfExcRtn2.addCmdChain(cmdChain2);

@@ -1,7 +1,7 @@
 package SelfExecutingRoutine;
 
 import ConcurrencyController.ConcurrencyControllerSingleton;
-import ConcurrencyController.DevBasedRoutineMetadata;
+import LockTableManager.LockTableSingleton;
 import Utility.Command;
 import Utility.DEV_ID;
 import Utility.DEV_LOCK;
@@ -51,7 +51,7 @@ public class SelfExecutingRoutine
 
     public List<SelfExecutingCmdChain> cmdChainList;
     public Map<DEV_ID, DevLockStatusCmdChainID> routineLockTable;
-    public Boolean isStarted;// SBA: do not use "boolean", use "Boolean"... this object is used to thread synchronization
+    public boolean isStarted;
     public boolean isDisposed ;
     public int routineID;
     public Set<Integer> preRoutineSet;
@@ -72,179 +72,12 @@ public class SelfExecutingRoutine
         SelfExecutingRoutine.TAGstart = "@@@";
         SelfExecutingRoutine.TAGclassName = this.getClass().getSimpleName();
     }
-
-    public synchronized boolean isWaitingForExecution(DEV_ID _devID)
+    ///////////////////////////////////////////////////////////////////////////
+    public void assignRoutineID(int _routineID)
     {
-        for( SelfExecutingCmdChain cmdChain : this.cmdChainList)
-        {
-            System.out.println("isFinished = " + cmdChain.isFinished + " | what is the current dev = " + cmdChain.currentDevice);
-            if(!cmdChain.isFinished && (cmdChain.currentDevice == _devID) )
-                return true;
-        }
-        return false;
+        this.routineID = _routineID;
     }
-
-    public DEV_STATUS getLastSuccessfullySetDevStatus(DEV_ID _devID)
-    {
-        synchronized (this.routineLockTable)
-        {
-            return this.routineLockTable.get(_devID).getLastSuccessfullySetDevStatus();
-        }
-    }
-
-    public  DEV_LOCK getLockStatus(DEV_ID _devID)
-    {
-        synchronized (this.routineLockTable)
-        {
-            assert(this.routineLockTable.containsKey(_devID));
-            return this.routineLockTable.get(_devID).dev_lock;
-        }
-    }
-
-    public void setLockStatus(DEV_ID devID, DEV_LOCK devLock)
-    {
-        final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
-        final String TAG  =  this.TAGstart + " - "+ this.TAGclassName + functionName;
-
-        System.out.println(this.TAGaddThrdTime(TAG) + " trying to enter synchronized(this.routineLockTable) | devID = "
-        + devID.name()
-        + " | devLock = " + devLock.name() );
-
-        synchronized (this.routineLockTable)
-        {
-            assert(this.routineLockTable.containsKey(devID));
-
-            System.out.println("\t" + this.TAGaddThrdTime(TAG) + " INSIDE synchronized(this.routineLockTable) | devID = "
-                    + devID.name()
-                    + " | devLock = " + devLock.name() );
-
-            this.routineLockTable.get(devID).setDevLock(devLock);
-        }
-    }
-
-    public void notifyToCheckLockInRelevantCommandChain(DEV_ID _devID)
-    {
-
-        assert(this.routineLockTable.containsKey(_devID));
-
-        int commandChainIndex = this.routineLockTable.get(_devID).commandChainIndex;
-
-        SelfExecutingCmdChain selfExecutingCmdChain = this.cmdChainList.get(commandChainIndex);
-
-        synchronized (selfExecutingCmdChain)
-        {
-            if(!selfExecutingCmdChain.isFinished)
-                selfExecutingCmdChain.notify();
-        }
-    }
-
-
-    public void Dispose()
-    {
-        if(this.isDisposed)
-            return;
-
-        this.isDisposed = true;
-
-        System.out.println(System.currentTimeMillis() + " : Dispose");
-        for(SelfExecutingCmdChain selfExecutingCmdChain : this.cmdChainList)
-        {
-            selfExecutingCmdChain.Dispose();
-        }
-    }
-
-    private String TAGaddThrdTime(final String TAG)
-    {
-        final int elapsedTimeMS = (int)(ConcurrencyControllerSingleton.getInstance().getElapsedTimeNanoSec()/1000000);
-        final String threadName = Thread.currentThread().getName();
-
-        return TAG +" | ThrdName = " + threadName + " | MS = " + elapsedTimeMS + " | ";
-    }
-
-    public void reportCommandCompletion(Command _completedCommand, boolean _isDevUsedInFuture, boolean _wasTheLastCommand)
-    {
-        final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
-        final String TAG  =  this.TAGstart + " - "+ this.TAGclassName + functionName;
-
-//        System.out.println(this.TAGaddThrdTime(TAG) + " trying to enter synchronized(this.routineLockTable) | DevID = "
-//                + _completedCommand.devID
-//                + " | _isDevUsedInFuture = " + _isDevUsedInFuture
-//                + " | _wasTheLastCommand = " + _wasTheLastCommand
-//        );
-
-        System.out.println("\n\t\t\t $$$$$$ RoutineID " + this.routineID + " : Command Done -> " + _completedCommand + "\n");
-
-
-        //System.out.println("\t" + this.TAGaddThrdTime(TAG) + " inside synchronized(this.routineLockTable)");
-
-        DEV_ID devID = _completedCommand.devID;
-        DEV_STATUS successfulStatus = _completedCommand.desiredStatus;
-
-        if(devID != DEV_ID.DUMMY_WAIT)
-        {
-            synchronized (this.routineLockTable)
-            {
-                this.routineLockTable.get(devID).setLastSuccessfullySetDevStatus(successfulStatus);
-
-                if (!_isDevUsedInFuture)
-                    this.setLockStatus(devID, DEV_LOCK.RELEASED);
-                //else
-                    //System.out.println("\t" + this.TAGaddThrdTime(TAG) + devID.name() + " will be used in future.... do not release the lock");
-            }
-        }
-
-        if(_wasTheLastCommand && this.isRoutineFinished() )
-        {
-            assert(!_isDevUsedInFuture);
-            //System.out.println("\t\t" + this.TAGaddThrdTime(TAG) + " | TODO: commit Routine");
-            ConcurrencyControllerSingleton.getInstance().commitRoutine(this.routineID);
-        }
-        else
-        {
-            //System.out.println("\t\t" + this.TAGaddThrdTime(TAG) + " | TODO: send command end signal");
-            ConcurrencyControllerSingleton.getInstance().commandFinishes(this.routineID, _completedCommand);
-        }
-
-
-    }
-
-    private boolean isRoutineFinished()
-    {
-        for(SelfExecutingCmdChain cmdChain : cmdChainList)
-        {
-            if(!cmdChain.isFinished)
-                return false;
-        }
-
-        return true;
-    }
-
-    public void startExecution()
-    {
-        synchronized(isStarted)
-        {
-            if(this.isStarted)
-                return;
-
-            this.isStarted = true;
-        }
-
-        for(DEV_ID dev_id : routineLockTable.keySet())
-        {// Locks have been acquired...
-            this.setLockStatus(dev_id, DEV_LOCK.ACQUIRED);
-        }
-
-        for(SelfExecutingCmdChain selfExecutingCmdChain : this.cmdChainList)
-        {
-            selfExecutingCmdChain.Start();
-        }
-    }
-
-    public Set<DEV_ID> getAllTouchedDevID()
-    {
-        return routineLockTable.keySet();
-    }
-
+    ///////////////////////////////////////////////////////////////////////////
     public void addCmdChain(List<Command> _commandList)
     {
         assert(!this.isStarted);
@@ -274,7 +107,177 @@ public class SelfExecutingRoutine
             routineLockTable.put(devID, new DevLockStatusCmdChainID(devID, newCmdChain.cmdChainIndx));
         }
     }
+    ///////////////////////////////////////////////////////////////////////////
+    public synchronized void startExecution()
+    {
+        if(this.isStarted)
+            return;
 
+        this.isStarted = true;
+
+        synchronized (LockTableSingleton.lockTableLockObject )
+        {
+            for(DEV_ID dev_id : routineLockTable.keySet())
+            {// Locks have been acquired...
+                this.setLockStatus(dev_id, DEV_LOCK.ACQUIRED);
+            }
+        }
+
+        for(SelfExecutingCmdChain selfExecutingCmdChain : this.cmdChainList)
+        {
+            selfExecutingCmdChain.Start();
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public void reportCommandCompletion(Command _completedCommand, boolean _isDevUsedInFuture, boolean _wasTheLastCommand)
+    {
+        final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
+        final String TAG  =  this.TAGstart + " - "+ this.TAGclassName + functionName;
+
+        System.out.println("\n\t\t\t $$$$$$ RoutineID " + this.routineID + " : Command Done -> " + _completedCommand + "\n");
+
+        DEV_ID devID = _completedCommand.devID;
+        DEV_STATUS successfulStatus = _completedCommand.desiredStatus;
+
+        if(devID != DEV_ID.DUMMY_WAIT)
+        {
+            synchronized (LockTableSingleton.lockTableLockObject)
+            {
+                this.routineLockTable.get(devID).setLastSuccessfullySetDevStatus(successfulStatus);
+
+                if (!_isDevUsedInFuture)
+                    this.setLockStatus(devID, DEV_LOCK.RELEASED);
+            }
+        }
+
+        if(_wasTheLastCommand && this.isRoutineFinished() )
+        {
+            assert(!_isDevUsedInFuture);
+            //System.out.println("\t\t" + this.TAGaddThrdTime(TAG) + " | TODO: commit Routine");
+            LockTableSingleton.getInstance().commitRoutine(this.routineID);
+        }
+        else
+        {
+            //System.out.println("\t\t" + this.TAGaddThrdTime(TAG) + " | TODO: send command end signal");
+            LockTableSingleton.getInstance().commandFinishes(this.routineID, _completedCommand);
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private boolean isRoutineFinished()
+    {
+        for(SelfExecutingCmdChain cmdChain : cmdChainList)
+        {
+            if(!cmdChain.isFinished)
+                return false;
+        }
+
+        return true;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public void notifyToCheckLockInRelevantCommandChain(DEV_ID _devID)
+    {
+
+        assert(this.routineLockTable.containsKey(_devID));
+
+        int commandChainIndex = this.routineLockTable.get(_devID).commandChainIndex;
+
+        SelfExecutingCmdChain selfExecutingCmdChain = this.cmdChainList.get(commandChainIndex);
+
+        synchronized (selfExecutingCmdChain)
+        {
+            if(!selfExecutingCmdChain.isFinished)
+                selfExecutingCmdChain.notify();
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    public void clearPrePostRoutineSet()
+    {
+        this.preRoutineSet.clear();
+        this.postRoutineSet.clear();
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public synchronized boolean isWaitingForExecution(DEV_ID _devID)
+    {
+        for( SelfExecutingCmdChain cmdChain : this.cmdChainList)
+        {
+            System.out.println("isFinished = " + cmdChain.isFinished + " | what is the current dev = " + cmdChain.currentDevice);
+            if(!cmdChain.isFinished && (cmdChain.currentDevice == _devID) )
+                return true;
+        }
+        return false;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public DEV_STATUS getLastSuccessfullySetDevStatus(DEV_ID _devID)
+    {
+        synchronized (LockTableSingleton.lockTableLockObject)
+        {
+            return this.routineLockTable.get(_devID).getLastSuccessfullySetDevStatus();
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public  DEV_LOCK getLockStatus(DEV_ID _devID)
+    {
+        synchronized (LockTableSingleton.lockTableLockObject)
+        {
+            assert(this.routineLockTable.containsKey(_devID));
+            return this.routineLockTable.get(_devID).dev_lock;
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public void setLockStatus(DEV_ID devID, DEV_LOCK devLock)
+    {
+        final String functionName = "." + new Throwable().getStackTrace()[0].getMethodName() + "()";
+        final String TAG  =  this.TAGstart + " - "+ this.TAGclassName + functionName;
+
+        System.out.println(this.TAGaddThrdTime(TAG) + " trying to enter synchronized(this.routineLockTable) | devID = "
+        + devID.name()
+        + " | devLock = " + devLock.name() );
+
+        synchronized (LockTableSingleton.lockTableLockObject)
+        {
+            assert(this.routineLockTable.containsKey(devID));
+
+            System.out.println("\t" + this.TAGaddThrdTime(TAG) + " INSIDE synchronized(this.routineLockTable) | devID = "
+                    + devID.name()
+                    + " | devLock = " + devLock.name() );
+
+            this.routineLockTable.get(devID).setDevLock(devLock);
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public void Dispose()
+    {
+        if(this.isDisposed)
+            return;
+
+        this.isDisposed = true;
+
+        System.out.println(System.currentTimeMillis() + " : Dispose");
+        for(SelfExecutingCmdChain selfExecutingCmdChain : this.cmdChainList)
+        {
+            selfExecutingCmdChain.Dispose();
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    public Set<DEV_ID> getAllTouchedDevID()
+    {
+        return routineLockTable.keySet();
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    private String TAGaddThrdTime(final String TAG)
+    {
+        final int elapsedTimeMS = (int)(LockTableSingleton.getInstance().getElapsedTimeNanoSec()/1000000);
+        final String threadName = Thread.currentThread().getName();
+
+        return TAG +" | ThrdName = " + threadName + " | MS = " + elapsedTimeMS + " | ";
+    }
+    ///////////////////////////////////////////////////////////////////////////
     @Override
     public String toString()
     {
@@ -289,6 +292,7 @@ public class SelfExecutingRoutine
 
         return str;
     }
+    ///////////////////////////////////////////////////////////////////////////
 
 /**
     public static void main(String[] args)
