@@ -13,13 +13,13 @@ public class Temp
 {
     public static final int COMMAND_DURATION_SEC = 1;
 
-    private static final int maxConcurrentRtn = 4;
+    private static final int maxConcurrentRtn = 8;
     private static final int maxCommandPerRtn = 5;
     private static final double longRunningProbability = 1.0;
     private static final int longRunningCmdDuration = 100;
     private static final int shortCmdDuration = 1;
     private static final int simulationTimeUnit = 1000;
-    private static final int rutineBurstInterval = 10;
+    private static final int rutineBurstInterval = 100;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
 
@@ -107,10 +107,10 @@ public class Temp
 
         double standardDeviation = Math.sqrt(sum);
 
-        String str = itemName;
-        str += ": count = " + itemCount;
-        str += "; avg = " + avg;
-        str += "; sd = " + standardDeviation;
+        String str = String.format( "%20s",itemName);
+        str += ": count = " + String.format("%.0f",itemCount);
+        str += "; avg = " + String.format("%7.2f",avg);
+        str += "; sd = " + String.format("%7.2f",standardDeviation);
 
         return str;
     }
@@ -191,8 +191,8 @@ public class Temp
 
         System.out.println("----------------------");
 
-        System.out.println(getStats("delay", delayList));
-        System.out.println(getStats("gap", gapList));
+        System.out.println(getStats("DELAY", delayList));
+        System.out.println(getStats("GAP", gapList));
 
         //System.out.println(lockTable.getLockTableEmptyPlaceIndex(DEV_ID.FAN, 0, 5));
     }
