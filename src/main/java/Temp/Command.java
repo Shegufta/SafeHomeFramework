@@ -1,7 +1,5 @@
 package Temp;
 
-import Utility.DEV_ID;
-
 /**
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
@@ -18,5 +16,15 @@ public class Command
     {
         this.devID = _devID;
         this.duration = _duration;
+    }
+
+    @Override
+    public String toString()
+    {
+        String str = "";
+
+        str += "[" + startTime + ", " + (startTime + duration) + "]";
+
+        return str;
     }
 }

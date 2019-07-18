@@ -1,7 +1,5 @@
 package Temp;
 
-import Utility.DEV_ID;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +13,7 @@ public class Routine
 {
     public int ID;
     List<Command> commandList;
+    int registrationTime = 0;
 
     public Routine()
     {
@@ -27,6 +26,26 @@ public class Routine
         this.commandList.add(cmd);
     }
 
+
+    public int getGapCount()
+    {
+        int gap = 0;
+
+        for(int idx = 0 ; idx < this.commandList.size()-1 ; ++idx)
+        {
+            Command firstCommand = this.commandList.get(idx);
+            Command nextCommand = this.commandList.get(idx + 1);
+
+            gap += nextCommand.startTime  - (firstCommand.startTime + firstCommand.duration);
+        }
+
+        return gap;
+    }
+
+    public int getStartDelay()
+    {
+        return this.commandList.get(0).startTime - this.registrationTime;
+    }
 
     int getCommandIndex(DEV_ID devID)
     {
@@ -81,6 +100,19 @@ public class Routine
     @Override
     public String toString()
     {
-        return super.toString();
+        String str = "";
+
+        str += "{ Routine ID:" + this.ID;
+        str += "; delay:" + this.getStartDelay();
+        str += "; gap:" + this.getGapCount() + " || ";
+
+        for(Command cmd : this.commandList)
+        {
+            str += cmd;
+        }
+
+        str += " }";
+
+        return str;
     }
 }

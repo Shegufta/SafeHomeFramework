@@ -1,7 +1,5 @@
 package Temp;
 
-import Utility.DEV_ID;
-
 import java.util.*;
 
 /**
@@ -74,9 +72,18 @@ public class LockTable
         return str;
     }
 
+    public void register(List<Routine> rtnList, int currentTime)
+    {
+        for(Routine rtn : rtnList)
+        {
+            this.register(rtn, currentTime);
+        }
+    }
+
     public void register(Routine rtn, int currentTime)
     {
         rtn.ID = getUniqueRtnID();
+        rtn.registrationTime = currentTime;
 
         Set<DEV_ID> devIDset = new HashSet<>();
         for(Command cmd : rtn.commandList)
@@ -167,6 +174,7 @@ public class LockTable
 
                 if(deepDive)
                 {
+                    int startTime;
                     if((0 == commandIdx) && 1 < rtn.commandList.size())
                     {
                         int secondCmdStartTime = rtn.commandList.get(1).startTime;
@@ -178,13 +186,14 @@ public class LockTable
 
                         int earliestEndTime = Math.min(secondCmdStartTime, nextLockStartTime);
 
-                        rtn.commandList.get(commandIdx).startTime = (earliestEndTime - rtn.commandList.get(commandIdx).duration); // set command Start Time
+                        startTime = (earliestEndTime - rtn.commandList.get(commandIdx).duration); // set command Start Time
                     }
                     else
                     {
-                        rtn.commandList.get(commandIdx).startTime = commandStartTime; // set command Start Time
+                        startTime = commandStartTime; // set command Start Time
                     }
 
+                    rtn.commandList.get(commandIdx).startTime = startTime;
                     this.lockTable.get(devID).add(lockTableInsertionIndex, rtn); // insert in the list
                     return true;
                 }

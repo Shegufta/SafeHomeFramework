@@ -1,9 +1,5 @@
 package Temp;
 
-import LockTableManager.LockTableSingleton;
-import Utility.DEV_ID;
-import Utility.DEV_LOCK;
-import Utility.DEV_STATUS;
 
 import java.util.*;
 
@@ -17,40 +13,186 @@ public class Temp
 {
     public static final int COMMAND_DURATION_SEC = 1;
 
+    private static final int maxConcurrentRtn = 4;
+    private static final int maxCommandPerRtn = 5;
+    private static final double longRunningProbability = 1.0;
+    private static final int longRunningCmdDuration = 100;
+    private static final int shortCmdDuration = 1;
+    private static final int simulationTimeUnit = 1000;
+    private static final int rutineBurstInterval = 10;
+
+    private static List<DEV_ID> devIDlist = new ArrayList<>();
+
+    private static List<Routine> generateRoutine()
+    {
+        List<Routine> routineList = new ArrayList<>();
+        Random rand = new Random();
+
+        int totalConcurrentRtn = 1 + rand.nextInt(maxConcurrentRtn);
+
+        for(int RoutineCount = 0 ; RoutineCount < totalConcurrentRtn ; ++RoutineCount)
+        {
+            int totalCommandInThisRtn = 1 + rand.nextInt(maxCommandPerRtn);
+            assert(totalCommandInThisRtn <= devIDlist.size());
+
+            boolean longRunningSelected = false;
+            Map<DEV_ID, Integer> devIDDurationMap = new HashMap<>();
+
+            while(devIDDurationMap.size() < totalCommandInThisRtn)
+            {
+                DEV_ID randDev = devIDlist.get( rand.nextInt(devIDlist.size()) );
+
+                if(devIDDurationMap.containsKey(randDev))
+                    continue;
+
+                int duration = shortCmdDuration;
+
+                if(!longRunningSelected)
+                {
+                    if( rand.nextDouble() < longRunningProbability)
+                    {
+                        longRunningSelected = true;
+                        duration = longRunningCmdDuration;
+                    }
+                }
+
+                devIDDurationMap.put(randDev, duration);
+            }
+
+            Routine rtn = new Routine();
+
+            for(Map.Entry<DEV_ID, Integer> entry : devIDDurationMap.entrySet())
+            {
+                Command cmd = new Command(entry.getKey(), entry.getValue());
+                rtn.addCommand(cmd);
+            }
+
+            routineList.add(rtn);
+
+        }
+
+
+
+        return routineList;
+    }
+
+    public static String getStats(String itemName, List<Integer> list)
+    {
+        double itemCount = list.size();
+
+        double sum = 0.0;
+
+        for(int item : list)
+        {
+            sum += item;
+        }
+
+        double avg = 0.0;
+
+        if(0 < itemCount)
+        {
+            avg = sum / itemCount;
+        }
+
+        sum = 0.0;
+        for(int item : list)
+        {
+            sum += (item - avg)*(item - avg);
+        }
+
+        if(0 < itemCount)
+        {
+            sum = sum / itemCount;
+        }
+
+        double standardDeviation = Math.sqrt(sum);
+
+        String str = itemName;
+        str += ": count = " + itemCount;
+        str += "; avg = " + avg;
+        str += "; sd = " + standardDeviation;
+
+        return str;
+    }
+
     public static void main (String[] args)
     {
-        List<DEV_ID> devIDlist = new ArrayList<>();
-        devIDlist.add(DEV_ID.FAN);
-        devIDlist.add(DEV_ID.LIGHT);
-        devIDlist.add(DEV_ID.MICROWAVE);
+        devIDlist.add(DEV_ID.A);
+        devIDlist.add(DEV_ID.B);
+        devIDlist.add(DEV_ID.C);
+        devIDlist.add(DEV_ID.D);
+        devIDlist.add(DEV_ID.E);
+        devIDlist.add(DEV_ID.F);
+        devIDlist.add(DEV_ID.G);
+
 
         LockTable lockTable = new LockTable(devIDlist);
-        //lockTable.generateTestLockTable();
+        List<Routine> rtnList = new ArrayList<>();
 
+        for(int timeTick = 0 ; timeTick <= simulationTimeUnit ; ++timeTick)
+        {
+            if(0 == timeTick % rutineBurstInterval)
+            {
+                System.out.println("Burst!");
+                List<Routine> burstRoutine = generateRoutine();
+                rtnList.addAll(burstRoutine);
+
+                lockTable.register(burstRoutine, timeTick);
+            }
+        }
+
+
+        /*
+        List<Routine> rtnList = new ArrayList<>();
 
         Routine rtn;
 
         rtn = new Routine();
-        rtn.addCommand(new Command(DEV_ID.FAN, 1));
-        rtn.addCommand(new Command(DEV_ID.MICROWAVE, 100));
-        //rtn.addCommand(new Command(DEV_ID.LIGHT, 1));
+        rtn.addCommand(new Command(DEV_ID.A, 1));
+        rtn.addCommand(new Command(DEV_ID.B, 100));
 
         lockTable.register(rtn, 0);
+        rtnList.add(rtn);
 
 
 
         rtn = new Routine();
-        rtn.addCommand(new Command(DEV_ID.FAN, 1));
-        rtn.addCommand(new Command(DEV_ID.MICROWAVE, 1));
+        rtn.addCommand(new Command(DEV_ID.C, 200));
 
         lockTable.register(rtn, 0);
+        rtnList.add(rtn);
 
 
 
+        rtn = new Routine();
+        rtn.addCommand(new Command(DEV_ID.B, 1));
+        rtn.addCommand(new Command(DEV_ID.C, 1));
+
+        lockTable.register(rtn, 0);
+        rtnList.add(rtn);
+
+        */
 
 
 
         System.out.println(lockTable.toString());
+
+        System.out.println("----------------------");
+
+        List<Integer> delayList = new ArrayList<>();
+        List<Integer> gapList = new ArrayList<>();
+
+        for(Routine routine : rtnList)
+        {
+            System.out.println(routine);
+            delayList.add(routine.getStartDelay());
+            gapList.add(routine.getGapCount());
+        }
+
+        System.out.println("----------------------");
+
+        System.out.println(getStats("delay", delayList));
+        System.out.println(getStats("gap", gapList));
 
         //System.out.println(lockTable.getLockTableEmptyPlaceIndex(DEV_ID.FAN, 0, 5));
     }
