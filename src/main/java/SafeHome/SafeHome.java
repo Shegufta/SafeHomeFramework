@@ -37,9 +37,9 @@ public class SafeHome
         System.out.println("=============================");
         safeHome.registerRoutine(getRoutine1());
         System.out.println("=============================");
-        System.out.println("=============================");
-        safeHome.registerRoutine(getRoutine2());
-        System.out.println("=============================");
+//        System.out.println("=============================");
+//        safeHome.registerRoutine(getRoutine2());
+//        System.out.println("=============================");
 
         try
         {
@@ -59,9 +59,10 @@ public class SafeHome
 
         cmdChain1.add(new Command(DEV_ID.FAN, DEV_STATUS.ON, 0));
         cmdChain1.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.WAIT, 5000));
+        cmdChain1.add(new Command(DEV_ID.FAN, DEV_STATUS.ON, 0));
         cmdChain1.add(new Command(DEV_ID.LIGHT, DEV_STATUS.ON, 0));
-        cmdChain1.add(new Command(DEV_ID.FAN, DEV_STATUS.OFF, 0));
-        //cmdChain1.add(new Command(DEV_ID.LIGHT, DEV_STATUS.OFF, 0));
+        cmdChain1.add(new Command(DEV_ID.DUMMY_WAIT, DEV_STATUS.WAIT, 5000));
+        cmdChain1.add(new Command(DEV_ID.LIGHT, DEV_STATUS.OFF, 0));
 
         SelfExecutingRoutine selfExcRtn1 = new SelfExecutingRoutine();
         selfExcRtn1.addCmdChain(cmdChain1);
@@ -92,6 +93,7 @@ public class SafeHome
 
         devSet.add(DEV_ID.FAN);
         devSet.add(DEV_ID.LIGHT);
+        devSet.add(DEV_ID.MICROWAVE);
 
         return devSet;
     }
