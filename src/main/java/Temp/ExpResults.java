@@ -17,6 +17,10 @@ public class ExpResults
     public List<Integer> delayList;
     public List<Integer> gapList;
 
+    public double itemCount;
+    public int roundedAvg;
+    public int roundedSD;
+
     public ExpResults()
     {
         this.logString = "";

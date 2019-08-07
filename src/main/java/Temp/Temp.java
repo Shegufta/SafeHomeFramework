@@ -18,19 +18,16 @@ import java.util.zip.ZipInputStream;
  */
 public class Temp
 {
-    public static final int COMMAND_DURATION_SEC = 1;
+    private static int maxCommandPerRtn = 3; // in current version totalCommandInThisRtn = maxCommandPerRtn;
+    private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
+    private static double zipfCoefficient = 0.01;
+    private static double longRunningRtnPercentage = 0.0;
 
-    private static final int maxConcurrentRtn = 8; //in current version totalConcurrentRtn = maxConcurrentRtn;
-    private static final int maxCommandPerRtn = 6; // in current version totalCommandInThisRtn = maxCommandPerRtn;
-    private static final double longRunningProbability = 0.5;//1.0;
+
     private static final int longRunningCmdDuration = 100;
     private static final int shortCmdDuration = 1;
-    //private static final int simulationTimeUnit = 1000;
-    //private static final int rutineBurstInterval = 100;
-    private static final double zipfCoefficient = 0.5;
-    private static final double longRunningRtnPercentage = 0.0;
     private static final boolean atleastOneLongRunning = true;
-    private static final int totalSampleCount = 1000000;
+    private static final int totalSampleCount = 100000;
     private static final boolean isPrint = false;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
@@ -295,27 +292,9 @@ public class Temp
         return logStr;
     }
 
+    /*
     private static List<Routine> generateRoutine(int nonNegativeSeed)
     {
-        /*
-        List<Routine> rtnList = new ArrayList<>();
-
-        Routine rtn;
-
-        rtn = new Routine();
-        rtn.addCommand(new Command(DEV_ID.A, 1));
-        rtn.addCommand(new Command(DEV_ID.B, 100));
-        rtnList.add(rtn);
-
-        rtn = new Routine();
-        rtn.addCommand(new Command(DEV_ID.C, 1));
-        rtn.addCommand(new Command(DEV_ID.D, 1));
-        rtnList.add(rtn);
-
-        return rtnList;
-        */
-
-
         List<Routine> routineList = new ArrayList<>();
         Random rand;
 
@@ -375,8 +354,9 @@ public class Temp
 
         return routineList;
     }
+    */
 
-    public static String getStats(String itemName, List<Integer> list)
+    public static ExpResults getStats(String itemName, List<Integer> list)
     {
         double itemCount = list.size();
 
@@ -407,12 +387,17 @@ public class Temp
 
         double standardDeviation = Math.sqrt(sum);
 
-        String str = String.format( "%20s",itemName);
-        str += ": count = " + String.format("%.0f",itemCount);
-        str += "; avg = " + String.format("%7.2f",avg);
-        str += "; sd = " + String.format("%7.2f",standardDeviation);
+        ExpResults expResults = new ExpResults();
+        expResults.itemCount = itemCount;
+        expResults.roundedAvg = (int) Math.round(avg);
+        expResults.roundedSD = (int) Math.round(standardDeviation);
 
-        return str;
+        expResults.logString = String.format( "%20s",itemName);
+        expResults.logString += ": count = " + String.format("%.0f",itemCount);
+        expResults.logString += "; avg = " + String.format("%7.2f",avg);
+        expResults.logString += "; sd = " + String.format("%7.2f",standardDeviation);
+
+        return expResults;
     }
 
     public static ExpResults runExperiment(List<DEV_ID> _devIDlist, CONSISTENCY_TYPE _consistencyType, List<Routine> _rtnList)
@@ -451,10 +436,10 @@ public class Temp
         if(isPrint) System.out.println("----------------------");
         logString += "----------------------\n";
 
-        if(isPrint) System.out.println(getStats("DELAY", expResults.delayList));
+        if(isPrint) System.out.println(getStats("DELAY", expResults.delayList).logString);
         logString += getStats("DELAY", expResults.delayList) + "\n";
 
-        if(isPrint) System.out.println(getStats("GAP", expResults.gapList));
+        if(isPrint) System.out.println(getStats("GAP", expResults.gapList).logString);
         logString += getStats("GAP", expResults.gapList) + "\n";
 
         expResults.logString = logString;
@@ -502,120 +487,217 @@ public class Temp
         devIDlist.add(DEV_ID.J);
         devIDlist.add(DEV_ID.K);
         devIDlist.add(DEV_ID.L);
+        devIDlist.add(DEV_ID.M);
+        devIDlist.add(DEV_ID.N);
+        devIDlist.add(DEV_ID.O);
 
         String zipFianStr = prepareZipfian();
 
         String logStr = "";
-
-        System.out.println("--------------------------------");
-        logStr += "--------------------------------\n";
-        System.out.println("TOTAL DEV COUNT: = " + devIDlist.size());
-        logStr += "TOTAL DEV COUNT: = " + devIDlist.size() + "\n";
-        System.out.println("totalConcurrentRtn = " + maxConcurrentRtn);
-        logStr += "totalConcurrentRtn = " + maxConcurrentRtn + "\n";
-        System.out.println("maxCommandPerRtn = " + maxCommandPerRtn);
-        logStr += "maxCommandPerRtn = " + maxCommandPerRtn + "\n";
-        System.out.println("longRunningProbability = " + longRunningProbability + " NOTE: in current version (using generateFixedPatternRtn) it does not matter!");
-        logStr += "longRunningProbability = " + longRunningProbability + " NOTE: in current version (using generateFixedPatternRtn) it does not matter!" + "\n";
-        System.out.println("longRunningCmdDuration = " + longRunningCmdDuration);
-        logStr += "longRunningCmdDuration = " + longRunningCmdDuration + "\n";
-        System.out.println("shortCmdDuration = " + shortCmdDuration);
-        logStr += "shortCmdDuration = " + shortCmdDuration + "\n";
-
-        System.out.println("zipfCoefficient = " + zipfCoefficient);
-        logStr += "zipfCoefficient = " + zipfCoefficient + "\n";
-        System.out.println("longRunningRtnPercentage = " + longRunningRtnPercentage);
-        logStr += "longRunningRtnPercentage = " + longRunningRtnPercentage + "\n";
-        System.out.println("atleastOneLongRunning = " + atleastOneLongRunning);
-        logStr += "atleastOneLongRunning = " + atleastOneLongRunning + "\n";
-        System.out.println("totalSampleCount = " + totalSampleCount);
-        logStr += "totalSampleCount = " + totalSampleCount + "\n";
-
-
-        System.out.println(zipFianStr);
-        logStr += zipFianStr;
-
-        System.out.println("--------------------------------");
-        logStr += "--------------------------------\n";
-
-
         String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
-        String fileUniqueID = System.currentTimeMillis() + "_";
-        String fileName = fileUniqueID + "TotalDev_" + devIDlist.size() + "RtnCnt_" + maxConcurrentRtn + "CmdCnt_" + maxCommandPerRtn + "LRLen_" + longRunningCmdDuration + ".dat";
-        String filePath = dataStorageDirectory + "\\" + fileName;
 
-        List<Integer> allDelay_Strong_List = new ArrayList<>();
-        List<Integer> allGap_Strong_List = new ArrayList<>();
+        Map<Double, List<Double>> globalDataCollector = new HashMap<>();
+        List<Double> variableTrakcer = new ArrayList<>();
+        Double variableInfo = -1.0;
+        String lastFilePath = "dummy";
 
-        List<Integer> allDelay_RelStrong_List = new ArrayList<>();
-        List<Integer> allGap_RelStrong_List = new ArrayList<>();
-
-        List<Integer> allDelay_Eventual_List = new ArrayList<>();
-        List<Integer> allGap_Eventual_List = new ArrayList<>();
-
-        for(int I = 0 ; I < totalSampleCount ; I++)
+        for(maxCommandPerRtn = 1; maxCommandPerRtn <= 3 ; maxCommandPerRtn++)
         {
-            System.out.println(I+1 + "/" + totalSampleCount);
-            //List<Routine> routineSet = generateFixedPatternRtn(0);
-            List<Routine> routineSet = generateAutomatedRtn(-1);
-
-
-            //logStr += printInitialRoutineList(routineSet) + "\n";
-
-            ExpResults expStrong = runExperiment(devIDlist, CONSISTENCY_TYPE.STRONG, routineSet);
-            allDelay_Strong_List.addAll(expStrong.delayList);
-            allGap_Strong_List.addAll(expStrong.gapList);
-            //logStr += expStrong.logString + "\n";
-
-            ExpResults expRelaxedStrng = runExperiment(devIDlist, CONSISTENCY_TYPE.RELAXED_STRONG, routineSet);
-            allDelay_RelStrong_List.addAll(expRelaxedStrng.delayList);
-            allGap_RelStrong_List.addAll(expRelaxedStrng.gapList);
-            //logStr += expRelaxedStrng.logString + "\n";
-
-            ExpResults expEventual = runExperiment(devIDlist, CONSISTENCY_TYPE.EVENTUAL, routineSet);
-            allDelay_Eventual_List.addAll(expEventual.delayList);
-            allGap_Eventual_List.addAll(expEventual.gapList);
-            //logStr += expEventual.logString + "\n";
+            String fileNameHint = "vary_maxCommandPerRtn";
+            variableInfo = (double)maxCommandPerRtn;
+            variableTrakcer.add(variableInfo); // add the variable name
+            List<Double> resultCollector = new ArrayList<>();
 
 
 
-            //runExperiment(devIDlist, CONSISTENCY_TYPE.WEAK, routineSet);
+            System.out.println("--------------------------------");
+            logStr += "--------------------------------\n";
+            System.out.println("TOTAL DEV COUNT: = " + devIDlist.size());
+            logStr += "TOTAL DEV COUNT: = " + devIDlist.size() + "\n";
+            System.out.println("totalConcurrentRtn = " + maxConcurrentRtn);
+            logStr += "totalConcurrentRtn = " + maxConcurrentRtn + "\n";
+            System.out.println("maxCommandPerRtn = " + maxCommandPerRtn);
+            logStr += "maxCommandPerRtn = " + maxCommandPerRtn + "\n";
+            //System.out.println("longRunningProbability = " + longRunningProbability + " NOTE: in current version (using generateFixedPatternRtn) it does not matter!");
+            //logStr += "longRunningProbability = " + longRunningProbability + " NOTE: in current version (using generateFixedPatternRtn) it does not matter!" + "\n";
+            System.out.println("longRunningCmdDuration = " + longRunningCmdDuration);
+            logStr += "longRunningCmdDuration = " + longRunningCmdDuration + "\n";
+            System.out.println("shortCmdDuration = " + shortCmdDuration);
+            logStr += "shortCmdDuration = " + shortCmdDuration + "\n";
+
+            System.out.println("zipfCoefficient = " + zipfCoefficient);
+            logStr += "zipfCoefficient = " + zipfCoefficient + "\n";
+            System.out.println("longRunningRtnPercentage = " + longRunningRtnPercentage);
+            logStr += "longRunningRtnPercentage = " + longRunningRtnPercentage + "\n";
+            System.out.println("atleastOneLongRunning = " + atleastOneLongRunning);
+            logStr += "atleastOneLongRunning = " + atleastOneLongRunning + "\n";
+            System.out.println("totalSampleCount = " + totalSampleCount);
+            logStr += "totalSampleCount = " + totalSampleCount + "\n";
+
+
+            System.out.println(zipFianStr);
+            logStr += zipFianStr;
+
+            System.out.println("--------------------------------");
+            logStr += "--------------------------------\n";
+
+
+
+            String fileUniqueID = System.currentTimeMillis() + "_";
+            String fileNameAttributes = "TotalDev_" + devIDlist.size() +
+                    "RtnCnt_" + maxConcurrentRtn +
+                    "CmdCnt_" + maxCommandPerRtn +
+                    "LRLen_" + longRunningCmdDuration +
+                    "ZipF_" + (int)(zipfCoefficient*100) +
+                    "LongRPrcnz_" + longRunningRtnPercentage +
+                    "atlstOneLR_" + atleastOneLongRunning;
+
+            String fileName = fileUniqueID + fileNameHint + fileNameAttributes + ".dat";
+            String filePath = dataStorageDirectory + "\\" + fileName;
+            lastFilePath = filePath;
+
+            List<Integer> allDelay_Strong_List = new ArrayList<>();
+            List<Integer> allGap_Strong_List = new ArrayList<>();
+
+            List<Integer> allDelay_RelStrong_List = new ArrayList<>();
+            List<Integer> allGap_RelStrong_List = new ArrayList<>();
+
+            List<Integer> allDelay_Eventual_List = new ArrayList<>();
+            List<Integer> allGap_Eventual_List = new ArrayList<>();
+
+            int resolution = 10;
+            int stepSize = totalSampleCount / resolution;
+            if(stepSize == 0)
+                stepSize = 1;
+
+            for(int I = 0 ; I < totalSampleCount ; I++)
+            {
+                if(I == totalSampleCount - 1)
+                {
+                    System.out.println("variableInfo = " + variableInfo + " | 100%");
+                }
+                else if(totalSampleCount % stepSize == 0)
+                {
+                    System.out.println("variableInfo = " + variableInfo + " | " + (int) (100.0 * ((double)I / (double)totalSampleCount)) + "%");
+                }
+
+                //List<Routine> routineSet = generateFixedPatternRtn(0);
+                List<Routine> routineSet = generateAutomatedRtn(-1);
+
+
+                //logStr += printInitialRoutineList(routineSet) + "\n";
+
+                ExpResults expStrong = runExperiment(devIDlist, CONSISTENCY_TYPE.STRONG, routineSet);
+                allDelay_Strong_List.addAll(expStrong.delayList);
+                allGap_Strong_List.addAll(expStrong.gapList);
+                //logStr += expStrong.logString + "\n";
+
+                ExpResults expRelaxedStrng = runExperiment(devIDlist, CONSISTENCY_TYPE.RELAXED_STRONG, routineSet);
+                allDelay_RelStrong_List.addAll(expRelaxedStrng.delayList);
+                allGap_RelStrong_List.addAll(expRelaxedStrng.gapList);
+                //logStr += expRelaxedStrng.logString + "\n";
+
+                ExpResults expEventual = runExperiment(devIDlist, CONSISTENCY_TYPE.EVENTUAL, routineSet);
+                allDelay_Eventual_List.addAll(expEventual.delayList);
+                allGap_Eventual_List.addAll(expEventual.gapList);
+                //logStr += expEventual.logString + "\n";
+
+
+
+                //runExperiment(devIDlist, CONSISTENCY_TYPE.WEAK, routineSet);
+            }
+
+            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~all runs~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            logStr += "~~~~~~~~~~~~~~~~~~~~~~~~~~~all runs~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+
+            ExpResults allDelay_StrongExpRslt = getStats("ALL STRONG DELAY", allDelay_Strong_List);
+            String allDelay_Strong_stats = allDelay_StrongExpRslt.logString;
+
+//            ExpResults allGap_StrongExpRslt = getStats("ALL STRONG GAP", allGap_Strong_List);
+//            String allGap_Strong_stats = allGap_StrongExpRslt.logString;
+
+            ExpResults allDelay_RelaxedStrongExpRslt = getStats("ALL R.STRONG DELAY", allDelay_RelStrong_List);
+            String allDelay_RelaxedStrong_stats = allDelay_RelaxedStrongExpRslt.logString;
+
+
+//            ExpResults allGap_RelaxedStrongExpRslt = getStats("ALL R.STRONG GAP", allGap_RelStrong_List);
+//            String allGap_RelaxedStrong_stats = allGap_RelaxedStrongExpRslt.logString;
+
+            ExpResults allDelay_EventualExpRslt = getStats("ALL EVENTUAL DELAY", allDelay_Eventual_List);
+            String allDelay_Eventual_stats = allDelay_EventualExpRslt.logString;
+
+
+            ExpResults allGap_EventualExpRslt = getStats("ALL EVENTUAL GAP", allGap_Eventual_List);
+            String allGap_Eventual_stats = allGap_EventualExpRslt.logString;
+
+            System.out.println(allDelay_Strong_stats);
+            logStr += allDelay_Strong_stats + "\n";
+
+            System.out.println(allDelay_RelaxedStrong_stats);
+            logStr += allDelay_RelaxedStrong_stats + "\n";
+
+            System.out.println(allDelay_Eventual_stats);
+            logStr += allDelay_Eventual_stats + "\n";
+
+//            System.out.println(allGap_Strong_stats);
+//            logStr += allGap_Strong_stats + "\n";
+//
+//            System.out.println(allGap_RelaxedStrong_stats);
+//            logStr += allGap_RelaxedStrong_stats+ "\n";
+
+            System.out.println(allGap_Eventual_stats);
+            logStr += allGap_Eventual_stats+ "\n";
+
+
+            logStr += "\n\n=========================================================================\n\n";
+            //String header = "Variable \t StgAvg \t StgSD \t R.StgAvg \t R.StgSD \t EvnAvg \t EvnSD \t EvnGapAvg \t EvnGapSD";
+            resultCollector.add((double)allDelay_StrongExpRslt.roundedAvg);
+            resultCollector.add((double)allDelay_StrongExpRslt.roundedSD);
+            resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedAvg);
+            resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedSD);
+            resultCollector.add((double)allDelay_EventualExpRslt.roundedAvg);
+            resultCollector.add((double)allDelay_EventualExpRslt.roundedSD);
+            resultCollector.add((double)allGap_EventualExpRslt.roundedAvg);
+            resultCollector.add((double)allGap_EventualExpRslt.roundedSD);
+
+            globalDataCollector.put(variableInfo, resultCollector);
+
+
+//            try
+//            {
+//                Writer fileWriter = new FileWriter(filePath);
+//                fileWriter.write(logStr);
+//                fileWriter.close();
+//
+//            } catch (IOException e)
+//            {
+//                System.out.println(e.toString());
+//                e.printStackTrace();
+//            }
         }
 
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~all runs~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        logStr += "~~~~~~~~~~~~~~~~~~~~~~~~~~~all runs~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+        String globalResult = "\n--------------------------------\n";
+        String header = "Variable \t StgAvg \t StgSD \t R.StgAvg \t R.StgSD \t EvnAvg \t EvnSD \t EvnGapAvg \t EvnGapSD";
+        globalResult += header + "\n";
+        for(double variable : variableTrakcer)
+        {
+            globalResult += variable + "\t";
 
-        String allDelay_Strong_stats = getStats("ALL STRONG DELAY", allDelay_Strong_List);
-        String allGap_Strong_stats = getStats("ALL STRONG GAP", allGap_Strong_List);
+            for(double stats : globalDataCollector.get(variable))
+            {
+                globalResult += (int)stats + "\t";
+            }
 
-        String allDelay_RelaxedStrong_stats = getStats("ALL R.STRONG DELAY", allDelay_RelStrong_List);
-        String allGap_RelaxedStrong_stats = getStats("ALL R.STRONG GAP", allGap_RelStrong_List);
+            globalResult += "\n";
+        }
+        globalResult += "--------------------------------\n";
 
-        String allDelay_Eventual_stats = getStats("ALL EVENTUAL DELAY", allDelay_Eventual_List);
-        String allGap_Eventual_stats = getStats("ALL EVENTUAL GAP", allGap_Eventual_List);
-
-        System.out.println(allDelay_Strong_stats);
-        logStr += allDelay_Strong_stats + "\n";
-
-        System.out.println(allDelay_RelaxedStrong_stats);
-        logStr += allDelay_RelaxedStrong_stats + "\n";
-
-        System.out.println(allDelay_Eventual_stats);
-        logStr += allDelay_Eventual_stats + "\n";
-
-        System.out.println(allGap_Strong_stats);
-        logStr += allGap_Strong_stats + "\n";
-
-        System.out.println(allGap_RelaxedStrong_stats);
-        logStr += allGap_RelaxedStrong_stats+ "\n";
-
-        System.out.println(allGap_Eventual_stats);
-        logStr += allGap_Eventual_stats+ "\n";
-
+        System.out.println(globalResult);
+        logStr += globalResult;
 
         try
         {
-            Writer fileWriter = new FileWriter(filePath);
+            Writer fileWriter = new FileWriter(lastFilePath);
             fileWriter.write(logStr);
             fileWriter.close();
 
@@ -624,7 +706,6 @@ public class Temp
             System.out.println(e.toString());
             e.printStackTrace();
         }
-
 
 
 
