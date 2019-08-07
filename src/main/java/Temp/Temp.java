@@ -496,12 +496,15 @@ public class Temp
         String logStr = "";
         String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
 
+        System.out.println(zipFianStr);
+        logStr += zipFianStr;
+
         Map<Double, List<Double>> globalDataCollector = new HashMap<>();
         List<Double> variableTrakcer = new ArrayList<>();
         Double variableInfo = -1.0;
         String lastFilePath = "dummy";
 
-        for(maxCommandPerRtn = 1; maxCommandPerRtn <= 3 ; maxCommandPerRtn++)
+        for(maxCommandPerRtn = 1; maxCommandPerRtn <= 10 ; maxCommandPerRtn++)
         {
             String fileNameHint = "vary_maxCommandPerRtn";
             variableInfo = (double)maxCommandPerRtn;
@@ -533,10 +536,6 @@ public class Temp
             logStr += "atleastOneLongRunning = " + atleastOneLongRunning + "\n";
             System.out.println("totalSampleCount = " + totalSampleCount);
             logStr += "totalSampleCount = " + totalSampleCount + "\n";
-
-
-            System.out.println(zipFianStr);
-            logStr += zipFianStr;
 
             System.out.println("--------------------------------");
             logStr += "--------------------------------\n";
@@ -677,7 +676,7 @@ public class Temp
         }
 
         String globalResult = "\n--------------------------------\n";
-        String header = "Variable \t StgAvg \t StgSD \t R.StgAvg \t R.StgSD \t EvnAvg \t EvnSD \t EvnGapAvg \t EvnGapSD";
+        String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tEvnAvg\tEvnSD\tEvnGapAvg\tEvnGapSD";
         globalResult += header + "\n";
         for(double variable : variableTrakcer)
         {
