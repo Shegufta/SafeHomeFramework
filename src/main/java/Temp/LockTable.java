@@ -13,14 +13,16 @@ public class LockTable
     public Map<DEV_ID, List<Routine>> lockTable;
 
     public int CURRENT_TIME;
+    private CONSISTENCY_TYPE consistencyType;
 
     private static int ROUTINE_ID;
 
-    public LockTable(List<DEV_ID> devIDlist)
+    public LockTable(List<DEV_ID> devIDlist, CONSISTENCY_TYPE _consistencyType)
     {
         this.lockTable = new HashMap<>();
         this.CURRENT_TIME = 0;
         this.ROUTINE_ID = 0;
+        this.consistencyType = _consistencyType;
 
         for(DEV_ID devID : devIDlist)
         {
@@ -57,9 +59,12 @@ public class LockTable
     {
         String str = "";
 
-        for(Map.Entry<DEV_ID, List<Routine>> entry : this.lockTable.entrySet())
-        {
-            DEV_ID devID = entry.getKey();
+        //for(Map.Entry<DEV_ID, List<Routine>> entry : this.lockTable.entrySet())
+        for(DEV_ID devID : DEV_ID.values())
+        {// print the rows alphabetically
+            if(!this.lockTable.containsKey(devID))
+                continue;
+            //DEV_ID devID = entry.getKey();
             str += "\n " + devID.name() + " : ";
 
             for(Routine rtn : this.lockTable.get(devID))
@@ -106,7 +111,97 @@ public class LockTable
             }
         }
 
-        this.insertRecursively(rtn, 0, currentTime, new HashSet<>(), new HashSet<>());
+        switch(this.consistencyType)
+        {
+            case STRONG:
+            {
+                this.registerStrong(rtn, currentTime);
+                break;
+            }
+            case RELAXED_STRONG:
+            {
+                registerRelaxedStepByStep(rtn, currentTime);
+                break;
+            }
+            case EVENTUAL:
+            {
+                this.insertRecursively(rtn, 0, currentTime, new HashSet<>(), new HashSet<>());
+                break;
+            }
+            case WEAK:
+            {
+                this.registerWeak(rtn, currentTime);
+                break;
+            }
+            default:
+            {
+                assert(false);
+            }
+        }
+    }
+
+
+    private void registerStrong(Routine rtn, int currentTime)
+    {
+        int routineMaxEndTime = currentTime;
+
+        for(DEV_ID devId: this.lockTable.keySet())
+        {
+            for(Routine existingRtn : lockTable.get(devId))
+            {
+                int existingRtnEndTime = existingRtn.routineEndTime();
+
+                if(routineMaxEndTime < existingRtnEndTime)
+                    routineMaxEndTime = existingRtnEndTime;
+            }
+        }
+
+        int routineStartTime = routineMaxEndTime;
+
+        this.registerRoutineFromExactTime(rtn, routineStartTime);
+
+    }
+
+    private void registerRelaxedStepByStep(Routine rtn, int currentTime)
+    {
+        int overlappintRtnMaxEndTime = currentTime;
+
+        for(DEV_ID devId: rtn.devSet)
+        {
+            for(Routine existingRtn : lockTable.get(devId))
+            {
+                int existingRtnEndTime = existingRtn.routineEndTime();
+
+                if(overlappintRtnMaxEndTime < existingRtnEndTime)
+                    overlappintRtnMaxEndTime = existingRtnEndTime;
+            }
+        }
+
+        int routineStartTime = overlappintRtnMaxEndTime;
+
+        this.registerRoutineFromExactTime(rtn, routineStartTime);
+
+    }
+
+    private void registerWeak(Routine rtn, int currentTime)
+    {
+        this.registerRoutineFromExactTime(rtn, currentTime);
+    }
+
+    private void registerRoutineFromExactTime(Routine rtn, int initialTime)
+    {// commands will be registered without any gap
+        int commandIdx = 0;
+        rtn.commandList.get(commandIdx).startTime = initialTime;
+        DEV_ID devID = rtn.getDevID(commandIdx);
+        this.lockTable.get(devID).add(rtn); // insert in the list
+
+        for(commandIdx = 1 ; commandIdx < rtn.commandList.size() ; ++commandIdx)
+        {
+            rtn.commandList.get(commandIdx).startTime = rtn.commandList.get(commandIdx - 1).getCmdEndTime();
+
+            devID = rtn.getDevID(commandIdx);
+            this.lockTable.get(devID).add(rtn); // insert in the list
+        }
     }
 
     private boolean isNoOverlap(Set<Integer> set1, Set<Integer> set2)

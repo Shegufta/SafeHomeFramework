@@ -1,7 +1,9 @@
 package Temp;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Shegufta Ahsan
@@ -15,14 +17,20 @@ public class Routine
     List<Command> commandList;
     int registrationTime = 0;
 
+    public Set<DEV_ID> devSet;
+
     public Routine()
     {
         this.ID = -1;
         this.commandList = new ArrayList<>();
+        this.devSet = new HashSet<>();
     }
 
     public void addCommand(Command cmd)
     {
+        assert(!devSet.contains(cmd.devID));
+        devSet.add(cmd.devID);
+
         this.commandList.add(cmd);
     }
 
@@ -95,6 +103,16 @@ public class Routine
         assert(false);
 
         return -1;
+    }
+
+    public int routineEndTime()
+    {
+        int lastIdx = commandList.size() - 1;
+        assert(0 <= lastIdx);
+
+        Command lastCmd = commandList.get(lastIdx);
+
+        return lastCmd.startTime + lastCmd.duration;
     }
 
     @Override

@@ -18,12 +18,17 @@ public class Command
         this.duration = _duration;
     }
 
+    public int getCmdEndTime()
+    {
+        return this.startTime + this.duration;
+    }
+
     @Override
     public String toString()
     {
         String str = "";
 
-        str += "[" + startTime + ", " + (startTime + duration) + "]";
+        str += "[ " + this.devID.name() + ":" + startTime + ", " + (startTime + duration) + "]";
 
         return str;
     }
