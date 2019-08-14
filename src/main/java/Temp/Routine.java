@@ -1,9 +1,6 @@
 package Temp;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Shegufta Ahsan
@@ -17,27 +14,38 @@ public class Routine
     List<Command> commandList;
     int registrationTime = 0;
 
-    public Set<DEV_ID> devSet;
+    //public Set<DEV_ID> devSet;
+    public Map<DEV_ID, Boolean> devIdIsMustMap;
 
     public Routine()
     {
         this.ID = -1;
         this.commandList = new ArrayList<>();
-        this.devSet = new HashSet<>();
+        //this.devSet = new HashSet<>();
+        this.devIdIsMustMap = new HashMap<>();
     }
 
     public void addCommand(Command cmd)
     {
-        assert(!devSet.contains(cmd.devID));
-        devSet.add(cmd.devID);
+        //assert(!devSet.contains(cmd.devID));
+        //devSet.add(cmd.devID);
+
+        assert(!devIdIsMustMap.containsKey(cmd.devID));
+        devIdIsMustMap.put(cmd.devID, cmd.isMust);
 
         this.commandList.add(cmd);
     }
 
 
-    public int getGapCount()
+    public double getStretchRatio()
     {
-        int gap = 0;
+        double gap = 0.0;
+
+        double continuousCmdExecutionTime = 0.0;
+        for(Command cmd : this.commandList)
+        {
+            continuousCmdExecutionTime += cmd.duration;
+        }
 
         for(int idx = 0 ; idx < this.commandList.size()-1 ; ++idx)
         {
@@ -47,12 +55,22 @@ public class Routine
             gap += nextCommand.startTime  - (firstCommand.startTime + firstCommand.duration);
         }
 
-        return gap;
+        if(continuousCmdExecutionTime == 0.0)
+            return 0.0;
+
+        return (gap + continuousCmdExecutionTime) / continuousCmdExecutionTime;
     }
 
-    public int getStartDelay()
+
+
+    public Command getCommandByDevID(DEV_ID devID)
     {
-        return this.commandList.get(0).startTime - this.registrationTime;
+        int commandIndex = getCommandIndex(devID);
+
+        if(-1 == commandIndex)
+            return null;
+        else
+            return this.commandList.get(commandIndex);
     }
 
     int getCommandIndex(DEV_ID devID)
@@ -105,6 +123,16 @@ public class Routine
         return -1;
     }
 
+    public int routineStartTime()
+    {
+        return this.commandList.get(0).startTime;
+    }
+
+    public double getStartDelay()
+    {
+        return this.routineStartTime() - this.registrationTime;
+    }
+
     public int routineEndTime()
     {
         int lastIdx = commandList.size() - 1;
@@ -112,7 +140,7 @@ public class Routine
 
         Command lastCmd = commandList.get(lastIdx);
 
-        return lastCmd.startTime + lastCmd.duration;
+        return lastCmd.getCmdEndTime();//lastCmd.startTime + lastCmd.duration;
     }
 
     @Override
@@ -122,7 +150,7 @@ public class Routine
 
         str += "{ Routine ID:" + this.ID;
         str += "; delay:" + this.getStartDelay();
-        str += "; gap:" + this.getGapCount() + " || ";
+        str += "; stretchRatio:" + this.getStretchRatio() + " || ";
 
         for(Command cmd : this.commandList)
         {

@@ -1,7 +1,5 @@
 package Temp;
 
-import org.apache.commons.math3.analysis.function.Exp;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,17 +12,20 @@ import java.util.List;
 public class ExpResults
 {
     public String logString;
-    public List<Integer> delayList;
-    public List<Integer> gapList;
+    public List<Double> delayList;
+    public List<Double> stretchRatioList;
+    public FailureAnalyzer failureAnalyzer;
 
     public double itemCount;
+    public double rawAvg;
     public int roundedAvg;
+    public double rawSD;
     public int roundedSD;
 
     public ExpResults()
     {
         this.logString = "";
         this.delayList = new ArrayList<>();
-        this.gapList = new ArrayList<>();
+        this.stretchRatioList = new ArrayList<>();
     }
 }

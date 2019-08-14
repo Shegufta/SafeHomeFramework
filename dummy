@@ -1,0 +1,14 @@
+A -> selection probability = 10.09%
+B -> selection probability = 10.09%
+C -> selection probability = 10.04%
+D -> selection probability = 10.06%
+E -> selection probability = 9.99%
+F -> selection probability = 9.93%
+G -> selection probability = 9.98%
+H -> selection probability = 9.94%
+I -> selection probability = 9.98%
+J -> selection probability = 9.91%
+
+--------------------------------
+Variable	StgAvg	StgSD	R.StgAvg	R.StgSD	EvnAvg	EvnSD	EvnStretchRatioAvg	EvnStretchRatioSD	StgAbtAvg	RStgAbtAvg	EvnAbtAvg	StgRcvrRatioAvg	R.StgRcvrRatioAvg	EvnRecvrRatioAvg
+--------------------------------

@@ -166,7 +166,8 @@ public class LockTable
     {
         int overlappintRtnMaxEndTime = currentTime;
 
-        for(DEV_ID devId: rtn.devSet)
+        //for(DEV_ID devId: rtn.devSet)
+        for(DEV_ID devId: rtn.devIdIsMustMap.keySet())
         {
             for(Routine existingRtn : lockTable.get(devId))
             {
