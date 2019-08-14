@@ -52,13 +52,13 @@ public class Routine
             Command firstCommand = this.commandList.get(idx);
             Command nextCommand = this.commandList.get(idx + 1);
 
-            gap += nextCommand.startTime  - (firstCommand.startTime + firstCommand.duration);
+            gap += nextCommand.startTime  - firstCommand.getCmdEndTime();
         }
 
-        if(continuousCmdExecutionTime == 0.0)
+        if( gap + continuousCmdExecutionTime == 0.0)
             return 0.0;
 
-        return (gap + continuousCmdExecutionTime) / continuousCmdExecutionTime;
+        return continuousCmdExecutionTime/(gap + continuousCmdExecutionTime);
     }
 
 
