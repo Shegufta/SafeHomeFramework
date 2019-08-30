@@ -312,6 +312,96 @@ public class LockTable
 
     public CmdInsertionData getLockTableEmptyPlaceIndex(DEV_ID _devID, int _scanStartTime, int _targetCmdDuration)
     {
+        boolean isPreLeaseAllowed = Temp.IS_PRE_LEASE_ALLOWED;
+        boolean isPostLeaseAllowed = Temp.IS_POST_LEASE_ALLOWED;
+
+        int index;
+        int scanStartTime = _scanStartTime;
+
+        for(index = 0 ; index < lockTable.get(_devID).size() ; ++index)
+        {
+            Routine currentRtnInLineage = lockTable.get(_devID).get(index);
+            int cmdStartTime = currentRtnInLineage.lockStartTime(_devID);
+            int cmdEndTime = currentRtnInLineage.lockEndTime(_devID);
+
+            assert(cmdStartTime < cmdEndTime);
+
+            if(cmdEndTime < scanStartTime)
+            {
+                continue;
+            }
+            else
+            {
+                if(cmdStartTime < scanStartTime)
+                {// overlap with the scan line
+                    scanStartTime = cmdEndTime; // shift the scan line
+                    continue;
+                }
+                else
+                {
+                    int emptySlot = cmdStartTime - scanStartTime;
+
+                    if( _targetCmdDuration <= emptySlot)
+                    {
+
+                        if(!isPreLeaseAllowed)
+                        {
+                            // donot need to check if currentRtnInLineage is committed!
+                            if(currentRtnInLineage.isCandidateCmdInsidePreLeaseZone(_devID, scanStartTime, _targetCmdDuration )) // SBA: Never allow something before another routine
+                            //if(true)// SBA: but it is a temporary lease, right? so i think, its ok
+                            {
+                                scanStartTime = cmdEndTime; // shift the scan line after the command
+                                continue;
+                            }
+                        }
+
+                        if(!isPostLeaseAllowed && (0 < index))
+                        {
+                            // lineage=>   [rtn 1 c1] [r4 c9] [prevRtnInLineage cx] [r_currentCandidate, c_Candidate (this command will be inserted)] [currentRtnInLineage, c*].....
+                            Routine prevRtnInLineage = lockTable.get(_devID).get(index - 1);
+                            // check if prevRtnInLineage is committed...
+                            if(!prevRtnInLineage.isCommittedByGivenTime(scanStartTime))
+                            {// prevRtnInLineage not committed... now check if it the new command overlaps with prevRtnInLineage's postLeaseZone
+                                if(prevRtnInLineage.isCandidateCmdInsidePostLeaseZone(_devID, scanStartTime, _targetCmdDuration ))
+                                {
+                                    scanStartTime = prevRtnInLineage.routineEndTime(); // shift the scan line after the command
+                                    continue;
+                                }
+                            }
+                        }
+
+                        return new CmdInsertionData(scanStartTime, index);
+                    }
+                    else
+                    {
+                        scanStartTime = cmdEndTime; // shift the scan line
+                    }
+
+                }
+            }
+
+        }
+
+        //dont need to check "pre" at this point... if code comes here, this should be the last command.
+        // hence, consider the post-lease flag of this command's previous routine.
+        if(!isPostLeaseAllowed && (0 < index))
+        {
+            // lineage=>   [rtn 1 c1] [r4 c9] [prevRtnInLineage cx] [r_currentCandidate, c_Candidate (this command will be inserted)] [currentRtnInLineage, c*].....
+            Routine prevRtnInLineage = lockTable.get(_devID).get(index - 1);
+            // check if prevRtnInLineage is committed...
+            if(!prevRtnInLineage.isCommittedByGivenTime(scanStartTime))
+            {// prevRtnInLineage not committed... now check if it the new command overlaps with prevRtnInLineage's postLeaseZone
+                if(prevRtnInLineage.isCandidateCmdInsidePostLeaseZone(_devID, scanStartTime, _targetCmdDuration ))
+                {
+                    scanStartTime = prevRtnInLineage.routineEndTime(); // shift the scan line after the command
+                }
+            }
+        }
+
+
+        return new CmdInsertionData(scanStartTime, index);
+
+        /*
         int index;
         int scanStartTime = _scanStartTime;
 
@@ -352,6 +442,8 @@ public class LockTable
         }
 
         return new CmdInsertionData(scanStartTime, index);
+
+        */
     }
 
     public class CmdInsertionData

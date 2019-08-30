@@ -143,6 +143,41 @@ public class Routine
         return lastCmd.getCmdEndTime();//lastCmd.startTime + lastCmd.duration;
     }
 
+    public boolean isCommittedByGivenTime(int targetTime)
+    {
+        return ( this.routineEndTime() < targetTime);
+    }
+
+    public boolean isCandidateCmdInsidePreLeaseZone(DEV_ID _devID, int _candidateCmdStartTime, int _candidateCmdDuration)
+    {
+        int cmdStartTime = getCommandByDevID(_devID).startTime;
+        int routineStartTime = this.routineStartTime();
+        int candidateCmdEndTime = _candidateCmdStartTime + _candidateCmdDuration;
+
+        if(routineStartTime <= _candidateCmdStartTime && _candidateCmdStartTime <= cmdStartTime)
+            return true;
+
+        if(routineStartTime <= candidateCmdEndTime && candidateCmdEndTime <= cmdStartTime)
+            return true;
+
+        return false;
+    }
+
+    public boolean isCandidateCmdInsidePostLeaseZone(DEV_ID _devID, int _candidateCmdStartTime, int _candidateCmdDuration)
+    {
+        int cmdEndTime = getCommandByDevID(_devID).getCmdEndTime();
+        int routineEndTime = this.routineEndTime();
+        int candidateCmdEndTime = _candidateCmdStartTime + _candidateCmdDuration;
+
+        if(cmdEndTime <= _candidateCmdStartTime && _candidateCmdStartTime <= routineEndTime)
+            return true;
+
+        if(cmdEndTime <= candidateCmdEndTime && candidateCmdEndTime <= routineEndTime)
+            return true;
+
+        return false;
+    }
+
     @Override
     public String toString()
     {

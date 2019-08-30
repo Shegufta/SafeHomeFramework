@@ -16,6 +16,9 @@ import java.util.*;
  */
 public class Temp
 {
+    public static final boolean IS_PRE_LEASE_ALLOWED = false;
+    public static final boolean IS_POST_LEASE_ALLOWED = false;
+
     private static int maxCommandPerRtn = 5; // in current version totalCommandInThisRtn = maxCommandPerRtn;
     private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
     private static double zipfCoefficient = 0.01;
@@ -29,7 +32,7 @@ public class Temp
     private static int longRunningCmdDuration = 100;
     private static final int shortCmdDuration = 1;
 
-    private static final int totalSampleCount = 100000;
+    private static final int totalSampleCount = 1000;//100000;
     private static final boolean isPrint = false;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
@@ -566,6 +569,13 @@ public class Temp
 
             System.out.println("mustCmdPercentage = " + mustCmdPercentage);
             logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n";
+
+            System.out.println("IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED);
+            logStr += "IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED + "\n";
+
+            System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED);
+            logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n";
+
 
 
 
