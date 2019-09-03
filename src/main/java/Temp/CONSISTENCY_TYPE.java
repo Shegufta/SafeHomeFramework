@@ -11,5 +11,6 @@ public enum CONSISTENCY_TYPE
     STRONG,
     RELAXED_STRONG,
     EVENTUAL,
-    WEAK
+    WEAK,
+    LAZY
 }

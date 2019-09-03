@@ -25,6 +25,18 @@ public class Routine
         this.devIdIsMustMap = new HashMap<>();
     }
 
+    public Set<DEV_ID> getAllDevIDSet()
+    {
+        Set<DEV_ID> devIDset = new HashSet<DEV_ID>();
+
+        for(Command cmd : commandList)
+        {
+            devIDset.add(cmd.devID);
+        }
+
+        return devIDset;
+    }
+
     public void addCommand(Command cmd)
     {
         //assert(!devSet.contains(cmd.devID));

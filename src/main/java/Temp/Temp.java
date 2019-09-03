@@ -441,6 +441,10 @@ public class Temp
         ExpResults expResults = new ExpResults();
         expResults.failureAnalyzer = new FailureAnalyzer(lockTable.lockTable, _consistencyType);
 
+        if(_consistencyType == CONSISTENCY_TYPE.LAZY)
+        {
+            int a = 5;
+        }
 
         for(Routine routine : rtnList)
         {
@@ -616,6 +620,11 @@ public class Temp
             List<Double> abortRatio_RelStrongList = new ArrayList<>();
             List<Double> recoverCmdRatio_RelStrongList = new ArrayList<>();
 
+            List<Double> allDelay_Lazy_List = new ArrayList<>();
+            List<Double> stretchRatio_Lazy_List = new ArrayList<>();
+            List<Double> abortRatio_LazyList = new ArrayList<>();
+            List<Double> recoverCmdRatio_LazyList = new ArrayList<>();
+
             List<Double> allDelay_Eventual_List = new ArrayList<>();
             List<Double> stretchRatio_Eventual_List = new ArrayList<>();
             List<Double> abortRatio_Eventual_List = new ArrayList<>();
@@ -674,6 +683,20 @@ public class Temp
                 if(recoverCmdRatio != 0)
                     recoverCmdRatio_RelStrongList.add(recoverCmdRatio);
 
+
+
+                ExpResults expLazy = runExperiment(devIDlist, CONSISTENCY_TYPE.LAZY, routineSet);
+                allDelay_Lazy_List.addAll(expLazy.delayList);
+//                stretchRatio_Lazy_List.addAll(expLazy.stretchRatioList);
+//
+//                failureResult = expLazy.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
+//                abtRatio = failureResult.getAbtRtnVsTotalRtnRatio(maxConcurrentRtn);
+//                if(abtRatio != 0)
+//                    abortRatio_LazyList.add(abtRatio);
+//                recoverCmdRatio = failureResult.getRecoveryCmdSentRatio();
+//                if(recoverCmdRatio != 0)
+//                    recoverCmdRatio_LazyList.add(recoverCmdRatio);
+
                 //logStr += expRelaxedStrng.logString + "\n";
 
                 ExpResults expEventual = runExperiment(devIDlist, CONSISTENCY_TYPE.EVENTUAL, routineSet);
@@ -706,6 +729,9 @@ public class Temp
 
             ExpResults allDelay_EventualExpRslt = getStats("ALL EVENTUAL DELAY", allDelay_Eventual_List);
             String allDelay_Eventual_stats = allDelay_EventualExpRslt.logString;
+
+            ExpResults allDelay_LazyRslt = getStats("ALL LAZY DELAY", allDelay_Lazy_List);
+            String allDelay_Lazy_stats = allDelay_LazyRslt.logString;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             ExpResults stretchRatio_EventualExpRslt = getStats("ALL EVENTUAL STRETCH_RATIO", stretchRatio_Eventual_List);
             String stretchRatio_Eventual_stats = stretchRatio_EventualExpRslt.logString;
@@ -742,6 +768,9 @@ public class Temp
             System.out.println(allDelay_Eventual_stats);
             logStr += allDelay_Eventual_stats + "\n";
 
+            System.out.println(allDelay_Lazy_stats);
+            logStr += allDelay_Lazy_stats + "\n";
+
             System.out.println(stretchRatio_Eventual_stats);
             logStr += stretchRatio_Eventual_stats+ "\n";
 
@@ -765,15 +794,18 @@ public class Temp
 
 
             logStr += "\n\n=========================================================================\n\n";
-            //String header = "Variable \t StgAvg \t StgSD \t R.StgAvg \t R.StgSD \t EvnAvg \t EvnSD \t EvnGapAvg \t EvnGapSD";
+            //String header = "Variable \t StgAvg \t StgSD \t R.StgAvg \t R.StgSD \t LzyAvg \t LzySD \t EvnAvg \t EvnSD \t EvnGapAvg \t EvnGapSD";
             resultCollector.add((double)allDelay_StrongExpRslt.roundedAvg);
             resultCollector.add((double)allDelay_StrongExpRslt.roundedSD);
             resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedAvg);
             resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedSD);
+            resultCollector.add((double)allDelay_LazyRslt.roundedAvg);
+            resultCollector.add((double)allDelay_LazyRslt.roundedSD);
             resultCollector.add((double)allDelay_EventualExpRslt.roundedAvg);
             resultCollector.add((double)allDelay_EventualExpRslt.roundedSD);
             resultCollector.add((double)stretchRatio_EventualExpRslt.rawAvg);
             resultCollector.add((double)stretchRatio_EventualExpRslt.rawSD);
+
 
             resultCollector.add(abortRatio_StrongExpRslt.rawAvg);
             resultCollector.add(abortRatio_RelStrongRslt.rawAvg);
@@ -790,7 +822,7 @@ public class Temp
         }
 
         String globalResult = "\n--------------------------------\n";
-        String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tEvnAvg\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
+        String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tLzyAvg\tLzySD\tEvnAvg\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
         header += "\tStgAbtAvg\tRStgAbtAvg\tEvnAbtAvg\tStgRcvrRatioAvg\tR.StgRcvrRatioAvg\tEvnRecvrRatioAvg";
         globalResult += header + "\n";
         for(double variable : variableTrakcer)

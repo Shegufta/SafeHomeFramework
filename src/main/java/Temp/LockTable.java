@@ -77,8 +77,113 @@ public class LockTable
         return str;
     }
 
+
+    public class LazySchedulingHelper
+    {
+        public DEV_ID devID;
+        public boolean isLocked;
+        public int lockReleaseTime;
+
+        public LazySchedulingHelper(DEV_ID _devID)
+        {
+            this.devID = _devID;
+            this.isLocked = false;
+        }
+    }
+
+    private int lazy_ReleaseEarliestCommandLock(Map<DEV_ID, LazySchedulingHelper> lockTableHelper, int simulationStartTime)
+    {
+        int earliestLockReleaseTime = Integer.MAX_VALUE;
+        DEV_ID earliestReleaseDevID = null;
+
+        for(LazySchedulingHelper RShlpr : lockTableHelper.values())
+        {
+            if(RShlpr.isLocked)
+            {
+                if(RShlpr.lockReleaseTime < earliestLockReleaseTime)
+                {
+                    earliestLockReleaseTime = RShlpr.lockReleaseTime;
+                    earliestReleaseDevID = RShlpr.devID;
+                }
+            }
+        }
+
+        if(earliestReleaseDevID != null)
+        {
+            lockTableHelper.get(earliestReleaseDevID).isLocked = false;
+        }
+
+        return (earliestLockReleaseTime == Integer.MAX_VALUE) ? simulationStartTime : earliestLockReleaseTime;
+    }
+
+    private boolean lazy_canAcquireAllLocks(Map<DEV_ID, LazySchedulingHelper> lockTableHelper, Routine rtn)
+    {
+        for(DEV_ID devId : rtn.getAllDevIDSet())
+        {
+            if(lockTableHelper.get(devId).isLocked)
+                return false;
+        }
+
+        return true;
+    }
+
+    private void lazy_acquireAllLock(Map<DEV_ID, LazySchedulingHelper> lockTableHelper, Routine rtn)
+    {
+        for(Command cmd : rtn.commandList)
+        {
+            lockTableHelper.get(cmd.devID).isLocked = true;
+            lockTableHelper.get(cmd.devID).lockReleaseTime = cmd.getCmdEndTime();
+        }
+    }
+
+    private void lazyScheduling(List<Routine> rtnList, int currentTime)
+    {
+        Map<DEV_ID, LazySchedulingHelper> lockTableHelper = new HashMap<>();
+
+        for(DEV_ID devID : this.lockTable.keySet())
+        {
+            lockTableHelper.put( devID, new LazySchedulingHelper(devID) );
+        }
+
+        List<Routine> rtnListCopy = new ArrayList<>(rtnList); // NOTE: do not change the rtnList
+
+        while(!rtnListCopy.isEmpty())
+        {
+            int lockReleaseTime = lazy_ReleaseEarliestCommandLock(lockTableHelper, currentTime);
+
+            List<Routine> scheduledRtnList = new ArrayList<>();
+
+            for(int index = 0 ; index < rtnListCopy.size() ; index++)
+            {
+                if(lazy_canAcquireAllLocks( lockTableHelper , rtnListCopy.get(index)))
+                {
+                    rtnListCopy.get(index).ID = getUniqueRtnID();
+                    rtnListCopy.get(index).registrationTime = currentTime;
+
+                    registerRoutineFromExactTime(rtnListCopy.get(index), lockReleaseTime); // register in the lock table
+                    lazy_acquireAllLock(lockTableHelper ,rtnListCopy.get(index));
+
+                    scheduledRtnList.add(rtnListCopy.get(index));
+                }
+            }
+
+            for(Routine rtn : scheduledRtnList)
+            {
+                rtnListCopy.remove(rtn);
+            }
+        }
+    }
+
+
     public void register(List<Routine> rtnList, int currentTime)
     {
+        if(this.consistencyType == CONSISTENCY_TYPE.LAZY)
+        {
+
+            lazyScheduling(rtnList, currentTime);
+            return;
+        }
+
         for(Routine rtn : rtnList)
         {
             this.register(rtn, currentTime);
