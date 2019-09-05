@@ -25,6 +25,29 @@ public class Command
         return this.startTime + this.duration;
     }
 
+    public boolean isCmdOverlapsWithWatchTime(int queryTime)
+    {
+        boolean insideBound = false;
+
+        if(this.startTime <= queryTime && queryTime < getCmdEndTime())
+        { // NOTE: the start time is inclusive, whereas the end time is exclusive. e.g.   [3,7)
+            insideBound = true;
+        }
+
+        return insideBound;
+    }
+
+    public int compareTimeline(int queryTime)
+    {
+        if(this.getCmdEndTime() <= queryTime)
+            return -1; //  Cmd ends before query
+
+        if(this.startTime <= queryTime && queryTime < getCmdEndTime())
+            return 0; // cmd overlaps
+
+        return 1; // cmd starts after query
+    }
+
     @Override
     public String toString()
     {

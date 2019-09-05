@@ -15,6 +15,7 @@ public class ExpResults
     public List<Double> delayList;
     public List<Double> stretchRatioList;
     public FailureAnalyzer failureAnalyzer;
+    public Measurement measurement;
 
     public double itemCount;
     public double rawAvg;

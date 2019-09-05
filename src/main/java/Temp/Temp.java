@@ -16,8 +16,8 @@ import java.util.*;
  */
 public class Temp
 {
-    public static final boolean IS_PRE_LEASE_ALLOWED = false;
-    public static final boolean IS_POST_LEASE_ALLOWED = false;
+    public static final boolean IS_PRE_LEASE_ALLOWED = true;
+    public static final boolean IS_POST_LEASE_ALLOWED = true;
 
     private static int maxCommandPerRtn = 5; // in current version totalCommandInThisRtn = maxCommandPerRtn;
     private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
@@ -32,7 +32,7 @@ public class Temp
     private static int longRunningCmdDuration = 100;
     private static final int shortCmdDuration = 1;
 
-    private static final int totalSampleCount = 1000;//100000;
+    private static final int totalSampleCount = 10000;//100000;
     private static final boolean isPrint = false;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
@@ -126,6 +126,13 @@ public class Temp
         return str;
     }
 
+
+    private static int ROUTINE_ID = 0;
+
+    public static int getUniqueRtnID()
+    {
+        return Temp.ROUTINE_ID++;
+    }
 
     private static List<Routine> generateAutomatedRtn(int nonNegativeSeed)
     {
@@ -221,6 +228,13 @@ public class Temp
         }
 
         Collections.shuffle(routineList, rand);
+
+        for(int index = 0 ; index < routineList.size() ; ++index)
+        {
+            routineList.get(index).ID = getUniqueRtnID();
+        }
+
+
         return routineList;
     }
 
@@ -440,11 +454,8 @@ public class Temp
 
         ExpResults expResults = new ExpResults();
         expResults.failureAnalyzer = new FailureAnalyzer(lockTable.lockTable, _consistencyType);
+        expResults.measurement = new Measurement(lockTable.lockTable);
 
-        if(_consistencyType == CONSISTENCY_TYPE.LAZY)
-        {
-            int a = 5;
-        }
 
         for(Routine routine : rtnList)
         {
@@ -614,21 +625,38 @@ public class Temp
             List<Double> stretchRatio_Strong_List = new ArrayList<>();
             List<Double> abortRatio_StrongList = new ArrayList<>();
             List<Double> recoverCmdRatio_StrongList = new ArrayList<>();
+            List<Double> maxParallalRtnCnt_StrongList = new ArrayList<>();
+            List<Double> avgParallalRtnCnt_StrongList = new ArrayList<>();
+            List<Double> orderMismatchPercent_StrongList = new ArrayList<>();
+            List<Double> avgInconsistencyRatio_StrongList = new ArrayList<>();
+
 
             List<Double> allDelay_RelStrong_List = new ArrayList<>();
             List<Double> stretchRatio_RelStrong_List = new ArrayList<>();
             List<Double> abortRatio_RelStrongList = new ArrayList<>();
             List<Double> recoverCmdRatio_RelStrongList = new ArrayList<>();
+            List<Double> maxParallalRtnCnt_RelStrongList = new ArrayList<>();
+            List<Double> avgParallalRtnCnt_RelStrongList = new ArrayList<>();
+            List<Double> orderMismatchPercent_RelStrongList = new ArrayList<>();
+            List<Double> avgInconsistencyRatio_RelStrongList = new ArrayList<>();
 
-            List<Double> allDelay_Lazy_List = new ArrayList<>();
-            List<Double> stretchRatio_Lazy_List = new ArrayList<>();
+            List<Double> allDelay_LazyList = new ArrayList<>();
+            List<Double> stretchRatio_LazyList = new ArrayList<>();
             List<Double> abortRatio_LazyList = new ArrayList<>();
             List<Double> recoverCmdRatio_LazyList = new ArrayList<>();
+            List<Double> maxParallalRtnCnt_LazyList = new ArrayList<>();
+            List<Double> avgParallalRtnCnt_LazyList = new ArrayList<>();
+            List<Double> orderMismatchPercent_LazyList = new ArrayList<>();
+            List<Double> avgInconsistencyRatio_LazyList = new ArrayList<>();
 
-            List<Double> allDelay_Eventual_List = new ArrayList<>();
-            List<Double> stretchRatio_Eventual_List = new ArrayList<>();
-            List<Double> abortRatio_Eventual_List = new ArrayList<>();
-            List<Double> recoverCmdRatio_Eventual_List = new ArrayList<>();
+            List<Double> allDelay_EventualList = new ArrayList<>();
+            List<Double> stretchRatio_EventualList = new ArrayList<>();
+            List<Double> abortRatio_EventualList = new ArrayList<>();
+            List<Double> recoverCmdRatio_EventualList = new ArrayList<>();
+            List<Double> maxParallalRtnCnt_EventualList = new ArrayList<>();
+            List<Double> avgParallalRtnCnt_EventualList = new ArrayList<>();
+            List<Double> orderMismatchPercent_EventualList = new ArrayList<>();
+            List<Double> avgInconsistencyRatio_EventualList = new ArrayList<>();
 
             int resolution = 10;
             int stepSize = totalSampleCount / resolution;
@@ -653,9 +681,11 @@ public class Temp
                 //logStr += printInitialRoutineList(routineSet) + "\n";
 
                 FailureResult failureResult;
+                Measurement measurement;
                 double abtRatio;
                 double recoverCmdRatio;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
                 ExpResults expStrong = runExperiment(devIDlist, CONSISTENCY_TYPE.STRONG, routineSet);
                 allDelay_Strong_List.addAll(expStrong.delayList);
                 stretchRatio_Strong_List.addAll(expStrong.stretchRatioList);
@@ -669,6 +699,16 @@ public class Temp
                     recoverCmdRatio_StrongList.add(recoverCmdRatio);
                 //logStr += expStrong.logString + "\n";
 
+                measurement = expStrong.measurement;
+                if(measurement.maxParallalRtnCnt != 0)
+                    maxParallalRtnCnt_StrongList.add(measurement.maxParallalRtnCnt);
+                if(measurement.avgParallalRtnCnt != 0)
+                    avgParallalRtnCnt_StrongList.add(measurement.avgParallalRtnCnt);
+                if(measurement.avgInconsistencyRatio != 0)
+                    avgInconsistencyRatio_StrongList.add(measurement.avgInconsistencyRatio);
+                if(measurement.orderMismatchPercent != 0)
+                    orderMismatchPercent_StrongList.add(measurement.orderMismatchPercent);
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
                 ExpResults expRelaxedStrng = runExperiment(devIDlist, CONSISTENCY_TYPE.RELAXED_STRONG, routineSet);
@@ -684,38 +724,56 @@ public class Temp
                     recoverCmdRatio_RelStrongList.add(recoverCmdRatio);
 
 
+                measurement = expRelaxedStrng.measurement;
+                if(measurement.maxParallalRtnCnt != 0)
+                    maxParallalRtnCnt_RelStrongList.add(measurement.maxParallalRtnCnt);
+                if(measurement.avgParallalRtnCnt != 0)
+                    avgParallalRtnCnt_RelStrongList.add(measurement.avgParallalRtnCnt);
+                if(measurement.avgInconsistencyRatio != 0)
+                    avgInconsistencyRatio_RelStrongList.add(measurement.avgInconsistencyRatio);
+                if(measurement.orderMismatchPercent != 0)
+                    orderMismatchPercent_RelStrongList.add(measurement.orderMismatchPercent);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
                 ExpResults expLazy = runExperiment(devIDlist, CONSISTENCY_TYPE.LAZY, routineSet);
-                allDelay_Lazy_List.addAll(expLazy.delayList);
-//                stretchRatio_Lazy_List.addAll(expLazy.stretchRatioList);
-//
-//                failureResult = expLazy.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
-//                abtRatio = failureResult.getAbtRtnVsTotalRtnRatio(maxConcurrentRtn);
-//                if(abtRatio != 0)
-//                    abortRatio_LazyList.add(abtRatio);
-//                recoverCmdRatio = failureResult.getRecoveryCmdSentRatio();
-//                if(recoverCmdRatio != 0)
-//                    recoverCmdRatio_LazyList.add(recoverCmdRatio);
+                allDelay_LazyList.addAll(expLazy.delayList);
 
-                //logStr += expRelaxedStrng.logString + "\n";
+                measurement = expLazy.measurement;
+                if(measurement.maxParallalRtnCnt != 0)
+                    maxParallalRtnCnt_LazyList.add(measurement.maxParallalRtnCnt);
+                if(measurement.avgParallalRtnCnt != 0)
+                    avgParallalRtnCnt_LazyList.add(measurement.avgParallalRtnCnt);
+                if(measurement.avgInconsistencyRatio != 0)
+                    avgInconsistencyRatio_LazyList.add(measurement.avgInconsistencyRatio);
+                if(measurement.orderMismatchPercent != 0)
+                    orderMismatchPercent_LazyList.add(measurement.orderMismatchPercent);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
                 ExpResults expEventual = runExperiment(devIDlist, CONSISTENCY_TYPE.EVENTUAL, routineSet);
-                allDelay_Eventual_List.addAll(expEventual.delayList);
-                stretchRatio_Eventual_List.addAll(expEventual.stretchRatioList);
+                allDelay_EventualList.addAll(expEventual.delayList);
+                stretchRatio_EventualList.addAll(expEventual.stretchRatioList);
 
                 failureResult = expEventual.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
                 abtRatio = failureResult.getAbtRtnVsTotalRtnRatio(maxConcurrentRtn);
                 if(abtRatio != 0)
-                    abortRatio_Eventual_List.add(abtRatio);
+                    abortRatio_EventualList.add(abtRatio);
                 recoverCmdRatio = failureResult.getRecoveryCmdSentRatio();
                 if(recoverCmdRatio != 0)
-                    recoverCmdRatio_Eventual_List.add(recoverCmdRatio);
+                    recoverCmdRatio_EventualList.add(recoverCmdRatio);
 
-                //logStr += expEventual.logString + "\n";
+                measurement = expEventual.measurement;
+                if(measurement.maxParallalRtnCnt != 0)
+                    maxParallalRtnCnt_EventualList.add(measurement.maxParallalRtnCnt);
+                if(measurement.avgParallalRtnCnt != 0)
+                    avgParallalRtnCnt_EventualList.add(measurement.avgParallalRtnCnt);
+                if(measurement.avgInconsistencyRatio != 0)
+                    avgInconsistencyRatio_EventualList.add(measurement.avgInconsistencyRatio);
+                if(measurement.orderMismatchPercent != 0)
+                    orderMismatchPercent_EventualList.add(measurement.orderMismatchPercent);
 
-
-
-                //runExperiment(devIDlist, CONSISTENCY_TYPE.WEAK, routineSet);
+///////////////////////////////////////////////////////////////////////////////////////////////////
             }
 
             System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~all runs~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -727,13 +785,13 @@ public class Temp
             ExpResults allDelay_RelaxedStrongExpRslt = getStats("ALL R.STRONG DELAY", allDelay_RelStrong_List);
             String allDelay_RelaxedStrong_stats = allDelay_RelaxedStrongExpRslt.logString;
 
-            ExpResults allDelay_EventualExpRslt = getStats("ALL EVENTUAL DELAY", allDelay_Eventual_List);
+            ExpResults allDelay_EventualExpRslt = getStats("ALL EVENTUAL DELAY", allDelay_EventualList);
             String allDelay_Eventual_stats = allDelay_EventualExpRslt.logString;
 
-            ExpResults allDelay_LazyRslt = getStats("ALL LAZY DELAY", allDelay_Lazy_List);
+            ExpResults allDelay_LazyRslt = getStats("ALL LAZY DELAY", allDelay_LazyList);
             String allDelay_Lazy_stats = allDelay_LazyRslt.logString;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            ExpResults stretchRatio_EventualExpRslt = getStats("ALL EVENTUAL STRETCH_RATIO", stretchRatio_Eventual_List);
+            ExpResults stretchRatio_EventualExpRslt = getStats("ALL EVENTUAL STRETCH_RATIO", stretchRatio_EventualList);
             String stretchRatio_Eventual_stats = stretchRatio_EventualExpRslt.logString;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -743,9 +801,65 @@ public class Temp
             ExpResults abortRatio_RelStrongRslt = getStats("ABT RATIO R.STRONG", abortRatio_RelStrongList);
             String abortRatio_RelStrong_stats = abortRatio_RelStrongRslt.logString;
 
-            ExpResults abortRatio_EventualRslt = getStats("ABT RATIO EVENTUAL", abortRatio_Eventual_List);
+            ExpResults abortRatio_EventualRslt = getStats("ABT RATIO EVENTUAL", abortRatio_EventualList);
             String abortRatio_Eventual_stats = abortRatio_EventualRslt.logString;
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ExpResults maxPrlRtnCnt_StrongExpRslt = getStats("Mx Prll Rtn STRONG", maxParallalRtnCnt_StrongList);
+            String maxPrlRtnCnt_Strong_stats = maxPrlRtnCnt_StrongExpRslt.logString;
+
+            ExpResults maxPrlRtnCnt_RelaxedStrongExpRslt = getStats("Mx Prll Rtn R.STRONG", maxParallalRtnCnt_RelStrongList);
+            String maxPrlRtnCnt_RelaxedStrong_stats = maxPrlRtnCnt_RelaxedStrongExpRslt.logString;
+
+            ExpResults maxPrlRtnCnt_EventualExpRslt = getStats("Mx Prll Rtn EVENTUAL", maxParallalRtnCnt_EventualList);
+            String maxPrlRtnCnt_Eventual_stats = maxPrlRtnCnt_EventualExpRslt.logString;
+
+            ExpResults maxPrlRtnCnt_LazyRslt = getStats("Mx Prll Rtn LAZY", maxParallalRtnCnt_LazyList);
+            String maxPrlRtnCnt_Lazy_stats = maxPrlRtnCnt_LazyRslt.logString;
+
+
+
+            ExpResults avgPrlRtnCnt_StrongExpRslt = getStats("Avg Prll Rtn STRONG", avgParallalRtnCnt_StrongList);
+            String avgPrlRtnCnt_Strong_stats = avgPrlRtnCnt_StrongExpRslt.logString;
+
+            ExpResults avgPrlRtnCnt_RelaxedStrongExpRslt = getStats("Avg Prll Rtn R.STRONG", avgParallalRtnCnt_RelStrongList);
+            String avgPrlRtnCnt_RelaxedStrong_stats = avgPrlRtnCnt_RelaxedStrongExpRslt.logString;
+
+            ExpResults avgPrlRtnCnt_EventualExpRslt = getStats("Avg Prll Rtn EVENTUAL", avgParallalRtnCnt_EventualList);
+            String avgPrlRtnCnt_Eventual_stats = avgPrlRtnCnt_EventualExpRslt.logString;
+
+            ExpResults avgPrlRtnCnt_LazyRslt = getStats("Avg Prll Rtn LAZY", avgParallalRtnCnt_LazyList);
+            String avgPrlRtnCnt_Lazy_stats = avgPrlRtnCnt_LazyRslt.logString;
+
+
+
+            ExpResults orderMismatchPercent_StrongExpRslt = getStats("OrderingMismatch STRONG", orderMismatchPercent_StrongList);
+            String orderMismatchPercent_Strong_stats = orderMismatchPercent_StrongExpRslt.logString;
+
+            ExpResults orderMismatchPercent_RelaxedStrongExpRslt = getStats("OrderingMismatch R.STRONG", orderMismatchPercent_RelStrongList);
+            String orderMismatchPercent_RelaxedStrong_stats = orderMismatchPercent_RelaxedStrongExpRslt.logString;
+
+            ExpResults orderMismatchPercent_EventualExpRslt = getStats("OrderingMismatch EVENTUAL", orderMismatchPercent_EventualList);
+            String orderMismatchPercent_Eventual_stats = orderMismatchPercent_EventualExpRslt.logString;
+
+            ExpResults orderMismatchPercent_LazyRslt = getStats("OrderingMismatch LAZY", orderMismatchPercent_LazyList);
+            String orderMismatchPercent_Lazy_stats = orderMismatchPercent_LazyRslt.logString;
+
+
+
+
+            ExpResults avgInconsistencyRatio_StrongExpRslt = getStats("avgInconsistencyRatio STRONG", avgInconsistencyRatio_StrongList);
+            String avgInconsistencyRatio_Strong_stats = avgInconsistencyRatio_StrongExpRslt.logString;
+
+            ExpResults avgInconsistencyRatio_RelaxedStrongExpRslt = getStats("avgInconsistencyRatio R.STRONG", avgInconsistencyRatio_RelStrongList);
+            String avgInconsistencyRatio_RelaxedStrong_stats = avgInconsistencyRatio_RelaxedStrongExpRslt.logString;
+
+            ExpResults avgInconsistencyRatio_EventualExpRslt = getStats("avgInconsistencyRatio EVENTUAL", avgInconsistencyRatio_EventualList);
+            String avgInconsistencyRatio_Eventual_stats = avgInconsistencyRatio_EventualExpRslt.logString;
+
+            ExpResults avgInconsistencyRatio_LazyRslt = getStats("avgInconsistencyRatio LAZY", avgInconsistencyRatio_LazyList);
+            String avgInconsistencyRatio_Lazy_stats = avgInconsistencyRatio_LazyRslt.logString;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             ExpResults recoverCmdRatio_StrongExpRslt = getStats("Recover Cmd RATIO STRONG", recoverCmdRatio_StrongList);
@@ -754,7 +868,7 @@ public class Temp
             ExpResults recoverCmdRatio_RelStrongRslt = getStats("Recover Cmd RATIO R.STRONG", recoverCmdRatio_RelStrongList);
             String recoverCmdRatio_RelStrong_stats = recoverCmdRatio_RelStrongRslt.logString;
 
-            ExpResults recoverCmdRatio_EventualRslt = getStats("Recover Cmd RATIO EVENTUAL", recoverCmdRatio_Eventual_List);
+            ExpResults recoverCmdRatio_EventualRslt = getStats("Recover Cmd RATIO EVENTUAL", recoverCmdRatio_EventualList);
             String recoverCmdRatio_Eventual_stats = recoverCmdRatio_EventualRslt.logString;
 
 
@@ -792,9 +906,64 @@ public class Temp
             System.out.println(recoverCmdRatio_Eventual_stats);
             logStr += recoverCmdRatio_Eventual_stats+ "\n";
 
+            /////////////////////////////////////////////////////////////
+            System.out.println(maxPrlRtnCnt_Strong_stats);
+            logStr += maxPrlRtnCnt_Strong_stats + "\n";
+
+            System.out.println(maxPrlRtnCnt_RelaxedStrong_stats);
+            logStr += maxPrlRtnCnt_RelaxedStrong_stats + "\n";
+
+            System.out.println(maxPrlRtnCnt_Eventual_stats);
+            logStr += maxPrlRtnCnt_Eventual_stats + "\n";
+
+            System.out.println(maxPrlRtnCnt_Lazy_stats);
+            logStr += maxPrlRtnCnt_Lazy_stats + "\n";
+            ///////////
+            System.out.println(avgPrlRtnCnt_Strong_stats);
+            logStr += avgPrlRtnCnt_Strong_stats + "\n";
+
+            System.out.println(avgPrlRtnCnt_RelaxedStrong_stats);
+            logStr += avgPrlRtnCnt_RelaxedStrong_stats + "\n";
+
+            System.out.println(avgPrlRtnCnt_Eventual_stats);
+            logStr += avgPrlRtnCnt_Eventual_stats + "\n";
+
+            System.out.println(avgPrlRtnCnt_Lazy_stats);
+            logStr += avgPrlRtnCnt_Lazy_stats + "\n";
+            ///////////
+            System.out.println(orderMismatchPercent_Strong_stats);
+            logStr += orderMismatchPercent_Strong_stats + "\n";
+
+            System.out.println(orderMismatchPercent_RelaxedStrong_stats);
+            logStr += orderMismatchPercent_RelaxedStrong_stats + "\n";
+
+            System.out.println(orderMismatchPercent_Eventual_stats);
+            logStr += orderMismatchPercent_Eventual_stats + "\n";
+
+            System.out.println(orderMismatchPercent_Lazy_stats);
+            logStr += orderMismatchPercent_Lazy_stats + "\n";
+            ///////////
+            System.out.println(avgInconsistencyRatio_Strong_stats);
+            logStr += avgInconsistencyRatio_Strong_stats + "\n";
+
+            System.out.println(avgInconsistencyRatio_RelaxedStrong_stats);
+            logStr += avgInconsistencyRatio_RelaxedStrong_stats + "\n";
+
+            System.out.println(avgInconsistencyRatio_Eventual_stats);
+            logStr += avgInconsistencyRatio_Eventual_stats + "\n";
+
+            System.out.println(avgInconsistencyRatio_Lazy_stats);
+            logStr += avgInconsistencyRatio_Lazy_stats + "\n";
+            /////////////////////////////////////////////////////////////
+
 
             logStr += "\n\n=========================================================================\n\n";
-            //String header = "Variable \t StgAvg \t StgSD \t R.StgAvg \t R.StgSD \t LzyAvg \t LzySD \t EvnAvg \t EvnSD \t EvnGapAvg \t EvnGapSD";
+            //String header = "Variable \t StgAvg \t StgSD \t R.StgAvg \t R.StgSD \t LzyAvg \t LzySD \t EvnAvg \t EvnSD \t EvnGapAvg \t EvnGapSD" +
+            // "StgMaxPrlRtn \t RstgMaxPrlRtn \t LazyMaxPrlRtn \t EvnMaxPrlRtn" +
+            // "StgAvgPrlRtn \t RstgAvgPrlRtn \t LazyAvgPrlRtn \t EvnAvgPrlRtn" +
+            // "StgOdrMismtch \t RstgOdrMismtch \t LazyOdrMismtch \t EvnOdrMismtch" +
+            // "StgInconRatio \t RstgInconRatio \t LazyInconRatio \t EvnInconRatio"
+
             resultCollector.add((double)allDelay_StrongExpRslt.roundedAvg);
             resultCollector.add((double)allDelay_StrongExpRslt.roundedSD);
             resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedAvg);
@@ -816,6 +985,30 @@ public class Temp
 
 
 
+            ////////////////////////////////////////////////////////////////////////////
+            resultCollector.add(maxPrlRtnCnt_StrongExpRslt.rawAvg);
+            resultCollector.add(maxPrlRtnCnt_RelaxedStrongExpRslt.rawAvg);
+            resultCollector.add(maxPrlRtnCnt_LazyRslt.rawAvg);
+            resultCollector.add(maxPrlRtnCnt_EventualExpRslt.rawAvg);
+
+
+            resultCollector.add(avgPrlRtnCnt_StrongExpRslt.rawAvg);
+            resultCollector.add(avgPrlRtnCnt_RelaxedStrongExpRslt.rawAvg);
+            resultCollector.add(avgPrlRtnCnt_LazyRslt.rawAvg);
+            resultCollector.add(avgPrlRtnCnt_EventualExpRslt.rawAvg);
+
+
+            resultCollector.add(orderMismatchPercent_StrongExpRslt.rawAvg);
+            resultCollector.add(orderMismatchPercent_RelaxedStrongExpRslt.rawAvg);
+            resultCollector.add(orderMismatchPercent_LazyRslt.rawAvg);
+            resultCollector.add(orderMismatchPercent_EventualExpRslt.rawAvg);
+
+            resultCollector.add(avgInconsistencyRatio_StrongExpRslt.rawAvg);
+            resultCollector.add(avgInconsistencyRatio_RelaxedStrongExpRslt.rawAvg);
+            resultCollector.add(avgInconsistencyRatio_LazyRslt.rawAvg);
+            resultCollector.add(avgInconsistencyRatio_EventualExpRslt.rawAvg);
+            ////////////////////////////////////////////////////////////////////////////
+
             globalDataCollector.put(variableInfo, resultCollector);
 
 
@@ -824,6 +1017,10 @@ public class Temp
         String globalResult = "\n--------------------------------\n";
         String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tLzyAvg\tLzySD\tEvnAvg\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
         header += "\tStgAbtAvg\tRStgAbtAvg\tEvnAbtAvg\tStgRcvrRatioAvg\tR.StgRcvrRatioAvg\tEvnRecvrRatioAvg";
+        header += "\tStgMaxPrlRtn \t RstgMaxPrlRtn \t LazyMaxPrlRtn \t EvnMaxPrlRtn";
+        header += "\tStgAvgPrlRtn \t RstgAvgPrlRtn \t LazyAvgPrlRtn \t EvnAvgPrlRtn";
+        header += "\tStgOdrMismtch \t RstgOdrMismtch \t LazyOdrMismtch \t EvnOdrMismtch";
+        header += "\tStgInconRatio \t RstgInconRatio \t LazyInconRatio \t EvnInconRatio";
         globalResult += header + "\n";
         for(double variable : variableTrakcer)
         {

@@ -30,10 +30,10 @@ public class LockTable
         }
     }
 
-    public int getUniqueRtnID()
-    {
-        return LockTable.ROUTINE_ID++;
-    }
+//    public int getUniqueRtnID()
+//    {
+//        return LockTable.ROUTINE_ID++;
+//    }
 
     /*
     public void generateTestLockTable()
@@ -157,7 +157,7 @@ public class LockTable
             {
                 if(lazy_canAcquireAllLocks( lockTableHelper , rtnListCopy.get(index)))
                 {
-                    rtnListCopy.get(index).ID = getUniqueRtnID();
+                    //rtnListCopy.get(index).ID = getUniqueRtnID();
                     rtnListCopy.get(index).registrationTime = currentTime;
 
                     registerRoutineFromExactTime(rtnListCopy.get(index), lockReleaseTime); // register in the lock table
@@ -188,11 +188,18 @@ public class LockTable
         {
             this.register(rtn, currentTime);
         }
+
+//                                    if(this.consistencyType == CONSISTENCY_TYPE.EVENTUAL)
+//                                    {
+//                                        System.out.println(this);
+//                                        System.out.println("\n calling System.exit(1) inside LockTable.java");
+//                                        System.exit(1);
+//                                    }
     }
 
     public void register(Routine rtn, int currentTime)
     {
-        rtn.ID = getUniqueRtnID();
+        //rtn.ID = getUniqueRtnID();
         rtn.registrationTime = currentTime;
 
         Set<DEV_ID> devIDset = new HashSet<>();
