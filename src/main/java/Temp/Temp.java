@@ -31,6 +31,8 @@ public class Temp
 
     private static int longRunningCmdDuration = 100;
     private static final int shortCmdDuration = 1;
+    private static final boolean isShortCmdDurationVary = true;
+    private static final int shortCmdDurationVaryMultiplier = 3; // will vary upto N times
 
     private static final int totalSampleCount = 10000;//100000;
     private static final boolean isPrint = false;
@@ -201,7 +203,14 @@ public class Temp
                 }
                 else
                 {
-                    duration = shortCmdDuration;
+                    if(isShortCmdDurationVary)
+                    {
+                        duration = shortCmdDuration + rand.nextInt(shortCmdDuration*shortCmdDurationVaryMultiplier);
+                    }
+                    else
+                    {
+                        duration = shortCmdDuration;
+                    }
                 }
 
                 //System.out.println(randDev.name() + " " + duration);
@@ -591,10 +600,11 @@ public class Temp
             System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED);
             logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n";
 
+            System.out.println("isShortCmdDurationVary = " + isShortCmdDurationVary);
+            logStr += "isShortCmdDurationVary = " + isShortCmdDurationVary + "\n";
 
-
-
-
+            System.out.println("shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier);
+            logStr += "shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier + "\n";
 
 
             //////////////////////
@@ -958,6 +968,28 @@ public class Temp
 
 
             logStr += "\n\n=========================================================================\n\n";
+            //String header = "Variable \t StgAvg \t R.StgAvg \t LzyAvg \t EvnAvg \t StgSD \t R.StgSD \t LzySD \t EvnSD \t EvnGapAvg \t EvnGapSD" +
+            // "StgMaxPrlRtn \t RstgMaxPrlRtn \t LazyMaxPrlRtn \t EvnMaxPrlRtn" +
+            // "StgAvgPrlRtn \t RstgAvgPrlRtn \t LazyAvgPrlRtn \t EvnAvgPrlRtn" +
+            // "StgOdrMismtch \t RstgOdrMismtch \t LazyOdrMismtch \t EvnOdrMismtch" +
+            // "StgInconRatio \t RstgInconRatio \t LazyInconRatio \t EvnInconRatio"
+
+
+            resultCollector.add((double)allDelay_StrongExpRslt.roundedAvg);
+            resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedAvg);
+            resultCollector.add((double)allDelay_LazyRslt.roundedAvg);
+            resultCollector.add((double)allDelay_EventualExpRslt.roundedAvg);
+
+            resultCollector.add((double)allDelay_StrongExpRslt.roundedSD);
+            resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedSD);
+            resultCollector.add((double)allDelay_LazyRslt.roundedSD);
+            resultCollector.add((double)allDelay_EventualExpRslt.roundedSD);
+
+            resultCollector.add((double)stretchRatio_EventualExpRslt.rawAvg);
+            resultCollector.add((double)stretchRatio_EventualExpRslt.rawSD);
+
+            /*
+
             //String header = "Variable \t StgAvg \t StgSD \t R.StgAvg \t R.StgSD \t LzyAvg \t LzySD \t EvnAvg \t EvnSD \t EvnGapAvg \t EvnGapSD" +
             // "StgMaxPrlRtn \t RstgMaxPrlRtn \t LazyMaxPrlRtn \t EvnMaxPrlRtn" +
             // "StgAvgPrlRtn \t RstgAvgPrlRtn \t LazyAvgPrlRtn \t EvnAvgPrlRtn" +
@@ -974,6 +1006,7 @@ public class Temp
             resultCollector.add((double)allDelay_EventualExpRslt.roundedSD);
             resultCollector.add((double)stretchRatio_EventualExpRslt.rawAvg);
             resultCollector.add((double)stretchRatio_EventualExpRslt.rawSD);
+            */
 
 
             resultCollector.add(abortRatio_StrongExpRslt.rawAvg);
@@ -1015,7 +1048,8 @@ public class Temp
         }
 
         String globalResult = "\n--------------------------------\n";
-        String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tLzyAvg\tLzySD\tEvnAvg\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
+        //String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tLzyAvg\tLzySD\tEvnAvg\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
+        String header = "Variable\tStgAvg\tR.StgAvg\tLzyAvg\tEvnAvg\tStgSD\tR.StgSD\tLzySD\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
         header += "\tStgAbtAvg\tRStgAbtAvg\tEvnAbtAvg\tStgRcvrRatioAvg\tR.StgRcvrRatioAvg\tEvnRecvrRatioAvg";
         header += "\tStgMaxPrlRtn \t RstgMaxPrlRtn \t LazyMaxPrlRtn \t EvnMaxPrlRtn";
         header += "\tStgAvgPrlRtn \t RstgAvgPrlRtn \t LazyAvgPrlRtn \t EvnAvgPrlRtn";
