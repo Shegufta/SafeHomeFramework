@@ -1,5 +1,8 @@
 package Temp;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.*;
 
 /**
@@ -140,8 +143,83 @@ public class MeasurementCollector
         if(!this.variableMeasurementMap.get(variable).get(consistencyType).containsKey(measurementType))
             return "ERROR: " + measurementType.name() + " for " + consistencyType.name() + " not available!";
 
-        finalizePrepareStatsAndGetAvg(variable, consistencyType, measurementType);
+        finalizePrepareStatsAndGetAvg(variable, consistencyType, measurementType); // this call makes it sure that the list has been finalized
 
         return this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).statLog;
+    }
+
+    public void writeStatsInFile(String parentDirPath, String changingParameterName)
+    {
+        File parentDir = new File(parentDirPath);
+        if(!parentDir.exists())
+        {
+            System.out.println("\n\n\nERROR: inside MeasurementCollector.java: directore not found: " + parentDirPath);
+            System.exit(1);
+        }
+
+
+        for(double variable : variableMeasurementMap.keySet())
+        {
+            String subDirPartialName = changingParameterName + variable;
+            String subDirPath = parentDirPath + "\\" + subDirPartialName;
+
+            File subDir = new File(subDirPath);
+            if(!subDir.exists())
+                subDir.mkdir();
+
+            for(CONSISTENCY_TYPE consistencyType : this.variableMeasurementMap.get(variable).keySet())
+            {
+                for(MEASUREMENT_TYPE measurementType : this.variableMeasurementMap.get(variable).get(consistencyType).keySet())
+                {
+                    String fileName = consistencyType.name() + "_" + measurementType.name() + ".dat";
+                    String filePath = subDirPath + "\\" + fileName;
+
+                    writeToFile(filePath, variable, consistencyType, measurementType);
+                }
+            }
+        }
+
+    }
+
+    private String listToString(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
+    {
+        finalizePrepareStatsAndGetAvg(variable, consistencyType, measurementType); // this call makes it sure that the list has been finalized
+
+        String str = "data\tactualFrequency\n";
+
+        double itemCount = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
+        final double actualFrequency = 1.0 / itemCount;
+
+        double frequencySum = 0.0;
+
+        for(int I = 0 ; I < itemCount ; ++I)
+        {
+            double data = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.get(I);
+            frequencySum += actualFrequency;
+
+            str += String.format("%.3f", data) + "\t" + String.format("%.3f", frequencySum);;
+
+            if(I < (itemCount -1))
+                str += "\n";
+        }
+
+        return str;
+    }
+
+    private void writeToFile(String filePath, double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
+    {
+        String listToString = listToString(variable, consistencyType, measurementType);
+        try
+        {
+            Writer fileWriter = new FileWriter(filePath);
+            fileWriter.write(listToString);
+            fileWriter.close();
+        }
+        catch (Exception ex)
+        {
+            System.out.println("\n\nERROR: cannot write file " + filePath);
+            System.exit(1);
+        }
+
     }
 }

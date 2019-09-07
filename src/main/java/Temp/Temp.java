@@ -417,7 +417,7 @@ public class Temp
         Map<Double, List<Double>> globalDataCollector = new HashMap<>();
         List<Double> variableTrakcer = new ArrayList<>();
         Double changingParameterValue = -1.0;
-        //String lastFilePath = "dummy";
+
 
         final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
         for(maxConcurrentRtn = 1; maxConcurrentRtn <= 10 ; maxConcurrentRtn++)
@@ -775,8 +775,6 @@ public class Temp
 
         try
         {
-
-
             String fileName = "VARY_" + changingParameterName + ".dat";
             String filePath = parentDirPath + "\\" + fileName;
 
@@ -790,6 +788,7 @@ public class Temp
             e.printStackTrace();
         }
 
+        measurementCollector.writeStatsInFile(parentDirPath, changingParameterName);
 
 
     }
