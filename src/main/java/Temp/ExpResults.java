@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class ExpResults
 {
-    public String logString;
+    //public String logString;
     public List<Double> delayList;
     public List<Double> stretchRatioList;
     public FailureAnalyzer failureAnalyzer;
@@ -25,7 +25,7 @@ public class ExpResults
 
     public ExpResults()
     {
-        this.logString = "";
+        //this.logString = "";
         this.delayList = new ArrayList<>();
         this.stretchRatioList = new ArrayList<>();
     }
