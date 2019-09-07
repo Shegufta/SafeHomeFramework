@@ -34,7 +34,7 @@ public class Temp
     private static final boolean isShortCmdDurationVary = true;
     private static final int shortCmdDurationVaryMultiplier = 3; // will vary upto N times
 
-    private static final int totalSampleCount = 10000;//100000;
+    private static final int totalSampleCount = 3;// 100000;
     private static final boolean isPrint = false;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
@@ -631,42 +631,46 @@ public class Temp
             String filePath = dataStorageDirectory + "\\" + fileName;
             lastFilePath = filePath;
 
-            List<Double> allDelay_Strong_List = new ArrayList<>();
-            List<Double> stretchRatio_Strong_List = new ArrayList<>();
-            List<Double> abortRatio_StrongList = new ArrayList<>();
-            List<Double> recoverCmdRatio_StrongList = new ArrayList<>();
-            List<Double> maxParallalRtnCnt_StrongList = new ArrayList<>();
-            List<Double> avgParallalRtnCnt_StrongList = new ArrayList<>();
-            List<Double> orderMismatchPercent_StrongList = new ArrayList<>();
-            List<Double> avgInconsistencyRatio_StrongList = new ArrayList<>();
+
+            MeasurementCollector measurementCollector = new MeasurementCollector(); //SBA new
 
 
-            List<Double> allDelay_RelStrong_List = new ArrayList<>();
-            List<Double> stretchRatio_RelStrong_List = new ArrayList<>();
-            List<Double> abortRatio_RelStrongList = new ArrayList<>();
-            List<Double> recoverCmdRatio_RelStrongList = new ArrayList<>();
-            List<Double> maxParallalRtnCnt_RelStrongList = new ArrayList<>();
-            List<Double> avgParallalRtnCnt_RelStrongList = new ArrayList<>();
-            List<Double> orderMismatchPercent_RelStrongList = new ArrayList<>();
-            List<Double> avgInconsistencyRatio_RelStrongList = new ArrayList<>();
-
-            List<Double> allDelay_LazyList = new ArrayList<>();
-            List<Double> stretchRatio_LazyList = new ArrayList<>();
-            List<Double> abortRatio_LazyList = new ArrayList<>();
-            List<Double> recoverCmdRatio_LazyList = new ArrayList<>();
-            List<Double> maxParallalRtnCnt_LazyList = new ArrayList<>();
-            List<Double> avgParallalRtnCnt_LazyList = new ArrayList<>();
-            List<Double> orderMismatchPercent_LazyList = new ArrayList<>();
-            List<Double> avgInconsistencyRatio_LazyList = new ArrayList<>();
-
-            List<Double> allDelay_EventualList = new ArrayList<>();
-            List<Double> stretchRatio_EventualList = new ArrayList<>();
-            List<Double> abortRatio_EventualList = new ArrayList<>();
-            List<Double> recoverCmdRatio_EventualList = new ArrayList<>();
-            List<Double> maxParallalRtnCnt_EventualList = new ArrayList<>();
-            List<Double> avgParallalRtnCnt_EventualList = new ArrayList<>();
-            List<Double> orderMismatchPercent_EventualList = new ArrayList<>();
-            List<Double> avgInconsistencyRatio_EventualList = new ArrayList<>();
+//            //List<Double> allDelay_Strong_List = new ArrayList<>();
+//            List<Double> stretchRatio_Strong_List = new ArrayList<>();
+//            List<Double> abortRatio_StrongList = new ArrayList<>();
+//            List<Double> recoverCmdRatio_StrongList = new ArrayList<>();
+//            List<Double> maxParallalRtnCnt_StrongList = new ArrayList<>();
+//            List<Double> avgParallalRtnCnt_StrongList = new ArrayList<>();
+//            List<Double> orderMismatchPercent_StrongList = new ArrayList<>();
+//            List<Double> avgInconsistencyRatio_StrongList = new ArrayList<>();
+//
+//
+//            //List<Double> allDelay_RelStrong_List = new ArrayList<>();
+//            List<Double> stretchRatio_RelStrong_List = new ArrayList<>();
+//            List<Double> abortRatio_RelStrongList = new ArrayList<>();
+//            List<Double> recoverCmdRatio_RelStrongList = new ArrayList<>();
+//            List<Double> maxParallalRtnCnt_RelStrongList = new ArrayList<>();
+//            List<Double> avgParallalRtnCnt_RelStrongList = new ArrayList<>();
+//            List<Double> orderMismatchPercent_RelStrongList = new ArrayList<>();
+//            List<Double> avgInconsistencyRatio_RelStrongList = new ArrayList<>();
+//
+//            //List<Double> allDelay_LazyList = new ArrayList<>();
+//            List<Double> stretchRatio_LazyList = new ArrayList<>();
+//            List<Double> abortRatio_LazyList = new ArrayList<>();
+//            List<Double> recoverCmdRatio_LazyList = new ArrayList<>();
+//            List<Double> maxParallalRtnCnt_LazyList = new ArrayList<>();
+//            List<Double> avgParallalRtnCnt_LazyList = new ArrayList<>();
+//            List<Double> orderMismatchPercent_LazyList = new ArrayList<>();
+//            List<Double> avgInconsistencyRatio_LazyList = new ArrayList<>();
+//
+//            //List<Double> allDelay_EventualList = new ArrayList<>();
+//            //List<Double> stretchRatio_EventualList = new ArrayList<>();
+//            List<Double> abortRatio_EventualList = new ArrayList<>();
+//            List<Double> recoverCmdRatio_EventualList = new ArrayList<>();
+//            List<Double> maxParallalRtnCnt_EventualList = new ArrayList<>();
+//            List<Double> avgParallalRtnCnt_EventualList = new ArrayList<>();
+//            List<Double> orderMismatchPercent_EventualList = new ArrayList<>();
+//            List<Double> avgInconsistencyRatio_EventualList = new ArrayList<>();
 
             int resolution = 10;
             int stepSize = totalSampleCount / resolution;
@@ -697,91 +701,163 @@ public class Temp
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
                 ExpResults expStrong = runExperiment(devIDlist, CONSISTENCY_TYPE.STRONG, routineSet);
-                allDelay_Strong_List.addAll(expStrong.delayList);
-                stretchRatio_Strong_List.addAll(expStrong.stretchRatioList);
+                //allDelay_Strong_List.addAll(expStrong.delayList);
+                    measurementCollector.collectData(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DELAY, expStrong.delayList); //SBA new
+//                stretchRatio_Strong_List.addAll(expStrong.stretchRatioList);
 
                 failureResult = expStrong.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
                 abtRatio = failureResult.getAbtRtnVsTotalRtnRatio(maxConcurrentRtn);
-                if(abtRatio != 0)
-                    abortRatio_StrongList.add(abtRatio);
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ABORT_RATE,
+                        abtRatio, true); //SBA new
+//                if(abtRatio != 0)
+//                    abortRatio_StrongList.add(abtRatio);
                 recoverCmdRatio = failureResult.getRecoveryCmdSentRatio();
-                if(recoverCmdRatio != 0)
-                    recoverCmdRatio_StrongList.add(recoverCmdRatio);
-                //logStr += expStrong.logString + "\n";
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.RECOVERY_CMD,
+                        recoverCmdRatio, true); //SBA new
+//                if(recoverCmdRatio != 0)
+//                    recoverCmdRatio_StrongList.add(recoverCmdRatio);
 
-                measurement = expStrong.measurement;
-                if(measurement.maxParallalRtnCnt != 0)
-                    maxParallalRtnCnt_StrongList.add(measurement.maxParallalRtnCnt);
-                if(measurement.avgParallalRtnCnt != 0)
-                    avgParallalRtnCnt_StrongList.add(measurement.avgParallalRtnCnt);
-                if(measurement.avgInconsistencyRatio != 0)
-                    avgInconsistencyRatio_StrongList.add(measurement.avgInconsistencyRatio);
-                if(measurement.orderMismatchPercent != 0)
-                    orderMismatchPercent_StrongList.add(measurement.orderMismatchPercent);
+
+
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.PARALLEL,
+                        expStrong.measurement.maxParallalRtnCnt, true); //SBA new
+
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.INCONSISTENCY,
+                        expStrong.measurement.avgInconsistencyRatio, true); //SBA new
+
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH,
+                        expStrong.measurement.orderMismatchPercent, true); //SBA new
+
+//                measurement = expStrong.measurement;
+//                if(measurement.maxParallalRtnCnt != 0)
+//                    maxParallalRtnCnt_StrongList.add(measurement.maxParallalRtnCnt);
+//                if(measurement.avgParallalRtnCnt != 0)
+//                    avgParallalRtnCnt_StrongList.add(measurement.avgParallalRtnCnt);
+//                if(measurement.avgInconsistencyRatio != 0)
+//                    avgInconsistencyRatio_StrongList.add(measurement.avgInconsistencyRatio);
+//                if(measurement.orderMismatchPercent != 0)
+//                    orderMismatchPercent_StrongList.add(measurement.orderMismatchPercent);
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
                 ExpResults expRelaxedStrng = runExperiment(devIDlist, CONSISTENCY_TYPE.RELAXED_STRONG, routineSet);
-                allDelay_RelStrong_List.addAll(expRelaxedStrng.delayList);
-                stretchRatio_RelStrong_List.addAll(expRelaxedStrng.stretchRatioList);
+                //allDelay_RelStrong_List.addAll(expRelaxedStrng.delayList);
+                    measurementCollector.collectData(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DELAY, expRelaxedStrng.delayList); //SBA new
+                //stretchRatio_RelStrong_List.addAll(expRelaxedStrng.stretchRatioList);
 
                 failureResult = expRelaxedStrng.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
                 abtRatio = failureResult.getAbtRtnVsTotalRtnRatio(maxConcurrentRtn);
-                if(abtRatio != 0)
-                    abortRatio_RelStrongList.add(abtRatio);
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ABORT_RATE,
+                        abtRatio, true); //SBA new
+//                if(abtRatio != 0)
+//                    abortRatio_RelStrongList.add(abtRatio);
                 recoverCmdRatio = failureResult.getRecoveryCmdSentRatio();
-                if(recoverCmdRatio != 0)
-                    recoverCmdRatio_RelStrongList.add(recoverCmdRatio);
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.RECOVERY_CMD,
+                        recoverCmdRatio, true); //SBA new
+//                if(recoverCmdRatio != 0)
+//                    recoverCmdRatio_RelStrongList.add(recoverCmdRatio);
 
 
-                measurement = expRelaxedStrng.measurement;
-                if(measurement.maxParallalRtnCnt != 0)
-                    maxParallalRtnCnt_RelStrongList.add(measurement.maxParallalRtnCnt);
-                if(measurement.avgParallalRtnCnt != 0)
-                    avgParallalRtnCnt_RelStrongList.add(measurement.avgParallalRtnCnt);
-                if(measurement.avgInconsistencyRatio != 0)
-                    avgInconsistencyRatio_RelStrongList.add(measurement.avgInconsistencyRatio);
-                if(measurement.orderMismatchPercent != 0)
-                    orderMismatchPercent_RelStrongList.add(measurement.orderMismatchPercent);
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.PARALLEL,
+                        expRelaxedStrng.measurement.maxParallalRtnCnt, true); //SBA new
+
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.INCONSISTENCY,
+                        expRelaxedStrng.measurement.avgInconsistencyRatio, true); //SBA new
+
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH,
+                        expRelaxedStrng.measurement.orderMismatchPercent, true); //SBA new
+
+//                measurement = expRelaxedStrng.measurement;
+//                if(measurement.maxParallalRtnCnt != 0)
+//                    maxParallalRtnCnt_RelStrongList.add(measurement.maxParallalRtnCnt);
+//                if(measurement.avgParallalRtnCnt != 0)
+//                    avgParallalRtnCnt_RelStrongList.add(measurement.avgParallalRtnCnt);
+//                if(measurement.avgInconsistencyRatio != 0)
+//                    avgInconsistencyRatio_RelStrongList.add(measurement.avgInconsistencyRatio);
+//                if(measurement.orderMismatchPercent != 0)
+//                    orderMismatchPercent_RelStrongList.add(measurement.orderMismatchPercent);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
                 ExpResults expLazy = runExperiment(devIDlist, CONSISTENCY_TYPE.LAZY, routineSet);
-                allDelay_LazyList.addAll(expLazy.delayList);
+                //allDelay_LazyList.addAll(expLazy.delayList);
+                    measurementCollector.collectData(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.DELAY, expLazy.delayList); //SBA new
 
-                measurement = expLazy.measurement;
-                if(measurement.maxParallalRtnCnt != 0)
-                    maxParallalRtnCnt_LazyList.add(measurement.maxParallalRtnCnt);
-                if(measurement.avgParallalRtnCnt != 0)
-                    avgParallalRtnCnt_LazyList.add(measurement.avgParallalRtnCnt);
-                if(measurement.avgInconsistencyRatio != 0)
-                    avgInconsistencyRatio_LazyList.add(measurement.avgInconsistencyRatio);
-                if(measurement.orderMismatchPercent != 0)
-                    orderMismatchPercent_LazyList.add(measurement.orderMismatchPercent);
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.PARALLEL,
+                        expLazy.measurement.maxParallalRtnCnt, true); //SBA new
+
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.INCONSISTENCY,
+                        expLazy.measurement.avgInconsistencyRatio, true); //SBA new
+
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDDER_MISMATCH,
+                        expLazy.measurement.orderMismatchPercent, true); //SBA new
+
+//                measurement = expLazy.measurement;
+//                if(measurement.maxParallalRtnCnt != 0)
+//                    maxParallalRtnCnt_LazyList.add(measurement.maxParallalRtnCnt);
+//                if(measurement.avgParallalRtnCnt != 0)
+//                    avgParallalRtnCnt_LazyList.add(measurement.avgParallalRtnCnt);
+//                if(measurement.avgInconsistencyRatio != 0)
+//                    avgInconsistencyRatio_LazyList.add(measurement.avgInconsistencyRatio);
+//                if(measurement.orderMismatchPercent != 0)
+//                    orderMismatchPercent_LazyList.add(measurement.orderMismatchPercent);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
                 ExpResults expEventual = runExperiment(devIDlist, CONSISTENCY_TYPE.EVENTUAL, routineSet);
-                allDelay_EventualList.addAll(expEventual.delayList);
-                stretchRatio_EventualList.addAll(expEventual.stretchRatioList);
+                //allDelay_EventualList.addAll(expEventual.delayList);
+                    measurementCollector.collectData(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DELAY, expEventual.delayList); //SBA new
+                //stretchRatio_EventualList.addAll(expEventual.stretchRatioList);
+                    measurementCollector.collectData(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.STRETCH_RATIO, expEventual.stretchRatioList); //SBA new
 
                 failureResult = expEventual.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
                 abtRatio = failureResult.getAbtRtnVsTotalRtnRatio(maxConcurrentRtn);
-                if(abtRatio != 0)
-                    abortRatio_EventualList.add(abtRatio);
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ABORT_RATE,
+                        abtRatio, true); //SBA new
+//                if(abtRatio != 0)
+//                    abortRatio_EventualList.add(abtRatio);
                 recoverCmdRatio = failureResult.getRecoveryCmdSentRatio();
-                if(recoverCmdRatio != 0)
-                    recoverCmdRatio_EventualList.add(recoverCmdRatio);
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.RECOVERY_CMD,
+                        recoverCmdRatio, true); //SBA new
+//                if(recoverCmdRatio != 0)
+//                    recoverCmdRatio_EventualList.add(recoverCmdRatio);
 
-                measurement = expEventual.measurement;
-                if(measurement.maxParallalRtnCnt != 0)
-                    maxParallalRtnCnt_EventualList.add(measurement.maxParallalRtnCnt);
-                if(measurement.avgParallalRtnCnt != 0)
-                    avgParallalRtnCnt_EventualList.add(measurement.avgParallalRtnCnt);
-                if(measurement.avgInconsistencyRatio != 0)
-                    avgInconsistencyRatio_EventualList.add(measurement.avgInconsistencyRatio);
-                if(measurement.orderMismatchPercent != 0)
-                    orderMismatchPercent_EventualList.add(measurement.orderMismatchPercent);
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.PARALLEL,
+                        expLazy.measurement.maxParallalRtnCnt, true); //SBA new
+
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.INCONSISTENCY,
+                        expLazy.measurement.avgInconsistencyRatio, true); //SBA new
+
+                measurementCollector.collectData(variableInfo,
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDDER_MISMATCH,
+                        expLazy.measurement.orderMismatchPercent, true); //SBA new
+
+//                measurement = expEventual.measurement;
+//                if(measurement.maxParallalRtnCnt != 0)
+//                    maxParallalRtnCnt_EventualList.add(measurement.maxParallalRtnCnt);
+//                if(measurement.avgParallalRtnCnt != 0)
+//                    avgParallalRtnCnt_EventualList.add(measurement.avgParallalRtnCnt);
+//                if(measurement.avgInconsistencyRatio != 0)
+//                    avgInconsistencyRatio_EventualList.add(measurement.avgInconsistencyRatio);
+//                if(measurement.orderMismatchPercent != 0)
+//                    orderMismatchPercent_EventualList.add(measurement.orderMismatchPercent);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
             }
@@ -789,257 +865,321 @@ public class Temp
             System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~all runs~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             logStr += "~~~~~~~~~~~~~~~~~~~~~~~~~~~all runs~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            ExpResults allDelay_StrongExpRslt = getStats("ALL STRONG DELAY", allDelay_Strong_List);
-            String allDelay_Strong_stats = allDelay_StrongExpRslt.logString;
-
-            ExpResults allDelay_RelaxedStrongExpRslt = getStats("ALL R.STRONG DELAY", allDelay_RelStrong_List);
-            String allDelay_RelaxedStrong_stats = allDelay_RelaxedStrongExpRslt.logString;
-
-            ExpResults allDelay_EventualExpRslt = getStats("ALL EVENTUAL DELAY", allDelay_EventualList);
-            String allDelay_Eventual_stats = allDelay_EventualExpRslt.logString;
-
-            ExpResults allDelay_LazyRslt = getStats("ALL LAZY DELAY", allDelay_LazyList);
-            String allDelay_Lazy_stats = allDelay_LazyRslt.logString;
+//            ExpResults allDelay_StrongExpRslt = getStats("ALL STRONG DELAY", allDelay_Strong_List);
+//            String allDelay_Strong_stats = allDelay_StrongExpRslt.logString;
+//
+//            ExpResults allDelay_RelaxedStrongExpRslt = getStats("ALL R.STRONG DELAY", allDelay_RelStrong_List);
+//            String allDelay_RelaxedStrong_stats = allDelay_RelaxedStrongExpRslt.logString;
+//
+//            ExpResults allDelay_EventualExpRslt = getStats("ALL EVENTUAL DELAY", allDelay_EventualList);
+//            String allDelay_Eventual_stats = allDelay_EventualExpRslt.logString;
+//
+//            ExpResults allDelay_LazyRslt = getStats("ALL LAZY DELAY", allDelay_LazyList);
+//            String allDelay_Lazy_stats = allDelay_LazyRslt.logString;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            ExpResults stretchRatio_EventualExpRslt = getStats("ALL EVENTUAL STRETCH_RATIO", stretchRatio_EventualList);
-            String stretchRatio_Eventual_stats = stretchRatio_EventualExpRslt.logString;
+//            ExpResults stretchRatio_EventualExpRslt = getStats("ALL EVENTUAL STRETCH_RATIO", stretchRatio_EventualList);
+//            String stretchRatio_Eventual_stats = stretchRatio_EventualExpRslt.logString;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            ExpResults abortRatio_StrongExpRslt = getStats("ABT RATIO STRONG", abortRatio_StrongList);
-            String abortRatio_Strong_stats = abortRatio_StrongExpRslt.logString;
-
-            ExpResults abortRatio_RelStrongRslt = getStats("ABT RATIO R.STRONG", abortRatio_RelStrongList);
-            String abortRatio_RelStrong_stats = abortRatio_RelStrongRslt.logString;
-
-            ExpResults abortRatio_EventualRslt = getStats("ABT RATIO EVENTUAL", abortRatio_EventualList);
-            String abortRatio_Eventual_stats = abortRatio_EventualRslt.logString;
+//            ExpResults abortRatio_StrongExpRslt = getStats("ABT RATIO STRONG", abortRatio_StrongList);
+//            String abortRatio_Strong_stats = abortRatio_StrongExpRslt.logString;
+//
+//            ExpResults abortRatio_RelStrongRslt = getStats("ABT RATIO R.STRONG", abortRatio_RelStrongList);
+//            String abortRatio_RelStrong_stats = abortRatio_RelStrongRslt.logString;
+//
+//            ExpResults abortRatio_EventualRslt = getStats("ABT RATIO EVENTUAL", abortRatio_EventualList);
+//            String abortRatio_Eventual_stats = abortRatio_EventualRslt.logString;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            ExpResults maxPrlRtnCnt_StrongExpRslt = getStats("Mx Prll Rtn STRONG", maxParallalRtnCnt_StrongList);
-            String maxPrlRtnCnt_Strong_stats = maxPrlRtnCnt_StrongExpRslt.logString;
-
-            ExpResults maxPrlRtnCnt_RelaxedStrongExpRslt = getStats("Mx Prll Rtn R.STRONG", maxParallalRtnCnt_RelStrongList);
-            String maxPrlRtnCnt_RelaxedStrong_stats = maxPrlRtnCnt_RelaxedStrongExpRslt.logString;
-
-            ExpResults maxPrlRtnCnt_EventualExpRslt = getStats("Mx Prll Rtn EVENTUAL", maxParallalRtnCnt_EventualList);
-            String maxPrlRtnCnt_Eventual_stats = maxPrlRtnCnt_EventualExpRslt.logString;
-
-            ExpResults maxPrlRtnCnt_LazyRslt = getStats("Mx Prll Rtn LAZY", maxParallalRtnCnt_LazyList);
-            String maxPrlRtnCnt_Lazy_stats = maxPrlRtnCnt_LazyRslt.logString;
-
-
-
-            ExpResults avgPrlRtnCnt_StrongExpRslt = getStats("Avg Prll Rtn STRONG", avgParallalRtnCnt_StrongList);
-            String avgPrlRtnCnt_Strong_stats = avgPrlRtnCnt_StrongExpRslt.logString;
-
-            ExpResults avgPrlRtnCnt_RelaxedStrongExpRslt = getStats("Avg Prll Rtn R.STRONG", avgParallalRtnCnt_RelStrongList);
-            String avgPrlRtnCnt_RelaxedStrong_stats = avgPrlRtnCnt_RelaxedStrongExpRslt.logString;
-
-            ExpResults avgPrlRtnCnt_EventualExpRslt = getStats("Avg Prll Rtn EVENTUAL", avgParallalRtnCnt_EventualList);
-            String avgPrlRtnCnt_Eventual_stats = avgPrlRtnCnt_EventualExpRslt.logString;
-
-            ExpResults avgPrlRtnCnt_LazyRslt = getStats("Avg Prll Rtn LAZY", avgParallalRtnCnt_LazyList);
-            String avgPrlRtnCnt_Lazy_stats = avgPrlRtnCnt_LazyRslt.logString;
-
-
-
-            ExpResults orderMismatchPercent_StrongExpRslt = getStats("OrderingMismatch STRONG", orderMismatchPercent_StrongList);
-            String orderMismatchPercent_Strong_stats = orderMismatchPercent_StrongExpRslt.logString;
-
-            ExpResults orderMismatchPercent_RelaxedStrongExpRslt = getStats("OrderingMismatch R.STRONG", orderMismatchPercent_RelStrongList);
-            String orderMismatchPercent_RelaxedStrong_stats = orderMismatchPercent_RelaxedStrongExpRslt.logString;
-
-            ExpResults orderMismatchPercent_EventualExpRslt = getStats("OrderingMismatch EVENTUAL", orderMismatchPercent_EventualList);
-            String orderMismatchPercent_Eventual_stats = orderMismatchPercent_EventualExpRslt.logString;
-
-            ExpResults orderMismatchPercent_LazyRslt = getStats("OrderingMismatch LAZY", orderMismatchPercent_LazyList);
-            String orderMismatchPercent_Lazy_stats = orderMismatchPercent_LazyRslt.logString;
-
-
-
-
-            ExpResults avgInconsistencyRatio_StrongExpRslt = getStats("avgInconsistencyRatio STRONG", avgInconsistencyRatio_StrongList);
-            String avgInconsistencyRatio_Strong_stats = avgInconsistencyRatio_StrongExpRslt.logString;
-
-            ExpResults avgInconsistencyRatio_RelaxedStrongExpRslt = getStats("avgInconsistencyRatio R.STRONG", avgInconsistencyRatio_RelStrongList);
-            String avgInconsistencyRatio_RelaxedStrong_stats = avgInconsistencyRatio_RelaxedStrongExpRslt.logString;
-
-            ExpResults avgInconsistencyRatio_EventualExpRslt = getStats("avgInconsistencyRatio EVENTUAL", avgInconsistencyRatio_EventualList);
-            String avgInconsistencyRatio_Eventual_stats = avgInconsistencyRatio_EventualExpRslt.logString;
-
-            ExpResults avgInconsistencyRatio_LazyRslt = getStats("avgInconsistencyRatio LAZY", avgInconsistencyRatio_LazyList);
-            String avgInconsistencyRatio_Lazy_stats = avgInconsistencyRatio_LazyRslt.logString;
+//            ExpResults maxPrlRtnCnt_StrongExpRslt = getStats("Mx Prll Rtn STRONG", maxParallalRtnCnt_StrongList);
+//            String maxPrlRtnCnt_Strong_stats = maxPrlRtnCnt_StrongExpRslt.logString;
+//
+//            ExpResults maxPrlRtnCnt_RelaxedStrongExpRslt = getStats("Mx Prll Rtn R.STRONG", maxParallalRtnCnt_RelStrongList);
+//            String maxPrlRtnCnt_RelaxedStrong_stats = maxPrlRtnCnt_RelaxedStrongExpRslt.logString;
+//
+//            ExpResults maxPrlRtnCnt_EventualExpRslt = getStats("Mx Prll Rtn EVENTUAL", maxParallalRtnCnt_EventualList);
+//            String maxPrlRtnCnt_Eventual_stats = maxPrlRtnCnt_EventualExpRslt.logString;
+//
+//            ExpResults maxPrlRtnCnt_LazyRslt = getStats("Mx Prll Rtn LAZY", maxParallalRtnCnt_LazyList);
+//            String maxPrlRtnCnt_Lazy_stats = maxPrlRtnCnt_LazyRslt.logString;
+//
+//
+//
+//            ExpResults avgPrlRtnCnt_StrongExpRslt = getStats("Avg Prll Rtn STRONG", avgParallalRtnCnt_StrongList);
+//            String avgPrlRtnCnt_Strong_stats = avgPrlRtnCnt_StrongExpRslt.logString;
+//
+//            ExpResults avgPrlRtnCnt_RelaxedStrongExpRslt = getStats("Avg Prll Rtn R.STRONG", avgParallalRtnCnt_RelStrongList);
+//            String avgPrlRtnCnt_RelaxedStrong_stats = avgPrlRtnCnt_RelaxedStrongExpRslt.logString;
+//
+//            ExpResults avgPrlRtnCnt_EventualExpRslt = getStats("Avg Prll Rtn EVENTUAL", avgParallalRtnCnt_EventualList);
+//            String avgPrlRtnCnt_Eventual_stats = avgPrlRtnCnt_EventualExpRslt.logString;
+//
+//            ExpResults avgPrlRtnCnt_LazyRslt = getStats("Avg Prll Rtn LAZY", avgParallalRtnCnt_LazyList);
+//            String avgPrlRtnCnt_Lazy_stats = avgPrlRtnCnt_LazyRslt.logString;
+//
+//
+//
+//            ExpResults orderMismatchPercent_StrongExpRslt = getStats("OrderingMismatch STRONG", orderMismatchPercent_StrongList);
+//            String orderMismatchPercent_Strong_stats = orderMismatchPercent_StrongExpRslt.logString;
+//
+//            ExpResults orderMismatchPercent_RelaxedStrongExpRslt = getStats("OrderingMismatch R.STRONG", orderMismatchPercent_RelStrongList);
+//            String orderMismatchPercent_RelaxedStrong_stats = orderMismatchPercent_RelaxedStrongExpRslt.logString;
+//
+//            ExpResults orderMismatchPercent_EventualExpRslt = getStats("OrderingMismatch EVENTUAL", orderMismatchPercent_EventualList);
+//            String orderMismatchPercent_Eventual_stats = orderMismatchPercent_EventualExpRslt.logString;
+//
+//            ExpResults orderMismatchPercent_LazyRslt = getStats("OrderingMismatch LAZY", orderMismatchPercent_LazyList);
+//            String orderMismatchPercent_Lazy_stats = orderMismatchPercent_LazyRslt.logString;
+//
+//
+//
+//
+//            ExpResults avgInconsistencyRatio_StrongExpRslt = getStats("avgInconsistencyRatio STRONG", avgInconsistencyRatio_StrongList);
+//            String avgInconsistencyRatio_Strong_stats = avgInconsistencyRatio_StrongExpRslt.logString;
+//
+//            ExpResults avgInconsistencyRatio_RelaxedStrongExpRslt = getStats("avgInconsistencyRatio R.STRONG", avgInconsistencyRatio_RelStrongList);
+//            String avgInconsistencyRatio_RelaxedStrong_stats = avgInconsistencyRatio_RelaxedStrongExpRslt.logString;
+//
+//            ExpResults avgInconsistencyRatio_EventualExpRslt = getStats("avgInconsistencyRatio EVENTUAL", avgInconsistencyRatio_EventualList);
+//            String avgInconsistencyRatio_Eventual_stats = avgInconsistencyRatio_EventualExpRslt.logString;
+//
+//            ExpResults avgInconsistencyRatio_LazyRslt = getStats("avgInconsistencyRatio LAZY", avgInconsistencyRatio_LazyList);
+//            String avgInconsistencyRatio_Lazy_stats = avgInconsistencyRatio_LazyRslt.logString;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            ExpResults recoverCmdRatio_StrongExpRslt = getStats("Recover Cmd RATIO STRONG", recoverCmdRatio_StrongList);
-            String recoverCmdRatio_Strong_stats = recoverCmdRatio_StrongExpRslt.logString;
+//            ExpResults recoverCmdRatio_StrongExpRslt = getStats("Recover Cmd RATIO STRONG", recoverCmdRatio_StrongList);
+//            String recoverCmdRatio_Strong_stats = recoverCmdRatio_StrongExpRslt.logString;
+//
+//            ExpResults recoverCmdRatio_RelStrongRslt = getStats("Recover Cmd RATIO R.STRONG", recoverCmdRatio_RelStrongList);
+//            String recoverCmdRatio_RelStrong_stats = recoverCmdRatio_RelStrongRslt.logString;
+//
+//            ExpResults recoverCmdRatio_EventualRslt = getStats("Recover Cmd RATIO EVENTUAL", recoverCmdRatio_EventualList);
+//            String recoverCmdRatio_Eventual_stats = recoverCmdRatio_EventualRslt.logString;
 
-            ExpResults recoverCmdRatio_RelStrongRslt = getStats("Recover Cmd RATIO R.STRONG", recoverCmdRatio_RelStrongList);
-            String recoverCmdRatio_RelStrong_stats = recoverCmdRatio_RelStrongRslt.logString;
-
-            ExpResults recoverCmdRatio_EventualRslt = getStats("Recover Cmd RATIO EVENTUAL", recoverCmdRatio_EventualList);
-            String recoverCmdRatio_Eventual_stats = recoverCmdRatio_EventualRslt.logString;
 
 
+            //System.out.println(allDelay_Strong_stats);
+            //logStr += allDelay_Strong_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DELAY));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DELAY) + "\n";//SBA new
 
-            System.out.println(allDelay_Strong_stats);
-            logStr += allDelay_Strong_stats + "\n";
+            //System.out.println(allDelay_RelaxedStrong_stats);
+            //logStr += allDelay_RelaxedStrong_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DELAY));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DELAY) + "\n";//SBA new
 
-            System.out.println(allDelay_RelaxedStrong_stats);
-            logStr += allDelay_RelaxedStrong_stats + "\n";
+            //System.out.println(allDelay_Eventual_stats);
+            //logStr += allDelay_Eventual_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DELAY));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DELAY) + "\n";//SBA new
 
-            System.out.println(allDelay_Eventual_stats);
-            logStr += allDelay_Eventual_stats + "\n";
+            //System.out.println(allDelay_Lazy_stats);
+            //logStr += allDelay_Lazy_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.DELAY));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.DELAY) + "\n";//SBA new
 
-            System.out.println(allDelay_Lazy_stats);
-            logStr += allDelay_Lazy_stats + "\n";
+//            System.out.println(stretchRatio_Eventual_stats);
+//            logStr += stretchRatio_Eventual_stats+ "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.STRETCH_RATIO));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.STRETCH_RATIO) + "\n";//SBA new
 
-            System.out.println(stretchRatio_Eventual_stats);
-            logStr += stretchRatio_Eventual_stats+ "\n";
 
-            System.out.println(abortRatio_Strong_stats);
-            logStr += abortRatio_Strong_stats+ "\n";
+//            System.out.println(abortRatio_Strong_stats);
+//            logStr += abortRatio_Strong_stats+ "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ABORT_RATE));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ABORT_RATE) + "\n";//SBA new
 
-            System.out.println(abortRatio_RelStrong_stats);
-            logStr += abortRatio_RelStrong_stats+ "\n";
+//            System.out.println(abortRatio_RelStrong_stats);
+//            logStr += abortRatio_RelStrong_stats+ "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ABORT_RATE));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ABORT_RATE) + "\n";//SBA new
 
-            System.out.println(abortRatio_Eventual_stats);
-            logStr += abortRatio_Eventual_stats+ "\n";
+//            System.out.println(abortRatio_Eventual_stats);
+//            logStr += abortRatio_Eventual_stats+ "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ABORT_RATE));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ABORT_RATE) + "\n";//SBA new
 
-            System.out.println(recoverCmdRatio_Strong_stats);
-            logStr += recoverCmdRatio_Strong_stats+ "\n";
+            //System.out.println(recoverCmdRatio_Strong_stats);
+            //logStr += recoverCmdRatio_Strong_stats+ "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.RECOVERY_CMD));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.RECOVERY_CMD) + "\n";//SBA new
 
-            System.out.println(recoverCmdRatio_RelStrong_stats);
-            logStr += recoverCmdRatio_RelStrong_stats+ "\n";
+//            System.out.println(recoverCmdRatio_RelStrong_stats);
+//            logStr += recoverCmdRatio_RelStrong_stats+ "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.RECOVERY_CMD));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.RECOVERY_CMD) + "\n";//SBA new
 
-            System.out.println(recoverCmdRatio_Eventual_stats);
-            logStr += recoverCmdRatio_Eventual_stats+ "\n";
+//            System.out.println(recoverCmdRatio_Eventual_stats);
+//            logStr += recoverCmdRatio_Eventual_stats+ "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.RECOVERY_CMD));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.RECOVERY_CMD) + "\n";//SBA new
 
             /////////////////////////////////////////////////////////////
-            System.out.println(maxPrlRtnCnt_Strong_stats);
-            logStr += maxPrlRtnCnt_Strong_stats + "\n";
 
-            System.out.println(maxPrlRtnCnt_RelaxedStrong_stats);
-            logStr += maxPrlRtnCnt_RelaxedStrong_stats + "\n";
+            //System.out.println(maxPrlRtnCnt_Strong_stats);
+            //logStr += maxPrlRtnCnt_Strong_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.PARALLEL));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.PARALLEL) + "\n";//SBA new
 
-            System.out.println(maxPrlRtnCnt_Eventual_stats);
-            logStr += maxPrlRtnCnt_Eventual_stats + "\n";
+//            System.out.println(maxPrlRtnCnt_RelaxedStrong_stats);
+//            logStr += maxPrlRtnCnt_RelaxedStrong_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.PARALLEL));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.PARALLEL) + "\n";//SBA new
 
-            System.out.println(maxPrlRtnCnt_Lazy_stats);
-            logStr += maxPrlRtnCnt_Lazy_stats + "\n";
+//            System.out.println(maxPrlRtnCnt_Lazy_stats);
+//            logStr += maxPrlRtnCnt_Lazy_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.PARALLEL));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.PARALLEL) + "\n";//SBA new
+
+
+//            System.out.println(maxPrlRtnCnt_Eventual_stats);
+//            logStr += maxPrlRtnCnt_Eventual_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.PARALLEL));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.PARALLEL) + "\n";//SBA new
+
+
             ///////////
-            System.out.println(avgPrlRtnCnt_Strong_stats);
-            logStr += avgPrlRtnCnt_Strong_stats + "\n";
-
-            System.out.println(avgPrlRtnCnt_RelaxedStrong_stats);
-            logStr += avgPrlRtnCnt_RelaxedStrong_stats + "\n";
-
-            System.out.println(avgPrlRtnCnt_Eventual_stats);
-            logStr += avgPrlRtnCnt_Eventual_stats + "\n";
-
-            System.out.println(avgPrlRtnCnt_Lazy_stats);
-            logStr += avgPrlRtnCnt_Lazy_stats + "\n";
+//            System.out.println(avgPrlRtnCnt_Strong_stats);
+//            logStr += avgPrlRtnCnt_Strong_stats + "\n";
+//
+//            System.out.println(avgPrlRtnCnt_RelaxedStrong_stats);
+//            logStr += avgPrlRtnCnt_RelaxedStrong_stats + "\n";
+//
+//            System.out.println(avgPrlRtnCnt_Eventual_stats);
+//            logStr += avgPrlRtnCnt_Eventual_stats + "\n";
+//
+//            System.out.println(avgPrlRtnCnt_Lazy_stats);
+//            logStr += avgPrlRtnCnt_Lazy_stats + "\n";
             ///////////
-            System.out.println(orderMismatchPercent_Strong_stats);
-            logStr += orderMismatchPercent_Strong_stats + "\n";
+//            System.out.println(orderMismatchPercent_Strong_stats);
+//            logStr += orderMismatchPercent_Strong_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH) + "\n";//SBA new
 
-            System.out.println(orderMismatchPercent_RelaxedStrong_stats);
-            logStr += orderMismatchPercent_RelaxedStrong_stats + "\n";
+//            System.out.println(orderMismatchPercent_RelaxedStrong_stats);
+//            logStr += orderMismatchPercent_RelaxedStrong_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH) + "\n";//SBA new
 
-            System.out.println(orderMismatchPercent_Eventual_stats);
-            logStr += orderMismatchPercent_Eventual_stats + "\n";
+            //            System.out.println(orderMismatchPercent_Lazy_stats);
+//            logStr += orderMismatchPercent_Lazy_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDDER_MISMATCH));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDDER_MISMATCH) + "\n";//SBA new
 
-            System.out.println(orderMismatchPercent_Lazy_stats);
-            logStr += orderMismatchPercent_Lazy_stats + "\n";
+//            System.out.println(orderMismatchPercent_Eventual_stats);
+//            logStr += orderMismatchPercent_Eventual_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDDER_MISMATCH));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDDER_MISMATCH) + "\n";//SBA new
+
+
             ///////////
-            System.out.println(avgInconsistencyRatio_Strong_stats);
-            logStr += avgInconsistencyRatio_Strong_stats + "\n";
+//            System.out.println(avgInconsistencyRatio_Strong_stats);
+//            logStr += avgInconsistencyRatio_Strong_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.INCONSISTENCY));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.INCONSISTENCY) + "\n";//SBA new
 
-            System.out.println(avgInconsistencyRatio_RelaxedStrong_stats);
-            logStr += avgInconsistencyRatio_RelaxedStrong_stats + "\n";
+//            System.out.println(avgInconsistencyRatio_RelaxedStrong_stats);
+//            logStr += avgInconsistencyRatio_RelaxedStrong_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.INCONSISTENCY));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.INCONSISTENCY) + "\n";//SBA new
 
-            System.out.println(avgInconsistencyRatio_Eventual_stats);
-            logStr += avgInconsistencyRatio_Eventual_stats + "\n";
+//            System.out.println(avgInconsistencyRatio_Lazy_stats);
+//            logStr += avgInconsistencyRatio_Lazy_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.INCONSISTENCY));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.INCONSISTENCY) + "\n";//SBA new
 
-            System.out.println(avgInconsistencyRatio_Lazy_stats);
-            logStr += avgInconsistencyRatio_Lazy_stats + "\n";
+//            System.out.println(avgInconsistencyRatio_Eventual_stats);
+//            logStr += avgInconsistencyRatio_Eventual_stats + "\n";
+            System.out.println(measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.INCONSISTENCY));//SBA new
+            logStr += measurementCollector.getStats(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.INCONSISTENCY) + "\n";//SBA new
+
+
             /////////////////////////////////////////////////////////////
 
 
             logStr += "\n\n=========================================================================\n\n";
-            //String header = "Variable \t StgAvg \t R.StgAvg \t LzyAvg \t EvnAvg \t StgSD \t R.StgSD \t LzySD \t EvnSD \t EvnGapAvg \t EvnGapSD" +
+            //String header = "Variable \t StgAvg \t R.StgAvg \t LzyAvg \t EvnAvg \t EvnGapAvg +
+            //////////String header = "Variable \t StgAvg \t R.StgAvg \t LzyAvg \t EvnAvg \t StgSD \t R.StgSD \t LzySD \t EvnSD \t EvnGapAvg \t EvnGapSD" +
             // "StgMaxPrlRtn \t RstgMaxPrlRtn \t LazyMaxPrlRtn \t EvnMaxPrlRtn" +
             // "StgAvgPrlRtn \t RstgAvgPrlRtn \t LazyAvgPrlRtn \t EvnAvgPrlRtn" +
             // "StgOdrMismtch \t RstgOdrMismtch \t LazyOdrMismtch \t EvnOdrMismtch" +
             // "StgInconRatio \t RstgInconRatio \t LazyInconRatio \t EvnInconRatio"
 
 
-            resultCollector.add((double)allDelay_StrongExpRslt.roundedAvg);
-            resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedAvg);
-            resultCollector.add((double)allDelay_LazyRslt.roundedAvg);
-            resultCollector.add((double)allDelay_EventualExpRslt.roundedAvg);
-
-            resultCollector.add((double)allDelay_StrongExpRslt.roundedSD);
-            resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedSD);
-            resultCollector.add((double)allDelay_LazyRslt.roundedSD);
-            resultCollector.add((double)allDelay_EventualExpRslt.roundedSD);
-
-            resultCollector.add((double)stretchRatio_EventualExpRslt.rawAvg);
-            resultCollector.add((double)stretchRatio_EventualExpRslt.rawSD);
-
-            /*
-
-            //String header = "Variable \t StgAvg \t StgSD \t R.StgAvg \t R.StgSD \t LzyAvg \t LzySD \t EvnAvg \t EvnSD \t EvnGapAvg \t EvnGapSD" +
-            // "StgMaxPrlRtn \t RstgMaxPrlRtn \t LazyMaxPrlRtn \t EvnMaxPrlRtn" +
-            // "StgAvgPrlRtn \t RstgAvgPrlRtn \t LazyAvgPrlRtn \t EvnAvgPrlRtn" +
-            // "StgOdrMismtch \t RstgOdrMismtch \t LazyOdrMismtch \t EvnOdrMismtch" +
-            // "StgInconRatio \t RstgInconRatio \t LazyInconRatio \t EvnInconRatio"
-
-            resultCollector.add((double)allDelay_StrongExpRslt.roundedAvg);
-            resultCollector.add((double)allDelay_StrongExpRslt.roundedSD);
-            resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedAvg);
-            resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedSD);
-            resultCollector.add((double)allDelay_LazyRslt.roundedAvg);
-            resultCollector.add((double)allDelay_LazyRslt.roundedSD);
-            resultCollector.add((double)allDelay_EventualExpRslt.roundedAvg);
-            resultCollector.add((double)allDelay_EventualExpRslt.roundedSD);
-            resultCollector.add((double)stretchRatio_EventualExpRslt.rawAvg);
-            resultCollector.add((double)stretchRatio_EventualExpRslt.rawSD);
-            */
+//            resultCollector.add((double)allDelay_StrongExpRslt.roundedAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DELAY));
+//            resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DELAY));
+//            resultCollector.add((double)allDelay_LazyRslt.roundedAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.DELAY));
+//            resultCollector.add((double)allDelay_EventualExpRslt.roundedAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DELAY));
 
 
-            resultCollector.add(abortRatio_StrongExpRslt.rawAvg);
-            resultCollector.add(abortRatio_RelStrongRslt.rawAvg);
-            resultCollector.add(abortRatio_EventualRslt.rawAvg);
-            resultCollector.add(recoverCmdRatio_StrongExpRslt.rawAvg);
-            resultCollector.add(recoverCmdRatio_RelStrongRslt.rawAvg);
-            resultCollector.add(recoverCmdRatio_EventualRslt.rawAvg);
+
+//            resultCollector.add((double)allDelay_StrongExpRslt.roundedSD);
+//            resultCollector.add((double)allDelay_RelaxedStrongExpRslt.roundedSD);
+//            resultCollector.add((double)allDelay_LazyRslt.roundedSD);
+//            resultCollector.add((double)allDelay_EventualExpRslt.roundedSD);
+
+            //resultCollector.add((double)stretchRatio_EventualExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.STRETCH_RATIO));
+            //resultCollector.add((double)stretchRatio_EventualExpRslt.rawSD);
+
+
+
+            //resultCollector.add(abortRatio_StrongExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ABORT_RATE));
+            //resultCollector.add(abortRatio_RelStrongRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ABORT_RATE));
+            //resultCollector.add(abortRatio_EventualRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ABORT_RATE));
+
+            //resultCollector.add(recoverCmdRatio_StrongExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.RECOVERY_CMD));
+            //resultCollector.add(recoverCmdRatio_RelStrongRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.RECOVERY_CMD));
+            //resultCollector.add(recoverCmdRatio_EventualRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.RECOVERY_CMD));
 
 
 
             ////////////////////////////////////////////////////////////////////////////
-            resultCollector.add(maxPrlRtnCnt_StrongExpRslt.rawAvg);
-            resultCollector.add(maxPrlRtnCnt_RelaxedStrongExpRslt.rawAvg);
-            resultCollector.add(maxPrlRtnCnt_LazyRslt.rawAvg);
-            resultCollector.add(maxPrlRtnCnt_EventualExpRslt.rawAvg);
+            //resultCollector.add(maxPrlRtnCnt_StrongExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.PARALLEL));
+            //resultCollector.add(maxPrlRtnCnt_RelaxedStrongExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.PARALLEL));
+            //resultCollector.add(maxPrlRtnCnt_LazyRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.PARALLEL));
+            //resultCollector.add(maxPrlRtnCnt_EventualExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.PARALLEL));
 
 
-            resultCollector.add(avgPrlRtnCnt_StrongExpRslt.rawAvg);
-            resultCollector.add(avgPrlRtnCnt_RelaxedStrongExpRslt.rawAvg);
-            resultCollector.add(avgPrlRtnCnt_LazyRslt.rawAvg);
-            resultCollector.add(avgPrlRtnCnt_EventualExpRslt.rawAvg);
+
+//            resultCollector.add(avgPrlRtnCnt_StrongExpRslt.rawAvg);
+//            resultCollector.add(avgPrlRtnCnt_RelaxedStrongExpRslt.rawAvg);
+//            resultCollector.add(avgPrlRtnCnt_LazyRslt.rawAvg);
+//            resultCollector.add(avgPrlRtnCnt_EventualExpRslt.rawAvg);
 
 
-            resultCollector.add(orderMismatchPercent_StrongExpRslt.rawAvg);
-            resultCollector.add(orderMismatchPercent_RelaxedStrongExpRslt.rawAvg);
-            resultCollector.add(orderMismatchPercent_LazyRslt.rawAvg);
-            resultCollector.add(orderMismatchPercent_EventualExpRslt.rawAvg);
+            //resultCollector.add(orderMismatchPercent_StrongExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH));
+            //resultCollector.add(orderMismatchPercent_RelaxedStrongExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH));
+            //resultCollector.add(orderMismatchPercent_LazyRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDDER_MISMATCH));
+            //resultCollector.add(orderMismatchPercent_EventualExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDDER_MISMATCH));
 
-            resultCollector.add(avgInconsistencyRatio_StrongExpRslt.rawAvg);
-            resultCollector.add(avgInconsistencyRatio_RelaxedStrongExpRslt.rawAvg);
-            resultCollector.add(avgInconsistencyRatio_LazyRslt.rawAvg);
-            resultCollector.add(avgInconsistencyRatio_EventualExpRslt.rawAvg);
+            //resultCollector.add(avgInconsistencyRatio_StrongExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.INCONSISTENCY));
+            //resultCollector.add(avgInconsistencyRatio_RelaxedStrongExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.INCONSISTENCY));
+            //resultCollector.add(avgInconsistencyRatio_LazyRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.INCONSISTENCY));
+            //resultCollector.add(avgInconsistencyRatio_EventualExpRslt.rawAvg);
+            resultCollector.add(measurementCollector.getAvg(variableInfo, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.INCONSISTENCY));
             ////////////////////////////////////////////////////////////////////////////
 
             globalDataCollector.put(variableInfo, resultCollector);
@@ -1049,10 +1189,10 @@ public class Temp
 
         String globalResult = "\n--------------------------------\n";
         //String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tLzyAvg\tLzySD\tEvnAvg\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
-        String header = "Variable\tStgAvg\tR.StgAvg\tLzyAvg\tEvnAvg\tStgSD\tR.StgSD\tLzySD\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
+        String header = "Variable\tStgAvg\tR.StgAvg\tLzyAvg\tEvnAvg\tEvnStretchRatioAvg";
         header += "\tStgAbtAvg\tRStgAbtAvg\tEvnAbtAvg\tStgRcvrRatioAvg\tR.StgRcvrRatioAvg\tEvnRecvrRatioAvg";
         header += "\tStgMaxPrlRtn \t RstgMaxPrlRtn \t LazyMaxPrlRtn \t EvnMaxPrlRtn";
-        header += "\tStgAvgPrlRtn \t RstgAvgPrlRtn \t LazyAvgPrlRtn \t EvnAvgPrlRtn";
+        //header += "\tStgAvgPrlRtn \t RstgAvgPrlRtn \t LazyAvgPrlRtn \t EvnAvgPrlRtn";
         header += "\tStgOdrMismtch \t RstgOdrMismtch \t LazyOdrMismtch \t EvnOdrMismtch";
         header += "\tStgInconRatio \t RstgInconRatio \t LazyInconRatio \t EvnInconRatio";
         globalResult += header + "\n";
