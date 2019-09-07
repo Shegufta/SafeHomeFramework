@@ -244,18 +244,7 @@ public class FailureAnalyzer
         }
 
         FailureResult failureResult = new FailureResult(affectedRoutineID.size(), totalFailureRecoveryCommandSent, totalOnTheFlyCmdCount );
-//
-//        if( 0.0 < failureResult. && failureResult < 1.0 && consistencyType = CONSISTENCY_TYPE.STRONG)
-//        {
-//
-////            System.out.println("totalFailureRecoveryCommandSent = " + totalFailureRecoveryCommandSent);
-////            System.out.println("totalOnTheFlyCmdCount = " + totalOnTheFlyCmdCount);
-////            System.out.println(debugString(failedDevList, failureTime));
-//
-//
-//
-//            //System.exit(1);
-//        }
+
 
         return failureResult;
     }
