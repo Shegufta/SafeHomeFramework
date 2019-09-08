@@ -11,6 +11,7 @@ import java.util.*;
 public class Routine
 {
     public int ID;
+    public String abbr = "";
     List<Command> commandList;
     int registrationTime = 0;
 
@@ -22,6 +23,13 @@ public class Routine
         this.ID = -1;
         this.commandList = new ArrayList<>();
         //this.devSet = new HashSet<>();
+        this.devIdIsMustMap = new HashMap<>();
+    }
+
+    public Routine(String abbr) {
+        this.ID = -1;
+        this.abbr = abbr;
+        this.commandList = new ArrayList<>();
         this.devIdIsMustMap = new HashMap<>();
     }
 
@@ -194,6 +202,11 @@ public class Routine
     public String toString()
     {
         String str = "";
+
+        // FIXME @ry
+        if (!this.abbr.equals("")) {
+            return this.abbr;
+        }
 
         str += "{ Routine ID:" + this.ID;
         str += "; delay:" + this.getStartDelay();

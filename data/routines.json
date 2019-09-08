@@ -1,0 +1,8 @@
+[
+{"Routine Shortcut":"BD1","Routine Name":"Morning wakeup","Routine":["bd1_speaker:on","bd1_light1:on","bd1_light3:off","temp:72:300"]},
+{"Routine Shortcut":"BD2","Routine Name":"Good morning","Routine":["bd1_shade:on","kc_shade:on","lv_shade:on","coffee_m:on:180"]},
+{"Routine Shortcut":"BD3","Routine Name":"Leaving bedroom","Routine":["bd1_light1:off","bd1_light2:off","bd1_light3:off","bd1_shade:off","bd1_speaker:off"]},
+{"Routine Shortcut":"BD4","Routine Name":"Sick mode","Routine":["temp:75","bd1_speaker:on","bd1_shade:off","bd1_light1:on"]},
+{"Routine Shortcut":"BD5","Routine Name":"Bedtime","Routine":["door:off","temp:68","bd1_light1:off","bd1_light2:off","bd1_light3:on","gd_light1:off","kc_light1:off","kc_light2:off","lv_light1:off","lv_light2:off","bd1_speaker:on:1200"]},
+{"Routine Shortcut":"BD6","Routine Name":"BD Fresh air","Routine":["bd1_window:on:3600"]}
+]
