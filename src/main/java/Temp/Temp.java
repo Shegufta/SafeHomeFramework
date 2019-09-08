@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class Temp
 {
-    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 10000;
+    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 5000;
 
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
@@ -25,19 +25,19 @@ public class Temp
     private static int maxCommandPerRtn = 3; // in current version totalCommandInThisRtn = maxCommandPerRtn;
     private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
     private static double zipfCoefficient = 0.01;
-    private static double longRunningRtnPercentage = 0.4;
+    private static double longRunningRtnPercentage = 0.0;
     private static final boolean atleastOneLongRunning = true;
 
     private static double devFailureRatio = 0.0;
     private static final boolean atleastOneDevFail = false;
     private static double mustCmdPercentage = 1.0;
 
-    private static int longRunningCmdDuration = 100;
-    private static final int shortCmdDuration = 1;
+    private static int longRunningCmdDuration = 200;
+    private static final int shortCmdDuration = 5;
     private static final boolean isShortCmdDurationVary = true;
     private static final int shortCmdDurationVaryMultiplier = 3; // will vary upto N times
 
-    private static final int totalSampleCount = 1;//100000;
+    private static final int totalSampleCount = 100000;
     private static final boolean isPrint = false;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
@@ -346,8 +346,6 @@ public class Temp
         ExpResults expResults = new ExpResults();
         expResults.failureAnalyzer = new FailureAnalyzer(lockTable.lockTable, _consistencyType);
 
-        System.out.println("\n\n 02asdf --0----------------------------------\n _consistencyType = " + _consistencyType.name());
-
         expResults.measurement = new Measurement(lockTable.lockTable);
 
 
@@ -416,7 +414,7 @@ public class Temp
 
 
         final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
-        for(maxConcurrentRtn = 5; maxConcurrentRtn <= 5 ; maxConcurrentRtn++)
+        for(maxConcurrentRtn = 1; maxConcurrentRtn <= 10 ; maxConcurrentRtn++)
         {
             changingParameterValue = (double)maxConcurrentRtn; // NOTE: also change changingParameterName
 

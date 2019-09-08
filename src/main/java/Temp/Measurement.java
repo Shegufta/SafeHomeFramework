@@ -104,7 +104,6 @@ public class Measurement
             }
             */
         }
-        System.out.println("--------------------------------------------------------");
 
     }
 
