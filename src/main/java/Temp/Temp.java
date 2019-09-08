@@ -495,38 +495,7 @@ public class Temp
                 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                List<Routine> routineSet = generateAutomatedRtn(0); //TODO: change seed to -1
-
-
-
-
-
-
-
-
-
-
-
-
-
+                List<Routine> routineSet = generateAutomatedRtn(-1);
 
 
                 FailureResult failureResult;
