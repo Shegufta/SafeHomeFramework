@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class Temp
 {
-    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 5000;
+    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 7500;
 
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
@@ -33,9 +33,12 @@ public class Temp
     private static double mustCmdPercentage = 1.0;
 
     private static int longRunningCmdDuration = 200;
+    private static final boolean isLongCmdDurationVary = true;
+    private static final int longCmdDurationVaryMultiplier = 1; // will vary upto N times
+
     private static final int shortCmdDuration = 5;
     private static final boolean isShortCmdDurationVary = true;
-    private static final int shortCmdDurationVaryMultiplier = 3; // will vary upto N times
+    private static final int shortCmdDurationVaryMultiplier = 5; // will vary upto N times
 
     private static final int totalSampleCount = 100000;
     private static final boolean isPrint = false;
@@ -202,7 +205,15 @@ public class Temp
                 int middleCommandIndex = totalCommandInThisRtn / 2;
                 if(isLongRunning && ( currentDurationMapSize == middleCommandIndex) )
                 { // select the  middle command as long running command
-                    duration = longRunningCmdDuration;
+
+                    if(isLongCmdDurationVary)
+                    {
+                        duration = longRunningCmdDuration + rand.nextInt(longRunningCmdDuration*longCmdDurationVaryMultiplier) ;
+                    }
+                    else
+                    {
+                        duration = longRunningCmdDuration;
+                    }
                 }
                 else
                 {
@@ -402,9 +413,9 @@ public class Temp
         String logStr = "";
 
         ///////////////////////////
-        String zipFianStr = prepareZipfian();
-        System.out.println(zipFianStr);
-        logStr += zipFianStr;
+//        String zipFianStr = prepareZipfian();
+//        System.out.println(zipFianStr);
+//        logStr += zipFianStr;
         ///////////////////////////
 
         MeasurementCollector measurementCollector = new MeasurementCollector(MAX_DATAPOINT_COLLECTON_SIZE);
@@ -419,9 +430,9 @@ public class Temp
             changingParameterValue = (double)maxConcurrentRtn; // NOTE: also change changingParameterName
 
             ///////////////////////////
-//            String zipFianStr = prepareZipfian();
-//            System.out.println(zipFianStr);
-//            logStr += zipFianStr;
+            String zipFianStr = prepareZipfian();
+            System.out.println(zipFianStr);
+            logStr += zipFianStr;
             ///////////////////////////
 
             variableTrakcer.add(changingParameterValue); // add the variable name
@@ -471,6 +482,12 @@ public class Temp
 
             System.out.println("shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier);
             logStr += "shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier + "\n";
+
+            System.out.println("isLongCmdDurationVary = " + isLongCmdDurationVary);
+            logStr += "isLongCmdDurationVary = " + isLongCmdDurationVary + "\n";
+
+            System.out.println("longCmdDurationVaryMultiplier = " + longCmdDurationVaryMultiplier);
+            logStr += "longCmdDurationVaryMultiplier = " + longCmdDurationVaryMultiplier + "\n";
 
 
             System.out.println("--------------------------------");
