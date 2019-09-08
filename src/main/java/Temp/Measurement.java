@@ -222,7 +222,7 @@ public class Measurement
             }
         }
 
-        orderMismatchPercent = (totalCount == 0.0)? 0.0 : violationCount/totalCount;
+        orderMismatchPercent = (totalCount == 0.0)? 0.0 : (violationCount/totalCount)*100.0;
     }
 
     private void inconsistencyMeasurement(final Map<DEV_ID, List<Routine>> lockTable)
@@ -300,7 +300,7 @@ public class Measurement
                 }
             }
 
-            double inconsistencyRatio = (totalEvent == 0.0) ? 0.0 : inconsistencyCount/totalEvent;
+            double inconsistencyRatio = (totalEvent == 0.0) ? 0.0 : (inconsistencyCount/totalEvent)*100;
             sum += inconsistencyRatio;
         }
 

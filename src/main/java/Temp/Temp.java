@@ -17,12 +17,12 @@ import java.util.*;
  */
 public class Temp
 {
-    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 7500;
+    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 5000;
 
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static int maxCommandPerRtn = 5; // in current version totalCommandInThisRtn = maxCommandPerRtn;
+    private static int maxCommandPerRtn = 3; // in current version totalCommandInThisRtn = maxCommandPerRtn;
     private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
     private static double zipfCoefficient = 0.01;
     private static double longRunningRtnPercentage = 0.0;
@@ -33,7 +33,7 @@ public class Temp
     private static double mustCmdPercentage = 1.0;
 
     private static int longRunningCmdDuration = 200;
-    private static final boolean isLongCmdDurationVary = true;
+    private static final boolean isLongCmdDurationVary = false;
     private static final int longCmdDurationVaryMultiplier = 1; // will vary upto N times
 
     private static final int shortCmdDuration = 5;
@@ -424,10 +424,10 @@ public class Temp
         Double changingParameterValue = -1.0;
 
 
-        final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
-        for(maxConcurrentRtn = 1; maxConcurrentRtn <= 10 ; maxConcurrentRtn++)
+        final String changingParameterName = "zipfCoefficient"; // NOTE: also change changingParameterValue
+        for(zipfCoefficient = 0.01; zipfCoefficient <= 1.01 ; zipfCoefficient+=0.1)
         {
-            changingParameterValue = (double)maxConcurrentRtn; // NOTE: also change changingParameterName
+            changingParameterValue = (double)zipfCoefficient; // NOTE: also change changingParameterName
 
             ///////////////////////////
             String zipFianStr = prepareZipfian();
