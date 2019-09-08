@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class Temp
 {
-    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 50000;
+    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 10000;
 
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
@@ -384,7 +384,7 @@ public class Temp
 
 
         //////////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////---CREATING-DIRECTORY-///////////////////////////////
+        /////////////////////////////---CHECKING-DIRECTORY-///////////////////////////////
         String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
 
         File dataStorageDir = new File(dataStorageDirectory);
@@ -395,24 +395,15 @@ public class Temp
             System.exit(1);
         }
 
-        String epoch = System.currentTimeMillis() + "";
-        String parentDirPath = dataStorageDirectory + "\\" + epoch;
-
-        File parentDir = new File(parentDirPath);
-        if(!parentDir.exists())
-        {
-            parentDir.mkdir();
-        }
-        //////////////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////
 
 
         String logStr = "";
 
         ///////////////////////////
-        String zipFianStr = prepareZipfian();
-        System.out.println(zipFianStr);
-        logStr += zipFianStr;
+//        String zipFianStr = prepareZipfian();
+//        System.out.println(zipFianStr);
+//        logStr += zipFianStr;
         ///////////////////////////
 
         MeasurementCollector measurementCollector = new MeasurementCollector(MAX_DATAPOINT_COLLECTON_SIZE);
@@ -421,15 +412,15 @@ public class Temp
         Double changingParameterValue = -1.0;
 
 
-        final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
-        for(maxConcurrentRtn = 1; maxConcurrentRtn <= 10 ; maxConcurrentRtn++)
+        final String changingParameterName = "zipfCoefficient"; // NOTE: also change changingParameterValue
+        for(zipfCoefficient = 0.01; zipfCoefficient <= 1.01 ; zipfCoefficient += 0.1)
         {
-            changingParameterValue = (double)maxConcurrentRtn; // NOTE: also change changingParameterName
+            changingParameterValue = (double)zipfCoefficient; // NOTE: also change changingParameterName
 
             ///////////////////////////
-//            String zipFianStr = prepareZipfian();
-//            System.out.println(zipFianStr);
-//            logStr += zipFianStr;
+            String zipFianStr = prepareZipfian();
+            System.out.println(zipFianStr);
+            logStr += zipFianStr;
             ///////////////////////////
 
             variableTrakcer.add(changingParameterValue); // add the variable name
@@ -822,6 +813,19 @@ public class Temp
         globalResult += "--------------------------------\n";
 
         logStr += globalResult;
+
+
+        ////////////////////-CREATING-SUBDIRECTORY-/////////////////////////////
+        String epoch = System.currentTimeMillis() + "";
+        String parentDirPath = dataStorageDirectory + "\\" + epoch + "_VARY_"+ changingParameterName;
+        parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + maxCommandPerRtn;
+
+        File parentDir = new File(parentDirPath);
+        if(!parentDir.exists())
+        {
+            parentDir.mkdir();
+        }
+        ////////////////////////////////////////////////////////////////
 
         try
         {
