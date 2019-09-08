@@ -22,10 +22,10 @@ public class Temp
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static int maxCommandPerRtn = 5; // in current version totalCommandInThisRtn = maxCommandPerRtn;
+    private static int maxCommandPerRtn = 3; // in current version totalCommandInThisRtn = maxCommandPerRtn;
     private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
     private static double zipfCoefficient = 0.01;
-    private static double longRunningRtnPercentage = 0.0;
+    private static double longRunningRtnPercentage = 0.4;
     private static final boolean atleastOneLongRunning = true;
 
     private static double devFailureRatio = 0.0;
@@ -37,7 +37,7 @@ public class Temp
     private static final boolean isShortCmdDurationVary = true;
     private static final int shortCmdDurationVaryMultiplier = 3; // will vary upto N times
 
-    private static final int totalSampleCount = 100000;
+    private static final int totalSampleCount = 1;//100000;
     private static final boolean isPrint = false;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
@@ -345,6 +345,9 @@ public class Temp
 
         ExpResults expResults = new ExpResults();
         expResults.failureAnalyzer = new FailureAnalyzer(lockTable.lockTable, _consistencyType);
+
+        System.out.println("\n\n 02asdf --0----------------------------------\n _consistencyType = " + _consistencyType.name());
+
         expResults.measurement = new Measurement(lockTable.lockTable);
 
 
@@ -373,14 +376,14 @@ public class Temp
         devIDlist.add(DEV_ID.E);
         devIDlist.add(DEV_ID.F);
         devIDlist.add(DEV_ID.G);
-        devIDlist.add(DEV_ID.H);
-        devIDlist.add(DEV_ID.I);
-        devIDlist.add(DEV_ID.J);
-        devIDlist.add(DEV_ID.K);
-        devIDlist.add(DEV_ID.L);
-        devIDlist.add(DEV_ID.M);
-        devIDlist.add(DEV_ID.N);
-        devIDlist.add(DEV_ID.O);
+//        devIDlist.add(DEV_ID.H);
+//        devIDlist.add(DEV_ID.I);
+//        devIDlist.add(DEV_ID.J);
+//        devIDlist.add(DEV_ID.K);
+//        devIDlist.add(DEV_ID.L);
+//        devIDlist.add(DEV_ID.M);
+//        devIDlist.add(DEV_ID.N);
+//        devIDlist.add(DEV_ID.O);
 
 
         //////////////////////////////////////////////////////////////////////////////////
@@ -401,9 +404,9 @@ public class Temp
         String logStr = "";
 
         ///////////////////////////
-//        String zipFianStr = prepareZipfian();
-//        System.out.println(zipFianStr);
-//        logStr += zipFianStr;
+        String zipFianStr = prepareZipfian();
+        System.out.println(zipFianStr);
+        logStr += zipFianStr;
         ///////////////////////////
 
         MeasurementCollector measurementCollector = new MeasurementCollector(MAX_DATAPOINT_COLLECTON_SIZE);
@@ -412,15 +415,15 @@ public class Temp
         Double changingParameterValue = -1.0;
 
 
-        final String changingParameterName = "zipfCoefficient"; // NOTE: also change changingParameterValue
-        for(zipfCoefficient = 0.01; zipfCoefficient <= 1.01 ; zipfCoefficient += 0.1)
+        final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
+        for(maxConcurrentRtn = 5; maxConcurrentRtn <= 5 ; maxConcurrentRtn++)
         {
-            changingParameterValue = (double)zipfCoefficient; // NOTE: also change changingParameterName
+            changingParameterValue = (double)maxConcurrentRtn; // NOTE: also change changingParameterName
 
             ///////////////////////////
-            String zipFianStr = prepareZipfian();
-            System.out.println(zipFianStr);
-            logStr += zipFianStr;
+//            String zipFianStr = prepareZipfian();
+//            System.out.println(zipFianStr);
+//            logStr += zipFianStr;
             ///////////////////////////
 
             variableTrakcer.add(changingParameterValue); // add the variable name
@@ -491,7 +494,40 @@ public class Temp
                     System.out.println("currently Running for, " + changingParameterName + " = " +  changingParameterValue  + " Progress = " + (int) (100.0 * ((double)I / (double)totalSampleCount)) + "%");
                 }
 
-                List<Routine> routineSet = generateAutomatedRtn(-1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                List<Routine> routineSet = generateAutomatedRtn(0); //TODO: change seed to -1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                 FailureResult failureResult;
                 ExpResults expResult;
@@ -598,11 +634,11 @@ public class Temp
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////-------EVENTUAL-----/////////////////////////////////////////////////////////
 
-                ExpResults expEventual = runExperiment(devIDlist, CONSISTENCY_TYPE.EVENTUAL, routineSet);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DELAY, expEventual.delayList);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.STRETCH_RATIO, expEventual.stretchRatioList);
+                expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.EVENTUAL, routineSet);
+                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DELAY, expResult.delayList);
+                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.STRETCH_RATIO, expResult.stretchRatioList);
 
-                failureResult = expEventual.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
+                failureResult = expResult.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
                 abtRatio = failureResult.getAbtRtnVsTotalRtnRatio(maxConcurrentRtn);
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ABORT_RATE,

@@ -22,8 +22,61 @@ public class Measurement
 
     private void measureDeviceUtilization(final Map<DEV_ID, List<Routine>> lockTable)
     {
+        /*
+        double totalGap = 0.0;
+
         for(Map.Entry<DEV_ID, List<Routine>> entry : lockTable.entrySet())
         {
+            DEV_ID devID = entry.getKey();
+
+            for(int index =0 ; index < (entry.getValue().size() - 1) ; index++)
+            {
+                Command cmd1 = entry.getValue().get(index).getCommandByDevID(devID);
+                Command cmd2 = entry.getValue().get(index + 1).getCommandByDevID(devID);
+
+                totalGap += cmd2.startTime - cmd1.getCmdEndTime();
+            }
+        }
+
+        devUtilizationList.add(totalGap);
+        */
+
+        for(Map.Entry<DEV_ID, List<Routine>> entry : lockTable.entrySet())
+        {
+            int entryCount = entry.getValue().size();
+            DEV_ID devID = entry.getKey();
+
+            if(entryCount == 0)
+                continue;
+
+
+
+            double earliestAccessRequestTime = Double.MAX_VALUE;
+            for(Routine rtn : entry.getValue())
+            {
+                if(rtn.registrationTime < earliestAccessRequestTime)
+                    earliestAccessRequestTime = rtn.registrationTime;
+            }
+
+
+
+            Command lastCmd = entry.getValue().get(entryCount - 1).getCommandByDevID(devID);
+            final double totalTimeSpan = lastCmd.getCmdEndTime() - earliestAccessRequestTime;
+
+            double cmdExecutionSpan = 0.0;
+
+            for(Routine rtn : entry.getValue())
+            {
+                Command cmd = rtn.getCommandByDevID(devID);
+                cmdExecutionSpan += cmd.getCmdEndTime() - cmd.startTime;
+            }
+
+
+            double utilization = ( cmdExecutionSpan / totalTimeSpan) * 100.0;
+            devUtilizationList.add( utilization );
+
+
+            /*
             int entryCount = entry.getValue().size();
             DEV_ID devID = entry.getKey();
 
@@ -49,7 +102,10 @@ public class Measurement
                 }
                 devUtilizationList.add( ( cmdExecutionSpan / totalTimeSpan) * 100.0 );
             }
+            */
         }
+        System.out.println("--------------------------------------------------------");
+
     }
 
     private void measureParallelization(final Map<DEV_ID, List<Routine>> lockTable)
