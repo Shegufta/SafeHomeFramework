@@ -1,9 +1,6 @@
 package Temp;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author Shegufta Ahsan
@@ -15,14 +12,88 @@ public class Measurement
 {
     private final int TOTAL_INCONSISTENCY_CHECK_COUNTER = 3;
     /////////////////////////////////////////////
-    double maxParallalRtnCnt = Integer.MIN_VALUE;
-    double avgParallalRtnCnt;
+    List<Double> parallalIncidentCountList = new ArrayList<>();
+    List<Double> devUtilizationList = new ArrayList<>();
+    //double maxParallalRtnCnt = Integer.MIN_VALUE;
+    //double avgParallalRtnCnt;
     double orderMismatchPercent = 0.0;
     double avgInconsistencyRatio = 0.0;
     /////////////////////////////////////////////
 
+    private void measureDeviceUtilization(final Map<DEV_ID, List<Routine>> lockTable)
+    {
+        for(Map.Entry<DEV_ID, List<Routine>> entry : lockTable.entrySet())
+        {
+            int entryCount = entry.getValue().size();
+            DEV_ID devID = entry.getKey();
+
+            if(entryCount == 0)
+                continue;
+
+            if(entryCount == 1)
+            {
+                devUtilizationList.add(100.0);
+            }
+            else
+            {
+                Command firstCmd = entry.getValue().get(0).getCommandByDevID(devID);
+                Command lastCmd = entry.getValue().get(entryCount - 1).getCommandByDevID(devID);
+
+                final double totalTimeSpan = lastCmd.getCmdEndTime() - firstCmd.startTime;
+                double cmdExecutionSpan = 0.0;
+
+                for(Routine rtn : entry.getValue())
+                {
+                    Command cmd = rtn.getCommandByDevID(devID);
+                    cmdExecutionSpan += cmd.getCmdEndTime() - cmd.startTime;
+                }
+                devUtilizationList.add( ( cmdExecutionSpan / totalTimeSpan) * 100.0 );
+            }
+        }
+    }
+
     private void measureParallelization(final Map<DEV_ID, List<Routine>> lockTable)
     {
+        for(Map.Entry<DEV_ID, List<Routine>> entry1 : lockTable.entrySet())
+        {
+            for(Routine rtn1 : entry1.getValue())
+            {
+                DEV_ID devID1 = entry1.getKey();
+                Command cmd1 = rtn1.getCommandByDevID(devID1);
+                int start1 = cmd1.startTime;
+                double parallalCount = 0.0;
+
+                for(Map.Entry<DEV_ID, List<Routine>> entry2 : lockTable.entrySet())
+                {
+                    DEV_ID devID2 = entry2.getKey();
+
+                    if(devID1 == devID2)
+                        continue;
+
+                    for(Routine rtn2 : entry2.getValue())
+                    {
+                        Command cmd2 = rtn2.getCommandByDevID(devID2);
+
+                        if( start1 < cmd2.startTime)
+                            break;//avoid unnecessary search
+
+                        if(cmd2.isCmdOverlapsWithWatchTime(start1))
+                        {
+                            parallalCount++;
+                            break;
+                        }
+                    }
+                }
+
+                this.parallalIncidentCountList.add(parallalCount);
+            }
+        }
+
+
+
+
+        /*
+
         Integer minStartTime = Integer.MAX_VALUE;
         Integer maxEndTime = Integer.MIN_VALUE;
 
@@ -75,6 +146,8 @@ public class Measurement
         }
 
         avgParallalRtnCnt = sum / (double)totalTimeSpan;
+
+        */
     }
 
     private void measureOrderingMismatch(final Map<DEV_ID, List<Routine>> lockTable)
@@ -185,5 +258,6 @@ public class Measurement
         measureParallelization(lockTable);
         measureOrderingMismatch(lockTable);
         inconsistencyMeasurement(lockTable);
+        measureDeviceUtilization(lockTable);
     }
 }

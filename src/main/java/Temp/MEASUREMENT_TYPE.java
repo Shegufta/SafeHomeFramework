@@ -14,5 +14,6 @@ public enum MEASUREMENT_TYPE
     INCONSISTENCY, // avg inconsistency ratio
     ORDDER_MISMATCH,
     ABORT_RATE,
-    RECOVERY_CMD
+    RECOVERY_CMD,
+    DEVICE_UTILIZATION
 }
