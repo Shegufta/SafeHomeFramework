@@ -67,10 +67,10 @@ public class Routine
             gap += nextCommand.startTime  - firstCommand.getCmdEndTime();
         }
 
-        if( gap + continuousCmdExecutionTime == 0.0)
+        if( continuousCmdExecutionTime == 0.0)
             return 0.0;
 
-        return continuousCmdExecutionTime/(gap + continuousCmdExecutionTime);
+        return (gap + continuousCmdExecutionTime)/continuousCmdExecutionTime;
     }
 
 

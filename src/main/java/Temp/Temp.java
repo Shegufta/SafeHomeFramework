@@ -22,7 +22,7 @@ public class Temp
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static int maxCommandPerRtn = 3; // in current version totalCommandInThisRtn = maxCommandPerRtn;
+    private static int maxCommandPerRtn = 5; // in current version totalCommandInThisRtn = maxCommandPerRtn;
     private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
     private static double zipfCoefficient = 0.01;
     private static double longRunningRtnPercentage = 0.0;
@@ -535,6 +535,7 @@ public class Temp
                         CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
                         expResult.measurement.devUtilizationList);
 
+                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////-------RELAXED STRONG-----/////////////////////////////////////////////////////////
 
@@ -573,6 +574,7 @@ public class Temp
                         CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
                         expResult.measurement.devUtilizationList);
 
+                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////-------LAZY-----/////////////////////////////////////////////////////////
 
@@ -598,6 +600,7 @@ public class Temp
                         CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
                         expResult.measurement.devUtilizationList);
 
+                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////-------EVENTUAL-----/////////////////////////////////////////////////////////
 
@@ -634,6 +637,8 @@ public class Temp
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
                         expResult.measurement.devUtilizationList);
+
+                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 ///////////////////////////////////////////////////////////////////////////////////////////////////
             }
 
