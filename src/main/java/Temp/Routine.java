@@ -13,8 +13,6 @@ public class Routine
     public int ID;
     List<Command> commandList;
     int registrationTime = 0;
-
-    //public Set<DEV_ID> devSet;
     public Map<DEV_ID, Boolean> devIdIsMustMap;
 
     public Routine()
@@ -140,6 +138,11 @@ public class Routine
         return this.commandList.get(0).startTime;
     }
 
+    public double getEndToEndLatency()
+    {
+        return this.routineEndTime() - this.registrationTime;
+    }
+
     public double getStartDelay()
     {
         return this.routineStartTime() - this.registrationTime;
@@ -188,6 +191,19 @@ public class Routine
             return true;
 
         return false;
+    }
+
+    public Routine getDeepCopy()
+    {
+        Routine deepCopyRoutine = new Routine();
+        deepCopyRoutine.ID = this.ID;
+
+        for(Command cmd : this.commandList)
+        {
+            deepCopyRoutine.addCommand(cmd.getDeepCopy());
+        }
+
+        return deepCopyRoutine;
     }
 
     @Override

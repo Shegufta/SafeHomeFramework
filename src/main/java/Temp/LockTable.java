@@ -12,16 +12,16 @@ public class LockTable
 {
     public Map<DEV_ID, List<Routine>> lockTable;
 
-    public int CURRENT_TIME;
+    //public int CURRENT_TIME;
     private CONSISTENCY_TYPE consistencyType;
 
-    private static int ROUTINE_ID;
+    //private static int ROUTINE_ID;
 
     public LockTable(List<DEV_ID> devIDlist, CONSISTENCY_TYPE _consistencyType)
     {
         this.lockTable = new HashMap<>();
-        this.CURRENT_TIME = 0;
-        this.ROUTINE_ID = 0;
+        //this.CURRENT_TIME = 0;
+        //this.ROUTINE_ID = 0;
         this.consistencyType = _consistencyType;
 
         for(DEV_ID devID : devIDlist)
@@ -174,13 +174,44 @@ public class LockTable
         }
     }
 
+    private void weakScheduling(List<Routine> rtnList, int currentTime)
+    {
+        Collections.shuffle(rtnList); // shuffle the rtn list. in weak visibility, routine can be executed in any order.
+
+        for(int R = 0 ; R < rtnList.size() ; ++R)
+        {
+            rtnList.get(R).registrationTime = currentTime;
+
+            for(int C = 0 ; C < rtnList.get(R).commandList.size() ; ++C)
+            {
+                DEV_ID devID = rtnList.get(R).commandList.get(C).devID;
+
+                int insertionTime = currentTime;
+                if(!this.lockTable.get(devID).isEmpty())
+                {
+                    int lastIndex = this.lockTable.get(devID).size() - 1;
+                    insertionTime = this.lockTable.get(devID).get(lastIndex).getCommandByDevID(devID).getCmdEndTime();
+                }
+
+                rtnList.get(R).commandList.get(C).startTime = insertionTime;
+                this.lockTable.get(devID).add(rtnList.get(R));
+
+            }
+        }
+    }
+
 
     public void register(List<Routine> rtnList, int currentTime)
     {
         if(this.consistencyType == CONSISTENCY_TYPE.LAZY)
         {
-
             lazyScheduling(rtnList, currentTime);
+            return;
+        }
+
+        if(this.consistencyType == CONSISTENCY_TYPE.WEAK)
+        {
+            this.weakScheduling(rtnList, currentTime);
             return;
         }
 
@@ -189,12 +220,12 @@ public class LockTable
             this.register(rtn, currentTime);
         }
 
-//                                    if(this.consistencyType == CONSISTENCY_TYPE.EVENTUAL)
-//                                    {
-//                                        System.out.println(this);
-//                                        System.out.println("\n calling System.exit(1) inside LockTable.java");
-//                                        System.exit(1);
-//                                    }
+//        if(this.consistencyType == CONSISTENCY_TYPE.EVENTUAL)
+//        {
+//            System.out.println(this);
+//            System.out.println("\n calling System.exit(1) inside LockTable.java");
+//            System.exit(1);
+//        }
     }
 
     public void register(Routine rtn, int currentTime)

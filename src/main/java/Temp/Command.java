@@ -9,9 +9,9 @@ package Temp;
 public class Command
 {
     public DEV_ID devID;
-    public int startTime;
     public int duration;
     public boolean isMust;
+    public int startTime;
 
     public Command(DEV_ID _devID, int _duration, boolean _isMust)
     {
@@ -46,6 +46,18 @@ public class Command
             return 0; // cmd overlaps
 
         return 1; // cmd starts after query
+    }
+
+    public Command getDeepCopy()
+    {
+        Command deepCopyCommand = new Command(this.devID, this.duration, this.isMust);
+        deepCopyCommand.startTime = deepCopyCommand.startTime;
+        return deepCopyCommand;
+    }
+
+    public void overrideDurationForWeakVisibilityModel(int weakVisibilityDeviceAccessTime)
+    {
+        this.duration = weakVisibilityDeviceAccessTime;
     }
 
     @Override

@@ -10,14 +10,15 @@ import java.util.*;
  */
 public class Measurement
 {
-    private final int TOTAL_INCONSISTENCY_CHECK_COUNTER = 3;
+    private final int TOTAL_ISOLATION_VIOLATION_CHECK_COUNT = 3;
     /////////////////////////////////////////////
-    List<Double> parallalIncidentCountList = new ArrayList<>();
+    List<Double> parallalRtnCntList = new ArrayList<>();
     List<Double> devUtilizationList = new ArrayList<>();
     //double maxParallalRtnCnt = Integer.MIN_VALUE;
     //double avgParallalRtnCnt;
     double orderMismatchPercent = 0.0;
-    double avgInconsistencyRatio = 0.0;
+    double isoltnVltnRatioAmongLineages = 0.0;
+    double isolationVltnRatioAmongRoutines = 0.0;
     /////////////////////////////////////////////
 
     private void measureDeviceUtilization(final Map<DEV_ID, List<Routine>> lockTable)
@@ -109,6 +110,9 @@ public class Measurement
 
     private void measureParallelization(final Map<DEV_ID, List<Routine>> lockTable)
     {
+        //UPDATE: I am keeping this O(n2) code!
+        // DONOT REMOVE THIS CODE... MIGHT WANT TO SWITCH ON THIS VERSION LATER!
+        //Actually this one and the code below are doing the same thing. This one is O(n2), where as the other one is O(n)
         for(Map.Entry<DEV_ID, List<Routine>> entry1 : lockTable.entrySet())
         {
             for(Routine rtn1 : entry1.getValue())
@@ -140,15 +144,12 @@ public class Measurement
                     }
                 }
 
-                this.parallalIncidentCountList.add(parallalCount);
+                this.parallalRtnCntList.add(parallalCount);
             }
         }
 
 
-
-
         /*
-
         Integer minStartTime = Integer.MAX_VALUE;
         Integer maxEndTime = Integer.MIN_VALUE;
 
@@ -190,19 +191,17 @@ public class Measurement
             }
         }
 
-        double sum = 0.0;
-
-        for(int index = 0 ; index < timeSlotArray.length ; ++index)
+        for(Routine rtn : routineIDRtnMap.values())
         {
-            if( maxParallalRtnCnt < timeSlotArray[index])
-                maxParallalRtnCnt = timeSlotArray[index];
-
-            sum += timeSlotArray[index];
+            for(Command cmd : rtn.commandList)
+            {// calculate the total number of parallally running routine at each command start time
+                int scanTime = cmd.startTime - minStartTime;
+                double parallalFoundAtScanTime = timeSlotArray[scanTime];
+                this.parallalRtnCntList.add(parallalFoundAtScanTime);
+            }
         }
-
-        avgParallalRtnCnt = sum / (double)totalTimeSpan;
-
         */
+
     }
 
     private void measureOrderingMismatch(final Map<DEV_ID, List<Routine>> lockTable)
@@ -225,7 +224,7 @@ public class Measurement
         orderMismatchPercent = (totalCount == 0.0)? 0.0 : (violationCount/totalCount)*100.0;
     }
 
-    private void inconsistencyMeasurement(final Map<DEV_ID, List<Routine>> lockTable)
+    private void isolationViolationAmongLineages(final Map<DEV_ID, List<Routine>> lockTable)
     {
         Integer minStartTime = Integer.MAX_VALUE;
         Integer maxEndTime = Integer.MIN_VALUE;
@@ -246,26 +245,27 @@ public class Measurement
 
         double sum = 0.0;
 
-        for(int numberOfCheck = 0 ; numberOfCheck < TOTAL_INCONSISTENCY_CHECK_COUNTER ; numberOfCheck++)
+        for(int numberOfCheck = 0; numberOfCheck < TOTAL_ISOLATION_VIOLATION_CHECK_COUNT; numberOfCheck++)
         {
             double totalEvent = 0.0;
-            double inconsistencyCount = 0.0;
+            double violationCount = 0.0;
 
-            int randomWatchTime = minStartTime + rand.nextInt(maxEndTime - minStartTime + 1);
+            int randomCheckTime = minStartTime + rand.nextInt(maxEndTime - minStartTime + 1);
+
             for(Map.Entry<DEV_ID, List<Routine>> entry : lockTable.entrySet())
             {
                 DEV_ID devID = entry.getKey();
-                List<Routine> rtnList = entry.getValue();
+                List<Routine> lineage = entry.getValue();
 
-                if(!rtnList.isEmpty())
+                if(!lineage.isEmpty())
                 {// non-empty lineage
                     totalEvent++;
 
                     int targetDARIdx;
-                    for( targetDARIdx = 0 ; targetDARIdx < rtnList.size() ; ++targetDARIdx)
+                    for( targetDARIdx = 0 ; targetDARIdx < lineage.size() ; ++targetDARIdx)
                     {// Search a DAR that was/is active before or at the watchTime
 
-                        int timelineTracker = rtnList.get(targetDARIdx).getCommandByDevID(devID).compareTimeline(randomWatchTime);
+                        int timelineTracker = lineage.get(targetDARIdx).getCommandByDevID(devID).compareTimeline(randomCheckTime);
 
                         if(timelineTracker == 1)
                         { //DAR starts *after* the querytime
@@ -284,14 +284,14 @@ public class Measurement
                         // example of consistent lineage (only a single DAR by the WatchTime):   [r1c1:ongoing] <-WatchTime
                         // example of consistent lineage (only a single DAR by the WatchTime):   [r1c1:committed] <-WatchTime
                         // example of INCONSISTENT lineage:   [r1c1:ongoing] [r2c2: ongoing] <-WatchTime
-                        if(!rtnList.get(targetDARIdx).isCommittedByGivenTime(randomWatchTime))
+                        if(!lineage.get(targetDARIdx).isCommittedByGivenTime(randomCheckTime))
                         {// The routine is not committed yet.
 
                             int prevDARidx = targetDARIdx - 1; // NOTE: 0 < targetDARIdx, hence prevDARidx is nonzero
 
-                            if(!rtnList.get(prevDARidx).isCommittedByGivenTime(randomWatchTime))
+                            if(!lineage.get(prevDARidx).isCommittedByGivenTime(randomCheckTime))
                             {//check the previousDAR. if it is ongoing, then this is an inconsistent state
-                                inconsistencyCount++;
+                                violationCount++;
                             }
                         }
                     }
@@ -300,19 +300,71 @@ public class Measurement
                 }
             }
 
-            double inconsistencyRatio = (totalEvent == 0.0) ? 0.0 : (inconsistencyCount/totalEvent)*100;
+            double inconsistencyRatio = (totalEvent == 0.0) ? 0.0 : (violationCount/totalEvent)*100;
             sum += inconsistencyRatio;
         }
 
-        avgInconsistencyRatio = sum / (double)TOTAL_INCONSISTENCY_CHECK_COUNTER;
+        isoltnVltnRatioAmongLineages = sum / (double) TOTAL_ISOLATION_VIOLATION_CHECK_COUNT;
     }
 
+    private void isolationViolationAmongRoutine(final Map<DEV_ID, List<Routine>> lockTable)
+    {
+        Map<Integer, Boolean> routineID_IsViolateMap = new HashMap<>();
+
+        for(List<Routine> rtnList : lockTable.values())
+        {
+            for(Routine rtn : rtnList)
+            {
+                if(!routineID_IsViolateMap.containsKey(rtn.ID))
+                    routineID_IsViolateMap.put(rtn.ID, false);
+            }
+        }
+
+        for(Map.Entry<DEV_ID, List<Routine>> entry : lockTable.entrySet())
+        {
+            DEV_ID devID = entry.getKey();
+            List<Routine> lineage = entry.getValue();
+
+            for(int index = 1; index < lineage.size() ; index ++)
+            {
+                Routine currentRtn = lineage.get(index);
+
+                if(routineID_IsViolateMap.get(currentRtn.ID))// currentRoutine has already violated the isolation. don't need to check it again.
+                    continue;
+
+                Command currentCmd = currentRtn.getCommandByDevID(devID);
+                int crntCmdStartTime = currentCmd.startTime; // this command is running
+                // so it is ensured that currentRtn has not been committed yet.
+                // check if the previous rtn has been committed or not
+
+                Routine prevRtn = lineage.get(index - 1);
+
+                if(!prevRtn.isCommittedByGivenTime(crntCmdStartTime))
+                {//currentRtn starts a command before prevRtn committed, hence currentRtn violates the isolation
+                    routineID_IsViolateMap.put(currentRtn.ID, true);
+                }
+            }
+        }
+
+        double totalRtnCount = routineID_IsViolateMap.size();
+        double violationCount = 0.0;
+
+        for(boolean isViolated : routineID_IsViolateMap.values())
+        {
+            if(isViolated)
+                violationCount++;
+        }
+
+        double violationPercentage = (totalRtnCount == 0.0)? 0.0 : ((violationCount/totalRtnCount)*100.0);
+        isolationVltnRatioAmongRoutines = violationPercentage;
+    }
 
     public Measurement(final Map<DEV_ID, List<Routine>> lockTable)
     {
         measureParallelization(lockTable);
         measureOrderingMismatch(lockTable);
-        inconsistencyMeasurement(lockTable);
+        isolationViolationAmongLineages(lockTable);
         measureDeviceUtilization(lockTable);
+        isolationViolationAmongRoutine(lockTable);
     }
 }
