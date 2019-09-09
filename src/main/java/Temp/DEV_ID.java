@@ -67,5 +67,11 @@ public enum DEV_ID
     humidifier,
     sec_cam,
     temp,
-    door
+    door,
+    bd2_light1,
+    bd2_light2,
+    bd2_light3,
+    bd2_shade,
+    bd2_speaker,
+    bd2_window
 }
