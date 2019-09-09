@@ -160,7 +160,8 @@ public class Routine
 
     public boolean isCommittedByGivenTime(int targetTime)
     {
-        return ( this.routineEndTime() < targetTime);
+        //NOTE: end time is exclusive, and start time is inclusive
+        return ( this.routineEndTime() == targetTime || this.routineEndTime() < targetTime);
     }
 
     public boolean isCandidateCmdInsidePreLeaseZone(DEV_ID _devID, int _candidateCmdStartTime, int _candidateCmdDuration)

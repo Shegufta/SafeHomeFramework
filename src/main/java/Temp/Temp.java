@@ -22,7 +22,7 @@ public class Temp
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static int maxCommandPerRtn = 5; // in current version totalCommandInThisRtn = maxCommandPerRtn;
+    private static int maxCommandPerRtn = 3; // in current version totalCommandInThisRtn = maxCommandPerRtn;
     private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
     private static double zipfCoefficient = 0.01;
     private static double longRunningRtnPercentage = 0.0;
@@ -377,7 +377,7 @@ public class Temp
         ExpResults expResults = new ExpResults();
         expResults.failureAnalyzer = new FailureAnalyzer(lockTable.lockTable, _consistencyType);
 
-        expResults.measurement = new Measurement(lockTable.lockTable);
+        expResults.measurement = new Measurement(lockTable, _consistencyType);
 
 
         for(Routine routine : perExpRtnList)
@@ -899,8 +899,8 @@ public class Temp
 
         header += "\tGSV_Parrl\tPSV_Parrl\tWV_Parrl\tEV_Parrl\tLV_Parrl";
         header += "\tGSV_OdrMismtch\tPSV_OdrMismtch\tWV_OdrMismtch\tEV_OdrMismtch\tLV_OdrMismtch";
-        header += "\tGSV_IsoltnVltnAmngLineages\tPSV_IsoltnVltnAmngLineages\tWV_IsoltnVltnAmngLineages\tEV_IsoltnVltnAmngLineages\tLV_IsoltnVltnAmngLineages";
-        header += "\tGSV_IsoltnVltnAmngRtn\tPSV_IsoltnVltnAmngRtn\tWV_IsoltnVltnAmngRtn\tEV_IsoltnVltnAmngRtn\tLV_IsoltnVltnAmngRtn";
+        header += "\tGSV_IsoltnVltnRatioInLineages\tPSV_IsoltnVltnRatioInLineages\tWV_IsoltnVltnRatioInLineages\tEV_IsoltnVltnRatioInLineages\tLV_IsoltnVltnRatioInLineages";
+        header += "\tGSV_IsoltnVltnRatioInRtn\tPSV_IsoltnVltnRatioInRtn\tWV_IsoltnVltnRatioInRtn\tEV_IsoltnVltnRatioInRtn\tLV_IsoltnVltnRatioInRtn";
         header += "\tGSV_DevUtlz\tPSV_DevUtlz\tWV_DevUtlz\tEV_DevUtlz\tLV_DevUtlz";
         globalResult += header + "\n";
         for(double variable : variableTrakcer)

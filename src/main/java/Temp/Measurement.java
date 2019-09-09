@@ -224,7 +224,7 @@ public class Measurement
         orderMismatchPercent = (totalCount == 0.0)? 0.0 : (violationCount/totalCount)*100.0;
     }
 
-    private void isolationViolationAmongLineages(final Map<DEV_ID, List<Routine>> lockTable)
+    private void isolationViolationPercentAmongLineages(final Map<DEV_ID, List<Routine>> lockTable)
     {
         Integer minStartTime = Integer.MAX_VALUE;
         Integer maxEndTime = Integer.MIN_VALUE;
@@ -307,7 +307,7 @@ public class Measurement
         isoltnVltnRatioAmongLineages = sum / (double) TOTAL_ISOLATION_VIOLATION_CHECK_COUNT;
     }
 
-    private void isolationViolationAmongRoutine(final Map<DEV_ID, List<Routine>> lockTable)
+    private void isolationViolationPercentAmongRoutine(final Map<DEV_ID, List<Routine>> lockTable)
     {
         Map<Integer, Boolean> routineID_IsViolateMap = new HashMap<>();
 
@@ -359,12 +359,20 @@ public class Measurement
         isolationVltnRatioAmongRoutines = violationPercentage;
     }
 
-    public Measurement(final Map<DEV_ID, List<Routine>> lockTable)
+    CONSISTENCY_TYPE consistencyType; // debug purpose only
+    LockTable lockTable;
+
+    public Measurement(final LockTable _lockTable, CONSISTENCY_TYPE _consistencyType)
     {
+        this.lockTable = _lockTable;
+        this.consistencyType = _consistencyType;
+
+        final Map<DEV_ID, List<Routine>> lockTable = this.lockTable.lockTable;
+
         measureParallelization(lockTable);
         measureOrderingMismatch(lockTable);
-        isolationViolationAmongLineages(lockTable);
+        isolationViolationPercentAmongLineages(lockTable);
         measureDeviceUtilization(lockTable);
-        isolationViolationAmongRoutine(lockTable);
+        isolationViolationPercentAmongRoutine(lockTable);
     }
 }
