@@ -200,7 +200,7 @@ public class Measurement
     {
         if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
         {
-            orderMismatchPercent = 0.0;
+            orderMismatchPercent = -1.0;
             return;
         }
 

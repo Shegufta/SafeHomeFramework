@@ -135,7 +135,7 @@ public class LockTable
 
         if(earliestReleaseDevID != null)
         {
-            lockTableHelper.get(earliestReleaseDevID).isLocked = false;
+            lockTableHelper.get(earliestReleaseDevID).isLocked = false; // release lock
         }
 
         return (earliestLockReleaseTime == Integer.MAX_VALUE) ? simulationStartTime : earliestLockReleaseTime;
@@ -161,7 +161,7 @@ public class LockTable
         }
     }
 
-    private void lazyScheduling(List<Routine> rtnList, int currentTime)
+    private void lazyScheduling(final List<Routine> rtnList, int _simulationStartTime, boolean isFirstWaitingRoutineOnly)
     {
         Map<DEV_ID, LazySchedulingHelper> lockTableHelper = new HashMap<>();
 
@@ -170,40 +170,54 @@ public class LockTable
             lockTableHelper.put( devID, new LazySchedulingHelper(devID) );
         }
 
-        List<Routine> rtnListCopy = new ArrayList<>(rtnList); // NOTE: do not change the rtnList
+        List<Routine> waitingList = new ArrayList<>(rtnList); // NOTE: do not change the rtnList
+        Collections.sort(waitingList, new Routine());// sort based on arrival time. ties are broken by routine id. smaller id first
 
-        while(!rtnListCopy.isEmpty())
+        while(!waitingList.isEmpty())
         {
-            int lockReleaseTime = lazy_ReleaseEarliestCommandLock(lockTableHelper, currentTime);
+            int lockReleaseTime = lazy_ReleaseEarliestCommandLock(lockTableHelper, _simulationStartTime);
 
             List<Routine> scheduledRtnList = new ArrayList<>();
 
-            for(int index = 0 ; index < rtnListCopy.size() ; index++)
+            for(int index = 0 ; index < waitingList.size() ; index++)
             {
-                if(lazy_canAcquireAllLocks( lockTableHelper , rtnListCopy.get(index)))
+                if(lazy_canAcquireAllLocks( lockTableHelper , waitingList.get(index)))
                 {
-                    //rtnListCopy.get(index).ID = getUniqueRtnID();
-                    rtnListCopy.get(index).registrationTime = currentTime;
+                    //waitingList.get(index).ID = getUniqueRtnID();
+                    //waitingList.get(index).registrationTime = _simulationStartTime; //TODO: remove this line..
 
-                    registerRoutineFromExactTime(rtnListCopy.get(index), lockReleaseTime); // register in the lock table
-                    lazy_acquireAllLock(lockTableHelper ,rtnListCopy.get(index));
+                    int maxTime = Math.max(lockReleaseTime, waitingList.get(index).registrationTime);
 
-                    scheduledRtnList.add(rtnListCopy.get(index));
+                    registerRoutineFromExactTime(waitingList.get(index), maxTime); // register in the lock table
+                    lazy_acquireAllLock(lockTableHelper ,waitingList.get(index));
+
+                    scheduledRtnList.add(waitingList.get(index));
+                }
+
+                if(isFirstWaitingRoutineOnly)
+                { // stop checking after first routine from the waiting list
+                    assert(consistencyType == CONSISTENCY_TYPE.LAZY_FCFS);
+                    break; // this is the FCFS implementation
+                }
+                else
+                {
+                    assert(consistencyType == CONSISTENCY_TYPE.LAZY);
                 }
             }
 
             for(Routine rtn : scheduledRtnList)
             {
-                rtnListCopy.remove(rtn);
+                waitingList.remove(rtn);
             }
         }
     }
 
 
 
-    private void weakScheduling(List<Routine> rtnList, int currentTime)
+    //private void weakScheduling(List<Routine> rtnList, int _simulationStartTime)
+    private void weakScheduling(List<Routine> rtnList)
     {
-        Collections.shuffle(rtnList); // shuffle the rtn list. in weak visibility, routine can be executed in any order.
+        //Collections.shuffle(rtnList); // shuffle the rtn list. in weak visibility, routine can be executed in any order.
 
         this.lockTable = null; // so that accidentally no one uses it while in WeakScheduling mode
         weakSchedulingSpecialLockTable = new ArrayList<>();
@@ -212,12 +226,13 @@ public class LockTable
         {
             weakSchedulingSpecialLockTable.add(I, rtnList.get(I));
 
-            weakSchedulingSpecialLockTable.get(I).registrationTime = currentTime;
-            weakSchedulingSpecialLockTable.get(I).arrivalSequenceForWeakScheduling = I;
+            //weakSchedulingSpecialLockTable.get(I).registrationTime = _simulationStartTime;
+            //weakSchedulingSpecialLockTable.get(I).arrivalSequenceForWeakScheduling = I;
 
             assert(!weakSchedulingSpecialLockTable.get(I).commandList.isEmpty());
 
-            weakSchedulingSpecialLockTable.get(I).commandList.get(0).startTime = currentTime;
+            //weakSchedulingSpecialLockTable.get(I).commandList.get(0).startTime = _simulationStartTime;
+            weakSchedulingSpecialLockTable.get(I).commandList.get(0).startTime = weakSchedulingSpecialLockTable.get(I).registrationTime;
 
             for(int cmdIdx = 1 ; cmdIdx < weakSchedulingSpecialLockTable.get(I).commandList.size() ; cmdIdx++)
             {
@@ -225,50 +240,33 @@ public class LockTable
                 weakSchedulingSpecialLockTable.get(I).commandList.get(cmdIdx).startTime = prevCmdEndTime;
             }
         }
-
-
-        /*
-        for(int R = 0 ; R < rtnList.size() ; ++R)
-        {
-            rtnList.get(R).registrationTime = currentTime;
-
-            for(int C = 0 ; C < rtnList.get(R).commandList.size() ; ++C)
-            {
-                DEV_ID devID = rtnList.get(R).commandList.get(C).devID;
-
-                int insertionTime = currentTime;
-                if(!this.lockTable.get(devID).isEmpty())
-                {
-                    int lastIndex = this.lockTable.get(devID).size() - 1;
-                    insertionTime = this.lockTable.get(devID).get(lastIndex).getCommandByDevID(devID).getCmdEndTime();
-                }
-
-                rtnList.get(R).commandList.get(C).startTime = insertionTime;
-                this.lockTable.get(devID).add(rtnList.get(R));
-
-            }
-        }
-        */
     }
 
 
-    public void register(List<Routine> rtnList, int currentTime)
+    public void register(List<Routine> rtnList, int _simulationStartTime)
     {
         if(this.consistencyType == CONSISTENCY_TYPE.LAZY)
         {
-            lazyScheduling(rtnList, currentTime);
+            lazyScheduling(rtnList, _simulationStartTime, false);
+            return;
+        }
+
+        if(this.consistencyType == CONSISTENCY_TYPE.LAZY_FCFS)
+        {
+            lazyScheduling(rtnList, _simulationStartTime, true);
             return;
         }
 
         if(this.consistencyType == CONSISTENCY_TYPE.WEAK)
         {
-            this.weakScheduling(rtnList, currentTime);
+            //this.weakScheduling(rtnList, _simulationStartTime);
+            this.weakScheduling(rtnList);
             return;
         }
 
         for(Routine rtn : rtnList)
         {
-            this.register(rtn, currentTime);
+            this.register(rtn, _simulationStartTime);
         }
 
 //        if(this.consistencyType == CONSISTENCY_TYPE.EVENTUAL)
@@ -279,10 +277,9 @@ public class LockTable
 //        }
     }
 
-    public void register(Routine rtn, int currentTime)
+    public void register(Routine rtn, int _simulationStartTime)
     {
-        //rtn.ID = getUniqueRtnID();
-        rtn.registrationTime = currentTime;
+        //rtn.registrationTime = _simulationStartTime;
 
         Set<DEV_ID> devIDset = new HashSet<>();
         for(Command cmd : rtn.commandList)
@@ -309,22 +306,18 @@ public class LockTable
         {
             case STRONG:
             {
-                this.registerStrong(rtn, currentTime);
+                this.registerStrong(rtn, _simulationStartTime);
                 break;
             }
             case RELAXED_STRONG:
             {
-                registerRelaxedStepByStep(rtn, currentTime);
+                registerRelaxedStepByStep(rtn, _simulationStartTime);
                 break;
             }
             case EVENTUAL:
             {
-                this.insertRecursively(rtn, 0, currentTime, new HashSet<>(), new HashSet<>());
-                break;
-            }
-            case WEAK:
-            {
-                this.registerWeak(rtn, currentTime);
+                //this.insertRecursively(rtn, 0, _simulationStartTime, new HashSet<>(), new HashSet<>());
+                this.insertRecursively(rtn, 0, rtn.registrationTime, new HashSet<>(), new HashSet<>());
                 break;
             }
             default:
@@ -335,9 +328,9 @@ public class LockTable
     }
 
 
-    private void registerStrong(Routine rtn, int currentTime)
+    private void registerStrong(Routine rtn, int _simulationStartTime)
     {
-        int routineMaxEndTime = currentTime;
+        int registeredRtnMaxEndTime = _simulationStartTime;
 
         for(DEV_ID devId: this.lockTable.keySet())
         {
@@ -345,23 +338,22 @@ public class LockTable
             {
                 int existingRtnEndTime = existingRtn.routineEndTime();
 
-                if(routineMaxEndTime < existingRtnEndTime)
-                    routineMaxEndTime = existingRtnEndTime;
+                if(registeredRtnMaxEndTime < existingRtnEndTime)
+                    registeredRtnMaxEndTime = existingRtnEndTime;
             }
         }
 
-        int routineStartTime = routineMaxEndTime;
+        int routineStartTime = Math.max(registeredRtnMaxEndTime, rtn.registrationTime);
 
         this.registerRoutineFromExactTime(rtn, routineStartTime);
 
     }
 
-    private void registerRelaxedStepByStep(Routine rtn, int currentTime)
+    private void registerRelaxedStepByStep(Routine rtn, int _simulationStartTime)
     {
-        int overlappintRtnMaxEndTime = currentTime;
+        int overlappintRtnMaxEndTime = _simulationStartTime;
 
-        //for(DEV_ID devId: rtn.devSet)
-        for(DEV_ID devId: rtn.devIdIsMustMap.keySet())
+        for(DEV_ID devId: rtn.getAllDevIDSet())
         {
             for(Routine existingRtn : lockTable.get(devId))
             {
@@ -372,17 +364,17 @@ public class LockTable
             }
         }
 
-        int routineStartTime = overlappintRtnMaxEndTime;
+        int routineStartTime = Math.max(overlappintRtnMaxEndTime, rtn.registrationTime);
 
         this.registerRoutineFromExactTime(rtn, routineStartTime);
 
     }
 
-    private void registerWeak(Routine rtn, int currentTime)
-    {
-        this.registerRoutineFromExactTime(rtn, currentTime);
-    }
-
+//    private void registerWeak(Routine rtn, int currentTime)
+//    {
+//        this.registerRoutineFromExactTime(rtn, currentTime);
+//    }
+//
     private void registerRoutineFromExactTime(Routine rtn, int initialTime)
     {// commands will be registered without any gap
         int commandIdx = 0;
@@ -526,7 +518,7 @@ public class LockTable
             }
             else
             {
-                if(cmdStartTime < scanStartTime)
+                if(cmdStartTime <= scanStartTime)
                 {// overlap with the scan line
                     scanStartTime = cmdEndTime; // shift the scan line
                     continue;

@@ -8,20 +8,20 @@ import java.util.*;
  * @date 18-Jul-19
  * @time 12:02 AM
  */
-public class Routine
+public class Routine implements Comparator<Routine>
 {
     public int ID;
-    public int arrivalSequenceForWeakScheduling;
+    //public int arrivalSequenceForWeakScheduling;
     List<Command> commandList;
     int registrationTime = 0;
     public Map<DEV_ID, Boolean> devIdIsMustMap;
     public Set<DEV_ID> deviceSet;
+    final int ID_NOT_ASSIGNED_YET = -1;
 
     public Routine()
     {
-        this.ID = -1;
+        this.ID = ID_NOT_ASSIGNED_YET;
         this.commandList = new ArrayList<>();
-        //this.devSet = new HashSet<>();
         this.devIdIsMustMap = new HashMap<>();
         this.deviceSet = new HashSet<>();
     }
@@ -41,12 +41,25 @@ public class Routine
         */
     }
 
+    public double getBackToBackCmdExecutionTimeWithoutGap()
+    {
+        Double backToBackCmdExecutionTime = 0.0;
+
+        for(Command cmd: this.commandList)
+        {
+            backToBackCmdExecutionTime += cmd.duration;
+        }
+
+        return backToBackCmdExecutionTime;
+    }
+
     public void addCommand(Command cmd)
     {
         //assert(!devSet.contains(cmd.devID));
         //devSet.add(cmd.devID);
 
-        assert(!devIdIsMustMap.containsKey(cmd.devID));
+        assert(!deviceSet.contains(cmd.devID));
+
         devIdIsMustMap.put(cmd.devID, cmd.isMust);
         this.deviceSet.add(cmd.devID);
 
@@ -124,7 +137,17 @@ public class Routine
 
     public int lockEndTime(DEV_ID _devID)
     {
-        return this.lockStartTime(_devID) + this.lockDuration(_devID);
+        for(Command cmd : commandList)
+        {
+            if(cmd.devID == _devID)
+                return cmd.startTime + cmd.duration;
+        }
+
+        assert(false);
+
+        return -1;
+
+        //return this.lockStartTime(_devID) + this.lockDuration(_devID);
     }
 
     public int lockDuration(DEV_ID _devID)
@@ -256,6 +279,7 @@ public class Routine
     {
         Routine deepCopyRoutine = new Routine();
         deepCopyRoutine.ID = this.ID;
+        deepCopyRoutine.registrationTime = this.registrationTime;
 
         for(Command cmd : this.commandList)
         {
@@ -282,5 +306,20 @@ public class Routine
         str += " }";
 
         return str;
+    }
+
+    @Override
+    public int compare(Routine a, Routine b)
+    {
+        if(a.registrationTime == b.registrationTime)
+        {
+            assert(a.ID != b.ID);
+
+            return (a.ID < b.ID) ? -1 : ( (a.ID == b.ID)? 0 : 1 );
+        }
+        else
+        {
+            return (a.registrationTime < b.registrationTime) ? -1 : ( (a.registrationTime == b.registrationTime)? 0 : 1 );
+        }
     }
 }

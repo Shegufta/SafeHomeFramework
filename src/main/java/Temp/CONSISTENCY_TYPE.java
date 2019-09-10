@@ -13,5 +13,5 @@ public enum CONSISTENCY_TYPE
     EVENTUAL,
     WEAK,
     LAZY,
-    FCFS
+    LAZY_FCFS
 }
