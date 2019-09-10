@@ -11,9 +11,11 @@ import java.util.*;
 public class Routine
 {
     public int ID;
+    public int arrivalSequenceForWeakScheduling;
     List<Command> commandList;
     int registrationTime = 0;
     public Map<DEV_ID, Boolean> devIdIsMustMap;
+    public Set<DEV_ID> deviceSet;
 
     public Routine()
     {
@@ -21,10 +23,13 @@ public class Routine
         this.commandList = new ArrayList<>();
         //this.devSet = new HashSet<>();
         this.devIdIsMustMap = new HashMap<>();
+        this.deviceSet = new HashSet<>();
     }
 
     public Set<DEV_ID> getAllDevIDSet()
     {
+        return this.deviceSet;
+        /*
         Set<DEV_ID> devIDset = new HashSet<DEV_ID>();
 
         for(Command cmd : commandList)
@@ -33,6 +38,7 @@ public class Routine
         }
 
         return devIDset;
+        */
     }
 
     public void addCommand(Command cmd)
@@ -42,6 +48,7 @@ public class Routine
 
         assert(!devIdIsMustMap.containsKey(cmd.devID));
         devIdIsMustMap.put(cmd.devID, cmd.isMust);
+        this.deviceSet.add(cmd.devID);
 
         this.commandList.add(cmd);
     }
@@ -138,9 +145,24 @@ public class Routine
         return this.commandList.get(0).startTime;
     }
 
-    public double getEndToEndLatency()
+    private double getEndToEndLatency()
     {
         return this.routineEndTime() - this.registrationTime;
+    }
+
+    private double getRoutineExecutionTime()
+    {
+        return this.routineEndTime() - this.routineStartTime();
+    }
+
+    public double getLatencyOverheadPrcnt()
+    {
+        double endToEndLatency = getEndToEndLatency();
+        double overhead = getStartDelay();
+
+        assert(0.0 < endToEndLatency);
+
+        return (overhead/endToEndLatency)*100.0;
     }
 
     public double getStartDelay()
@@ -193,6 +215,42 @@ public class Routine
 
         return false;
     }
+
+    public boolean isDevAccessStartsDuringTimeSpan(DEV_ID devId, int startTimeInclusive, int endTimeExclusive)
+    {
+        assert(startTimeInclusive < endTimeExclusive);
+
+        if(!deviceSet.contains(devId))
+            return false;
+
+        int cmdStartTimeInclusive = getCommandByDevID(devId).startTime;
+        //int cmdEndTimeExclusive = getCommandByDevID(devId).getCmdEndTime();
+
+        if(startTimeInclusive <= cmdStartTimeInclusive && cmdStartTimeInclusive < endTimeExclusive)
+            return true;
+
+
+        return false;
+    }
+
+
+    public boolean isRoutineOverlapsWithGivenTimeSpan(int startTimeInclusive, int endTimeExclusive)
+    {
+        assert(startTimeInclusive < endTimeExclusive);
+
+        int rtnStartTimeInclusive = this.routineStartTime();
+        int rtnEndTimeExclusive = this.routineEndTime();
+
+        if(startTimeInclusive <= rtnStartTimeInclusive && rtnStartTimeInclusive < endTimeExclusive)
+            return true;
+
+        if(rtnStartTimeInclusive <= startTimeInclusive && startTimeInclusive < rtnEndTimeExclusive)
+            return true;
+
+
+        return false;
+    }
+
 
     public Routine getDeepCopy()
     {

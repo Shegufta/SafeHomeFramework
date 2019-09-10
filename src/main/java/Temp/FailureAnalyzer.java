@@ -101,6 +101,9 @@ public class FailureAnalyzer
 
     public FailureAnalyzer(final Map<DEV_ID, List<Routine>> lockTable, CONSISTENCY_TYPE _consistencyType)
     {
+        if(_consistencyType == CONSISTENCY_TYPE.WEAK)
+            return;
+
         this.consistencyType = _consistencyType;
         lockTableForFailureAnalysis = new HashMap<>();
         for(DEV_ID devID : lockTable.keySet())

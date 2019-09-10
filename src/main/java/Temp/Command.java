@@ -1,5 +1,8 @@
 package Temp;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
@@ -51,14 +54,16 @@ public class Command
     public Command getDeepCopy()
     {
         Command deepCopyCommand = new Command(this.devID, this.duration, this.isMust);
-        deepCopyCommand.startTime = deepCopyCommand.startTime;
+        deepCopyCommand.startTime = this.startTime;
         return deepCopyCommand;
     }
 
+    /*
     public void overrideDurationForWeakVisibilityModel(int weakVisibilityDeviceAccessTime)
     {
         this.duration = weakVisibilityDeviceAccessTime;
     }
+    */
 
     @Override
     public String toString()

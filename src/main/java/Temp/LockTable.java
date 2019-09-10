@@ -11,9 +11,10 @@ import java.util.*;
 public class LockTable
 {
     public Map<DEV_ID, List<Routine>> lockTable;
+    List<Routine> weakSchedulingSpecialLockTable = null;
 
     //public int CURRENT_TIME;
-    private CONSISTENCY_TYPE consistencyType;
+    public CONSISTENCY_TYPE consistencyType;
 
     //private static int ROUTINE_ID;
 
@@ -27,6 +28,30 @@ public class LockTable
         for(DEV_ID devID : devIDlist)
         {
             this.lockTable.put(devID, new ArrayList<>());
+        }
+    }
+
+    public List<Routine> getAllRoutineSet()
+    {
+        if(this.consistencyType == CONSISTENCY_TYPE.WEAK)
+        {
+            assert(weakSchedulingSpecialLockTable != null);
+            return weakSchedulingSpecialLockTable;
+        }
+        else
+        {
+            List<Routine> allRoutineList = new ArrayList<>();
+
+            for(List<Routine> lineage : lockTable.values())
+            {
+                for(Routine routine : lineage)
+                {
+                    if(!allRoutineList.contains(routine))
+                        allRoutineList.add(routine);
+                }
+            }
+
+            return allRoutineList;
         }
     }
 
@@ -174,10 +199,35 @@ public class LockTable
         }
     }
 
+
+
     private void weakScheduling(List<Routine> rtnList, int currentTime)
     {
         Collections.shuffle(rtnList); // shuffle the rtn list. in weak visibility, routine can be executed in any order.
 
+        this.lockTable = null; // so that accidentally no one uses it while in WeakScheduling mode
+        weakSchedulingSpecialLockTable = new ArrayList<>();
+
+        for(int I = 0 ; I < rtnList.size() ; I++)
+        {
+            weakSchedulingSpecialLockTable.add(I, rtnList.get(I));
+
+            weakSchedulingSpecialLockTable.get(I).registrationTime = currentTime;
+            weakSchedulingSpecialLockTable.get(I).arrivalSequenceForWeakScheduling = I;
+
+            assert(!weakSchedulingSpecialLockTable.get(I).commandList.isEmpty());
+
+            weakSchedulingSpecialLockTable.get(I).commandList.get(0).startTime = currentTime;
+
+            for(int cmdIdx = 1 ; cmdIdx < weakSchedulingSpecialLockTable.get(I).commandList.size() ; cmdIdx++)
+            {
+                int prevCmdEndTime = weakSchedulingSpecialLockTable.get(I).commandList.get(cmdIdx-1).getCmdEndTime();
+                weakSchedulingSpecialLockTable.get(I).commandList.get(cmdIdx).startTime = prevCmdEndTime;
+            }
+        }
+
+
+        /*
         for(int R = 0 ; R < rtnList.size() ; ++R)
         {
             rtnList.get(R).registrationTime = currentTime;
@@ -198,6 +248,7 @@ public class LockTable
 
             }
         }
+        */
     }
 
 

@@ -12,35 +12,26 @@ public class Measurement
 {
     private final int TOTAL_ISOLATION_VIOLATION_CHECK_COUNT = 3;
     /////////////////////////////////////////////
-    List<Double> parallalRtnCntList = new ArrayList<>();
-    List<Double> devUtilizationList = new ArrayList<>();
-    //double maxParallalRtnCnt = Integer.MIN_VALUE;
-    //double avgParallalRtnCnt;
-    double orderMismatchPercent = 0.0;
-    double isoltnVltnRatioAmongLineages = 0.0;
-    double isolationVltnRatioAmongRoutines = 0.0;
+    public List<Double> parallalRtnCntList = new ArrayList<>();
+    public List<Double> devUtilizationPercentList = new ArrayList<>();
+    public double orderMismatchPercent = 0.0;
+    //double isoltnVltnRatioAmongLineages = 0.0;
+    //double isolationVltnRatioAmongRoutines = 0.0;
+
+    public List<Double> isvltn_perRtnVictimCmdPrcntList = new ArrayList<>();
+    public List<Double> isvltn_totalUniqueAttackerPerRoutineList = new ArrayList<>();
+    public Double isvltn_victimRtnPercentPerRun = 0.0;
     /////////////////////////////////////////////
 
-    private void measureDeviceUtilization(final Map<DEV_ID, List<Routine>> lockTable)
+    private void measureDeviceUtilization(final LockTable _lockTable)
     {
-        /*
-        double totalGap = 0.0;
-
-        for(Map.Entry<DEV_ID, List<Routine>> entry : lockTable.entrySet())
+        if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
         {
-            DEV_ID devID = entry.getKey();
-
-            for(int index =0 ; index < (entry.getValue().size() - 1) ; index++)
-            {
-                Command cmd1 = entry.getValue().get(index).getCommandByDevID(devID);
-                Command cmd2 = entry.getValue().get(index + 1).getCommandByDevID(devID);
-
-                totalGap += cmd2.startTime - cmd1.getCmdEndTime();
-            }
+            devUtilizationPercentList.add(100.0);
+            return;
         }
 
-        devUtilizationList.add(totalGap);
-        */
+        final Map<DEV_ID, List<Routine>> lockTable = _lockTable.lockTable;
 
         for(Map.Entry<DEV_ID, List<Routine>> entry : lockTable.entrySet())
         {
@@ -74,42 +65,43 @@ public class Measurement
 
 
             double utilization = ( cmdExecutionSpan / totalTimeSpan) * 100.0;
-            devUtilizationList.add( utilization );
-
-
-            /*
-            int entryCount = entry.getValue().size();
-            DEV_ID devID = entry.getKey();
-
-            if(entryCount == 0)
-                continue;
-
-            if(entryCount == 1)
-            {
-                devUtilizationList.add(100.0);
-            }
-            else
-            {
-                Command firstCmd = entry.getValue().get(0).getCommandByDevID(devID);
-                Command lastCmd = entry.getValue().get(entryCount - 1).getCommandByDevID(devID);
-
-                final double totalTimeSpan = lastCmd.getCmdEndTime() - firstCmd.startTime;
-                double cmdExecutionSpan = 0.0;
-
-                for(Routine rtn : entry.getValue())
-                {
-                    Command cmd = rtn.getCommandByDevID(devID);
-                    cmdExecutionSpan += cmd.getCmdEndTime() - cmd.startTime;
-                }
-                devUtilizationList.add( ( cmdExecutionSpan / totalTimeSpan) * 100.0 );
-            }
-            */
+            devUtilizationPercentList.add( utilization );
         }
-
     }
 
-    private void measureParallelization(final Map<DEV_ID, List<Routine>> lockTable)
+    private void measureParallelization(final LockTable _lockTable)
     {
+        List<Routine> allRtnList = _lockTable.getAllRoutineSet(); // the special case CONSISTENCY_TYPE.WEAK is handled inside this function!
+
+        Map<Routine, Integer> routineAndTotalOtherParallelRtnCounter_Map = new HashMap<>();
+
+        for(Routine rtn1 : allRtnList)
+        {
+            routineAndTotalOtherParallelRtnCounter_Map.put(rtn1, 1); // put 1 for itself!
+            int rtn1StartTimeInclusive = rtn1.routineStartTime();
+            int rtn1EndTimeExclusive = rtn1.routineEndTime();
+
+            for(Routine rtn2: allRtnList)
+            {
+                if(rtn1 == rtn2)
+                    continue;
+
+                boolean isParallel = rtn2.isRoutineOverlapsWithGivenTimeSpan(rtn1StartTimeInclusive, rtn1EndTimeExclusive);
+
+                if(isParallel)
+                {
+                    int currentCount = routineAndTotalOtherParallelRtnCounter_Map.get(rtn1);
+                    routineAndTotalOtherParallelRtnCounter_Map.put(rtn1, currentCount + 1);
+                }
+            }
+
+            double parallelCountForRtn1 = routineAndTotalOtherParallelRtnCounter_Map.get(rtn1);
+            this.parallalRtnCntList.add(parallelCountForRtn1);
+        }
+
+/*
+        final Map<DEV_ID, List<Routine>> lockTable = _lockTable.lockTable;
+
         //UPDATE: I am keeping this O(n2) code!
         // DONOT REMOVE THIS CODE... MIGHT WANT TO SWITCH ON THIS VERSION LATER!
         //Actually this one and the code below are doing the same thing. This one is O(n2), where as the other one is O(n)
@@ -147,7 +139,7 @@ public class Measurement
                 this.parallalRtnCntList.add(parallalCount);
             }
         }
-
+*/
 
         /*
         Integer minStartTime = Integer.MAX_VALUE;
@@ -204,8 +196,15 @@ public class Measurement
 
     }
 
-    private void measureOrderingMismatch(final Map<DEV_ID, List<Routine>> lockTable)
+    private void measureOrderingMismatch(final LockTable _lockTable)
     {
+        if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
+        {
+            orderMismatchPercent = 0.0;
+            return;
+        }
+
+        final Map<DEV_ID, List<Routine>> lockTable = _lockTable.lockTable;
         Map<Integer, Integer> routineOrderingViolation = new HashMap<>();
         double totalCount = 0.0;
         double violationCount = 0.0;
@@ -224,6 +223,8 @@ public class Measurement
         orderMismatchPercent = (totalCount == 0.0)? 0.0 : (violationCount/totalCount)*100.0;
     }
 
+
+/*
     private void isolationViolationPercentAmongLineages(final Map<DEV_ID, List<Routine>> lockTable)
     {
         Integer minStartTime = Integer.MAX_VALUE;
@@ -358,21 +359,78 @@ public class Measurement
         double violationPercentage = (totalRtnCount == 0.0)? 0.0 : ((violationCount/totalRtnCount)*100.0);
         isolationVltnRatioAmongRoutines = violationPercentage;
     }
-
-    CONSISTENCY_TYPE consistencyType; // debug purpose only
-    LockTable lockTable;
-
-    public Measurement(final LockTable _lockTable, CONSISTENCY_TYPE _consistencyType)
+*/
+    private void isolationViolation(final LockTable _lockTable)
     {
-        this.lockTable = _lockTable;
-        this.consistencyType = _consistencyType;
+        List<Routine> allRtnList = _lockTable.getAllRoutineSet();
 
-        final Map<DEV_ID, List<Routine>> lockTable = this.lockTable.lockTable;
+        Map<Routine, Set<Routine>> victimRtnAndAttackerRtnSetMap = new HashMap<>();
+        Map<Routine, Set<Command>> victimRtnAndItsVictimCmdSetMap = new HashMap<>();
 
+        for(Routine rtn1 : allRtnList)
+        {
+            assert(!victimRtnAndAttackerRtnSetMap.containsKey(rtn1));
+            victimRtnAndAttackerRtnSetMap.put(rtn1, new HashSet<>());
+
+            assert(!victimRtnAndItsVictimCmdSetMap.containsKey(rtn1));
+            victimRtnAndItsVictimCmdSetMap.put(rtn1, new HashSet<>());
+
+            for(Routine rtn2 : allRtnList)
+            {
+                if(rtn1 == rtn2)
+                    continue;
+
+                for(Command cmd1 : rtn1.commandList)
+                {
+                    DEV_ID devID = cmd1.devID;
+                    int spanStartTimeInclusive = cmd1.startTime;
+                    int spanEndTimeExclusive = rtn1.routineEndTime();
+
+                    boolean isAttackedByRtn2 = rtn2.isDevAccessStartsDuringTimeSpan(devID, spanStartTimeInclusive, spanEndTimeExclusive);
+
+                    if(isAttackedByRtn2)
+                    {
+                        victimRtnAndAttackerRtnSetMap.get(rtn1).add(rtn2);
+                        victimRtnAndItsVictimCmdSetMap.get(rtn1).add(cmd1);
+                    }
+                }
+            }
+        }
+
+        double victimRoutineCount = 0.0;
+
+        for(Routine rtn1 : allRtnList)
+        {
+            double victimCommandCount = victimRtnAndItsVictimCmdSetMap.get(rtn1).size();
+
+            if(victimCommandCount == 0.0)
+            {// no violation for this routine
+                isvltn_perRtnVictimCmdPrcntList.add(0.0);
+                isvltn_totalUniqueAttackerPerRoutineList.add(0.0);
+            }
+            else
+            {
+                victimRoutineCount++;
+                double totalCommand = rtn1.commandList.size();
+
+                double perRtnSpoiledCmdPercent = (victimCommandCount/totalCommand)*100.0;
+                isvltn_perRtnVictimCmdPrcntList.add(perRtnSpoiledCmdPercent);
+                isvltn_totalUniqueAttackerPerRoutineList.add((double)victimRtnAndAttackerRtnSetMap.get(rtn1).size());
+            }
+        }
+
+        double totalRoutine = allRtnList.size();
+        isvltn_victimRtnPercentPerRun = (victimRoutineCount / totalRoutine)*100.0;
+
+    }
+
+    public Measurement(final LockTable lockTable, CONSISTENCY_TYPE _consistencyType)
+    {
         measureParallelization(lockTable);
         measureOrderingMismatch(lockTable);
-        isolationViolationPercentAmongLineages(lockTable);
+        //isolationViolationPercentAmongLineages(lockTable);
         measureDeviceUtilization(lockTable);
-        isolationViolationPercentAmongRoutine(lockTable);
+        //isolationViolationPercentAmongRoutine(lockTable);
+        isolationViolation(lockTable);
     }
 }

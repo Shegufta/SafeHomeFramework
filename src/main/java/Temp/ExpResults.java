@@ -15,7 +15,7 @@ public class ExpResults
     public List<Double> waitTimeList;
     public List<Double> endToEndLatencyList;
     public List<Double> stretchRatioList;
-    public FailureAnalyzer failureAnalyzer;
+    public FailureAnalyzer failureAnalyzer = null;
     public Measurement measurement;
 
     public double itemCount;
