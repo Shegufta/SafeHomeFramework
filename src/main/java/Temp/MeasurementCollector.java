@@ -25,6 +25,29 @@ public class MeasurementCollector
             this.dataList = new ArrayList<>();
             isListFinalized = false;
         }
+
+        public double getNthDataOrMinusOne(int N)
+        {
+            if( (N < 0) || (this.itemCount() == 0) || (this.itemCount() <= N))
+                return -1;
+
+            return dataList.get(N);
+        }
+
+        public double getNthCDFOrMinusOne(int N)
+        {
+            if( (N < 0) || (this.itemCount() == 0) || (this.itemCount() <= N))
+                return -1;
+
+            double frequency = 1.0 / this.itemCount();
+
+            return frequency * (N + 1.0);
+        }
+
+        public double itemCount()
+        {
+            return this.dataList.size();
+        }
     }
 
     private int maxDataPoint;
@@ -132,6 +155,7 @@ public class MeasurementCollector
     }
 
 
+    /*
     public String getStats(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
     {
         if(!this.variableMeasurementMap.containsKey(variable))
@@ -147,15 +171,32 @@ public class MeasurementCollector
 
         return this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).statLog;
     }
+    */
 
     public void writeStatsInFile(String parentDirPath, String changingParameterName)
     {
         File parentDir = new File(parentDirPath);
         if(!parentDir.exists())
         {
-            System.out.println("\n\n\nERROR: inside MeasurementCollector.java: directore not found: " + parentDirPath);
+            System.out.println("\n\n\nERROR: inside MeasurementCollector.java: directory not found: " + parentDirPath);
             System.exit(1);
         }
+
+        List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING = new ArrayList<>();
+        CONSISTENCY_ORDERING.add(CONSISTENCY_TYPE.STRONG);
+        CONSISTENCY_ORDERING.add(CONSISTENCY_TYPE.RELAXED_STRONG);
+        CONSISTENCY_ORDERING.add(CONSISTENCY_TYPE.EVENTUAL);
+        CONSISTENCY_ORDERING.add(CONSISTENCY_TYPE.WEAK);
+        CONSISTENCY_ORDERING.add(CONSISTENCY_TYPE.LAZY);
+        CONSISTENCY_ORDERING.add(CONSISTENCY_TYPE.FCFS);
+
+        Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.STRONG, "GSV");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.RELAXED_STRONG, "PSV");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.EVENTUAL, "EV");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.WEAK, "WV");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY, "LV");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.FCFS, "FCFS");
 
 
         for(double variable : variableMeasurementMap.keySet())
@@ -167,20 +208,131 @@ public class MeasurementCollector
             if(!subDir.exists())
                 subDir.mkdir();
 
+            Map<MEASUREMENT_TYPE, List<CONSISTENCY_TYPE> > perMeasurementConsistencyMap = new HashMap<>();
             for(CONSISTENCY_TYPE consistencyType : this.variableMeasurementMap.get(variable).keySet())
             {
                 for(MEASUREMENT_TYPE measurementType : this.variableMeasurementMap.get(variable).get(consistencyType).keySet())
                 {
-                    String fileName = consistencyType.name() + "_" + measurementType.name() + ".dat";
-                    String filePath = subDirPath + "\\" + fileName;
+//                    String fileName = consistencyType.name() + "_" + measurementType.name() + ".dat";
+//                    String filePath = subDirPath + "\\" + fileName;
+//
+//                    writeToFile(filePath, variable, consistencyType, measurementType);
 
-                    writeToFile(filePath, variable, consistencyType, measurementType);
+                    if(!perMeasurementConsistencyMap.containsKey(measurementType))
+                        perMeasurementConsistencyMap.put(measurementType, new ArrayList<>());
+
+                    perMeasurementConsistencyMap.get(measurementType).add(consistencyType);
                 }
+            }
+
+            for(Map.Entry<MEASUREMENT_TYPE, List<CONSISTENCY_TYPE> > entry : perMeasurementConsistencyMap.entrySet())
+            {
+                MEASUREMENT_TYPE currentMeasurement = entry.getKey();
+                List<CONSISTENCY_TYPE> currentMeasurementAvailableConsistencyList = entry.getValue();
+
+                this.arrangeListsForPrinting(
+                        variable,
+                        currentMeasurement,
+                        currentMeasurementAvailableConsistencyList,
+                        subDirPath,
+                        CONSISTENCY_ORDERING,
+                        CONSISTENCY_HEADER
+                );
+            }
+        }
+    }
+
+    private void writeCombinedStatInFile(
+            final MEASUREMENT_TYPE currentMeasurement,
+            final String subDirPath,
+            List<DataHolder> insertedInConsistencyOrder,
+            List<String> consistencyHeader
+            )
+    {
+
+        assert(insertedInConsistencyOrder.size() == consistencyHeader.size());
+
+        String fileName = currentMeasurement.name() + ".dat";
+        String filePath = subDirPath + "\\" + fileName;
+
+        double maxItemCount = Integer.MIN_VALUE;
+
+        String combinedCDFStr = "";
+        for(int I = 0 ; I < consistencyHeader.size() ; I++)
+        {
+            if( maxItemCount < insertedInConsistencyOrder.get(I).itemCount())
+                maxItemCount = insertedInConsistencyOrder.get(I).itemCount();
+
+            combinedCDFStr += "data\t" + consistencyHeader.get(I);
+
+            if(I < (consistencyHeader.size() - 1))
+                combinedCDFStr += "\t";
+            else
+                combinedCDFStr += "\n";
+        }
+
+        for(int N = 0 ; N < maxItemCount ; N++)
+        {
+            for(int I = 0 ; I < insertedInConsistencyOrder.size() ; I++)
+            {
+                double data = insertedInConsistencyOrder.get(I).getNthDataOrMinusOne(N);
+                double CDF = insertedInConsistencyOrder.get(I).getNthCDFOrMinusOne(N);
+
+                combinedCDFStr += data + "\t" + CDF;
+
+                if(I < (insertedInConsistencyOrder.size() - 1))
+                    combinedCDFStr += "\t";
+                else
+                    combinedCDFStr += "\n";
             }
         }
 
+        try
+        {
+            Writer fileWriter = new FileWriter(filePath);
+            fileWriter.write(combinedCDFStr);
+            fileWriter.close();
+        }
+        catch (Exception ex)
+        {
+            System.out.println("\n\nERROR: cannot write file " + filePath);
+            System.exit(1);
+        }
     }
 
+    private void arrangeListsForPrinting(
+            final double variable,
+            final MEASUREMENT_TYPE currentMeasurement,
+            final List<CONSISTENCY_TYPE> currentMeasurementAvailableConsistencyList,
+            final String subDirPath,
+            final List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING,
+            final Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER)
+    {
+
+        List<DataHolder> insertedInConsistencyOrder = new ArrayList<>();
+        List<String> consistencyHeader = new ArrayList<>();
+
+        for(int I = 0 ; I < CONSISTENCY_ORDERING.size() ; I++)
+        {
+            CONSISTENCY_TYPE nextConsistencyToPrint = CONSISTENCY_ORDERING.get(I);
+
+            if(currentMeasurementAvailableConsistencyList.contains(nextConsistencyToPrint))
+            {
+                insertedInConsistencyOrder.add(this.variableMeasurementMap.get(variable).get(nextConsistencyToPrint).get(currentMeasurement));
+                consistencyHeader.add(CONSISTENCY_HEADER.get(nextConsistencyToPrint));
+            }
+        }
+
+
+        writeCombinedStatInFile(
+                currentMeasurement,
+                subDirPath,
+                insertedInConsistencyOrder,
+                consistencyHeader);
+
+    }
+
+    /*
     private String listToString(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
     {
         finalizePrepareStatsAndGetAvg(variable, consistencyType, measurementType); // this call makes it sure that the list has been finalized
@@ -222,4 +374,5 @@ public class MeasurementCollector
         }
 
     }
+    */
 }

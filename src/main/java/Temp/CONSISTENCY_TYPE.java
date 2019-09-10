@@ -12,5 +12,6 @@ public enum CONSISTENCY_TYPE
     RELAXED_STRONG,
     EVENTUAL,
     WEAK,
-    LAZY
+    LAZY,
+    FCFS
 }

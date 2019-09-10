@@ -443,10 +443,10 @@ public class Temp
         logStr += zipFianStr;
         ///////////////////////////
 
-        final String changingParameterName = "maxCommandPerRtn"; // NOTE: also change changingParameterValue
-        for(maxCommandPerRtn = 1; maxCommandPerRtn <= 10 ; maxCommandPerRtn++)
+        final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
+        for(maxConcurrentRtn = 1; maxConcurrentRtn <= 10 ; maxConcurrentRtn++)
         {
-            changingParameterValue = (double)maxCommandPerRtn; // NOTE: also change changingParameterName
+            changingParameterValue = (double)maxConcurrentRtn; // NOTE: also change changingParameterName
 
             ///////////////////////////
 //            String zipFianStr = prepareZipfian();
