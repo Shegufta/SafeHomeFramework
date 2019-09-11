@@ -11,11 +11,9 @@ import java.util.*;
 public class Routine implements Comparator<Routine>
 {
     public int ID;
-    //public int arrivalSequenceForWeakScheduling;
     List<Command> commandList;
     int registrationTime = 0;
     public Map<DEV_ID, Boolean> devIdIsMustMap;
-    //public Set<DEV_ID> deviceSet;
     public Map<DEV_ID, Command> devIDCommandMap;
     public Map<Integer, Command> indexCommandMap;
     public Map<Command, Integer> commandIndexMap;
@@ -38,40 +36,18 @@ public class Routine implements Comparator<Routine>
     public Set<DEV_ID> getAllDevIDSet()
     {
         return this.devIDCommandMap.keySet(); //this.deviceSet;
-        /*
-        Set<DEV_ID> devIDset = new HashSet<DEV_ID>();
-
-        for(Command cmd : commandList)
-        {
-            devIDset.add(cmd.devID);
-        }
-
-        return devIDset;
-        */
     }
 
     public double getBackToBackCmdExecutionTimeWithoutGap()
     {
         return this.backToBackCmdExecutionWithoutGap;
-//        Double backToBackCmdExecutionTime = 0.0;
-//
-//        for(Command cmd: this.commandList)
-//        {
-//            backToBackCmdExecutionTime += cmd.duration;
-//        }
-//
-//        return backToBackCmdExecutionTime;
     }
 
     public void addCommand(Command cmd)
     {
-        //assert(!devSet.contains(cmd.devID));
-        //devSet.add(cmd.devID);
-
         assert(!devIDCommandMap.containsKey(cmd.devID));
 
         devIdIsMustMap.put(cmd.devID, cmd.isMust);
-        //this.deviceSet.add(cmd.devID);
 
         backToBackCmdExecutionWithoutGap += cmd.duration;
 
@@ -87,12 +63,6 @@ public class Routine implements Comparator<Routine>
     public double getStretchRatio()
     {
         double gap = 0.0;
-
-//        double continuousCmdExecutionTime = 0.0;
-//        for(Command cmd : this.commandList)
-//        {
-//            continuousCmdExecutionTime += cmd.duration;
-//        }
 
         for(int idx = 0 ; idx < this.commandList.size()-1 ; ++idx)
         {
@@ -115,13 +85,6 @@ public class Routine implements Comparator<Routine>
         assert(this.devIDCommandMap.containsKey(devID));
 
         return this.devIDCommandMap.get(devID);
-
-//        int commandIndex = getCommandIndex(devID);
-//
-//        if(-1 == commandIndex)
-//            return null;
-//        else
-//            return this.commandList.get(commandIndex);
     }
 
     int getCommandIndex(DEV_ID devID)
@@ -131,16 +94,6 @@ public class Routine implements Comparator<Routine>
         Command cmd = this.devIDCommandMap.get(devID);
 
         return this.commandIndexMap.get(cmd);
-//        for(int index = 0 ; index < this.commandList.size() ; index++)
-//        {
-//            if(devID == this.commandList.get(index).devID)
-//                return index;
-//        }
-//
-//        System.out.println(devID.name() + " not found");
-//        assert(false);
-//
-//        return -1;
     }
 
     DEV_ID getDevID(int cmdIdx)
@@ -153,16 +106,6 @@ public class Routine implements Comparator<Routine>
         assert(this.devIDCommandMap.containsKey(_devID));
 
         return this.devIDCommandMap.get(_devID).startTime;
-
-//        for(Command cmd : commandList)
-//        {
-//            if(cmd.devID == _devID)
-//                return cmd.startTime;
-//        }
-//
-//        assert(false);
-//
-//        return -1;
     }
 
     public int lockEndTime(DEV_ID _devID)
@@ -171,18 +114,6 @@ public class Routine implements Comparator<Routine>
 
         Command cmd = this.devIDCommandMap.get(_devID);
         return cmd.startTime + cmd.duration;
-
-//        for(Command cmd : commandList)
-//        {
-//            if(cmd.devID == _devID)
-//                return cmd.startTime + cmd.duration;
-//        }
-//
-//        assert(false);
-//
-//        return -1;
-
-        //return this.lockStartTime(_devID) + this.lockDuration(_devID);
     }
 
     public int lockDuration(DEV_ID _devID)
@@ -190,16 +121,6 @@ public class Routine implements Comparator<Routine>
         assert(this.devIDCommandMap.containsKey(_devID));
 
         return this.devIDCommandMap.get(_devID).duration;
-
-//        for(Command cmd : commandList)
-//        {
-//            if(cmd.devID == _devID)
-//                return cmd.duration;
-//        }
-//
-//        assert(false);
-//
-//        return -1;
     }
 
     public int routineStartTime()
@@ -284,11 +205,8 @@ public class Routine implements Comparator<Routine>
 
         if(!this.devIDCommandMap.containsKey(devId))
             return false;
-//        if(!deviceSet.contains(devId))
-//            return false;
 
         int cmdStartTimeInclusive = getCommandByDevID(devId).startTime;
-        //int cmdEndTimeExclusive = getCommandByDevID(devId).getCmdEndTime();
 
         if(startTimeInclusive <= cmdStartTimeInclusive && cmdStartTimeInclusive < endTimeExclusive)
             return true;
