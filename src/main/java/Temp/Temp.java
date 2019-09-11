@@ -790,7 +790,7 @@ public class Temp
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                //////////////////////////////////////////-------LAZY-----/////////////////////////////////////////////////////////
+////////////////////////////////////////-------LAZY-FCFS-----/////////////////////////////////////////////////////////
 
                 expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.LAZY_FCFS, routineSet, SIMULATION_START_TIME);
                 measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeList);
@@ -824,6 +824,40 @@ public class Temp
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////-------LAZY-PRIORITY-----/////////////////////////////////////////////////////////
+
+                expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.LAZY_PRIORITY, routineSet, SIMULATION_START_TIME);
+                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeList);
+                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.endToEndLatencyList);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.PARALLEL,
+                        expResult.measurement.parallalRtnCntList);
+
+                ///////
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntList);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
+                        expResult.measurement.isvltn_victimRtnPercentPerRun, false);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
+                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineList);
+                ///////
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ORDDER_MISMATCH,
+                        expResult.measurement.orderMismatchPercent, false);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
+                        expResult.measurement.devUtilizationPercentList);
+
+                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             }
 
@@ -837,6 +871,7 @@ public class Temp
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.WAIT_TIME));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.WAIT_TIME));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.WAIT_TIME));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.WAIT_TIME));
             /////////////////////////////////////////////////////////////
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
@@ -844,6 +879,7 @@ public class Temp
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
             /////////////////////////////////////////////////////////////
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.STRETCH_RATIO));
             /////////////////////////////////////////////////////////////
@@ -861,6 +897,7 @@ public class Temp
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.PARALLEL));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.PARALLEL));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.PARALLEL));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.PARALLEL));
             /////////////////////////////////////////////////////////////
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH));
@@ -868,6 +905,7 @@ public class Temp
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDDER_MISMATCH));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDDER_MISMATCH));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ORDDER_MISMATCH));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ORDDER_MISMATCH));
             /////////////////////////////////////////////////////////////
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
@@ -875,6 +913,7 @@ public class Temp
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
             ////////////////////////////////////////////////////////////////////////////
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
@@ -882,6 +921,7 @@ public class Temp
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
             /////////////////////////////////////////////////////////////
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
@@ -889,6 +929,7 @@ public class Temp
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
             /////////////////////////////////////////////////////////////
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
@@ -896,6 +937,7 @@ public class Temp
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
             /////////////////////////////////////////////////////////////
 
             globalDataCollector.put(changingParameterValue, resultCollector);
@@ -905,22 +947,22 @@ public class Temp
 
         String globalResult = "\n--------------------------------\n";
         //String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tLzyAvg\tLzySD\tEvnAvg\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
-        String header = "Variable";
+        String header = "G0:Variable";
 
-        header += "\tGSV_WaitTm\tPSV_WaitTm\tWV_WaitTm\tEV_WaitTm\tLV_WaitTm\tFCFSV_WaitTm";
-        header += "\tGSV_LtncyOvrhdPcnt\tPSV_LtncyOvrhdPcnt\tWV_LtncyOvrhdPcnt\tEV_LtncyOvrhdPcnt\tLV_LtncyOvrhdPcnt\tFCFSV_LtncyOvrhdPcnt";
-        header += "\tEV_Stretch";
+        header += "\tG1:GSV_WaitTm\tG1:PSV_WaitTm\tG1:WV_WaitTm\tG1:EV_WaitTm\tG1:LV_WaitTm\tG1:FCFSV_WaitTm\tG1:LzPRIOTY_WaitTm";
+        header += "\tG2:GSV_LtncyOvrhdPcnt\tG2:PSV_LtncyOvrhdPcnt\tG2:WV_LtncyOvrhdPcnt\tG2:EV_LtncyOvrhdPcnt\tG2:LV_LtncyOvrhdPcnt\tG2:FCFSV_LtncyOvrhdPcnt\tG2:LzPRIOTY_LtncyOvrhdPcnt";
+        header += "\tG3:EV_Stretch";
 
-        header += "\tGSV_Abort\tPSV_Abort\tEV_Abort";
-        header += "\tGSV_RcvryCmdRatio\tPSV_RcvryCmdRatio\tEV_RcvryCmdRatio";
+        header += "\tG4:GSV_Abort\tG4:PSV_Abort\tG4:EV_Abort";
+        header += "\tG5:GSV_RcvryCmdRatio\tG5:PSV_RcvryCmdRatio\tG5:EV_RcvryCmdRatio";
 
-        header += "\tGSV_Parrl\tPSV_Parrl\tWV_Parrl\tEV_Parrl\tLV_Parrl\tFCFSV_Parrl";
-        header += "\tGSV_OdrMismtch\tPSV_OdrMismtch\tWV_OdrMismtch\tEV_OdrMismtch\tLV_OdrMismtch\tFCFSV_OdrMismtch";
-        header += "\tGSV_DevUtlz\tPSV_DevUtlz\tWV_DevUtlz\tEV_DevUtlz\tLV_DevUtlz\tFCFSV_DevUtlz";
+        header += "\tG6:GSV_Parrl\tG6:PSV_Parrl\tG6:WV_Parrl\tG6:EV_Parrl\tG6:LV_Parrl\tG6:FCFSV_Parrl\tG6:LzPRIOTY_Parrl";
+        header += "\tG7:GSV_OdrMismtch\tG7:PSV_OdrMismtch\tG7:WV_OdrMismtch\tG7:EV_OdrMismtch\tG7:LV_OdrMismtch\tG7:FCFSV_OdrMismtch\tG7:LzPRIOTY_OdrMismtch";
+        header += "\tG8:GSV_DevUtlz\tG8:PSV_DevUtlz\tG8:WV_DevUtlz\tG8:EV_DevUtlz\tG8:LV_DevUtlz\tG8:FCFSV_DevUtlz\tG8:LzPRIOTY_DevUtlz";
 
-        header += "\tGSV_IsvltnPerVctmUniqAttckrCnt\tPSV_IsvltnPerVctmUniqAttckrCnt\tWV_IsvltnPerVctmUniqAttckrCnt\tEV_IsvltnPerVctmUniqAttckrCnt\tLV_IsvltnPerVctmUniqAttckrCnt\tFCFSV_IsvltnPerVctmUniqAttckrCnt";
-        header += "\tGSV_IsvltnVctmRtnPrcntPerRun\tPSV_IsvltnVctmRtnPrcntPerRun\tWV_IsvltnVctmRtnPrcntPerRun\tEV_IsvltnVctmRtnPrcntPerRun\tLV_IsvltnVctmRtnPrcntPerRun\tFCFS_IsvltnVctmRtnPrcntPerRun";
-        header += "\tGSV_IsvltnPerRtnVctmCmdPrcnt\tPSV_IsvltnPerRtnVctmCmdPrcnt\tWV_IsvltnPerRtnVctmCmdPrcnt\tEV_IsvltnPerRtnVctmCmdPrcnt\tLV_IsvltnPerRtnVctmCmdPrcnt\tFCFS_IsvltnPerRtnVctmCmdPrcnt";
+        header += "\tG9:GSV_IsvltnPerVctmUniqAttckrCnt\tG9:PSV_IsvltnPerVctmUniqAttckrCnt\tG9:WV_IsvltnPerVctmUniqAttckrCnt\tG9:EV_IsvltnPerVctmUniqAttckrCnt\tG9:LV_IsvltnPerVctmUniqAttckrCnt\tG9:FCFSV_IsvltnPerVctmUniqAttckrCnt\tG9:LzPRIOTY_IsvltnPerVctmUniqAttckrCnt";
+        header += "\tG10:GSV_IsvltnVctmRtnPrcntPerRun\tG10:PSV_IsvltnVctmRtnPrcntPerRun\tG10:WV_IsvltnVctmRtnPrcntPerRun\tG10:EV_IsvltnVctmRtnPrcntPerRun\tG10:LV_IsvltnVctmRtnPrcntPerRun\tG10:FCFSV_IsvltnVctmRtnPrcntPerRun\tG10:LzPRIOTY_IsvltnVctmRtnPrcntPerRun";
+        header += "\tG11:GSV_IsvltnPerRtnVctmCmdPrcnt\tG11:PSV_IsvltnPerRtnVctmCmdPrcnt\tG11:WV_IsvltnPerRtnVctmCmdPrcnt\tG11:EV_IsvltnPerRtnVctmCmdPrcnt\tG11:LV_IsvltnPerRtnVctmCmdPrcnt\tG11:FCFSV_IsvltnPerRtnVctmCmdPrcnt\tG11:LzPRIOTY_IsvltnPerRtnVctmCmdPrcnt";
 
         globalResult += header + "\n";
         for(double variable : variableTrakcer)

@@ -13,5 +13,6 @@ public enum CONSISTENCY_TYPE
     EVENTUAL,
     WEAK,
     LAZY,
-    LAZY_FCFS
+    LAZY_FCFS,
+    LAZY_PRIORITY
 }
