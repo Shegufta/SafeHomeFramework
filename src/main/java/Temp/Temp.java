@@ -26,25 +26,28 @@ public class Temp
     private static final boolean isSentAllRtnSameTime = false;
     private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
 
-    private static int maxCommandPerRtn = 6; // in current version totalCommandInThisRtn = maxCommandPerRtn;
+    private static int commandPerRtn = 6; // will work if isVaryCommandCount = false;
+    private static boolean isVaryCommandCount = true;
+    private static int minCommandCount = 3; // will work if isVaryCommandCount = true;
+    private static int maxCommandCount = 9; // will work if isVaryCommandCount = true;
 
-    private static double zipfCoefficient = 0.1;
-    private static double longRunningRtnPercentage = .05;
+    private static double zipfCoefficient = 0.05;
+    private static double longRunningRtnPercentage = 0.2;
     private static final boolean atleastOneLongRunning = false;
 
     private static double devFailureRatio = 0.0;
     private static final boolean atleastOneDevFail = false;
     private static double mustCmdPercentage = 1.0;
 
-    private static int longRunningCmdDuration = 5000;
+    private static int longRunningCmdDuration = 2000;
     private static final boolean isLongCmdDurationVary = true;
-    private static final double longCmdDurationVaryMultiplier = 2.0; // will vary upto N times
+    private static final double longCmdDurationVaryMultiplier = 5.0; // will vary upto N times
 
     private static final int shortCmdDuration = 5;
     private static final boolean isShortCmdDurationVary = true;
-    private static final double shortCmdDurationVaryMultiplier = 3; // will vary upto N times
+    private static final double shortCmdDurationVaryMultiplier = 6; // will vary upto N times
 
-    private static final int totalSampleCount = 10000; // 100000;
+    private static final int totalSampleCount = 7500;//10000; // 100000;
     private static final boolean isPrint = false;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
@@ -177,7 +180,13 @@ public class Temp
                 isLongRunning = true; // at least one routine will be long running;
             }
 
-            int totalCommandInThisRtn = maxCommandPerRtn;
+            int totalCommandInThisRtn = commandPerRtn;
+
+            if(isVaryCommandCount)
+            {
+                int difference = 1 + maxCommandCount - minCommandCount;
+                totalCommandInThisRtn = minCommandCount + rand.nextInt(difference);
+            }
 
             assert(totalCommandInThisRtn <= devIDlist.size());
 
@@ -323,7 +332,7 @@ public class Temp
 
         for(int RoutineCount = 0 ; RoutineCount < totalConcurrentRtn ; ++RoutineCount)
         {
-            int totalCommandInThisRtn = maxCommandPerRtn;
+            int totalCommandInThisRtn = commandPerRtn;
             int middleCommandIndex = totalCommandInThisRtn / 2;
             assert(totalCommandInThisRtn <= devIDlist.size());
 
@@ -434,9 +443,9 @@ public class Temp
         devIDlist.add(DEV_ID.G);
         devIDlist.add(DEV_ID.H);
         devIDlist.add(DEV_ID.I);
-//        devIDlist.add(DEV_ID.J);
-//        devIDlist.add(DEV_ID.K);
-//        devIDlist.add(DEV_ID.L);
+        devIDlist.add(DEV_ID.J);
+        devIDlist.add(DEV_ID.K);
+        devIDlist.add(DEV_ID.L);
 //        devIDlist.add(DEV_ID.M);
 //        devIDlist.add(DEV_ID.N);
 //        devIDlist.add(DEV_ID.O);
@@ -473,9 +482,19 @@ public class Temp
         ///////////////////////////
 
         final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
-        for(maxConcurrentRtn = 10; maxConcurrentRtn <= 60 ; maxConcurrentRtn += 10)
+        for(maxConcurrentRtn = 1; maxConcurrentRtn <= 101 ; maxConcurrentRtn += 20)
         {
             changingParameterValue = (double)maxConcurrentRtn; // NOTE: also change changingParameterName
+
+            if(isVaryCommandCount)
+            {
+                if(0 == changingParameterName.compareTo("commandPerRtn"))
+                {
+                    System.out.println("\n\nERROR: if command Count varies by uniform distribution, it can not be varied inside the for loop\n");
+                    assert(false);
+                }
+            }
+
 
             if(lastGeneratedZipfeanFor != zipfCoefficient)
             {
@@ -498,8 +517,19 @@ public class Temp
 
             System.out.println("totalConcurrentRtn = " + maxConcurrentRtn);
             logStr += "totalConcurrentRtn = " + maxConcurrentRtn + "\n";
-            System.out.println("maxCommandPerRtn = " + maxCommandPerRtn);
-            logStr += "maxCommandPerRtn = " + maxCommandPerRtn + "\n";
+
+            System.out.println("isVaryCommandCount = " + isVaryCommandCount);
+            logStr += "isVaryCommandCount = " + isVaryCommandCount + "\n";
+
+            System.out.println("commandPerRtn = " + commandPerRtn);
+            logStr += "commandPerRtn = " + commandPerRtn + "\n";
+
+            System.out.println("minCommandCount = " + minCommandCount + " #will work if isVaryCommandCount = true;");
+            logStr += "minCommandCount = " + minCommandCount + " #will work if isVaryCommandCount = true;\n";
+            System.out.println("commandPerRtn = " + commandPerRtn + " #will work if isVaryCommandCount = true;");
+            logStr += "maxCommandCount = " + maxCommandCount + " #will work if isVaryCommandCount = true;\n";
+
+
             System.out.println("isSentAllRtnSameTime = " + isSentAllRtnSameTime);
             logStr += "isSentAllRtnSameTime = " + isSentAllRtnSameTime + "\n";
             System.out.println("isSentAllRtnSameTime = " + timelineMultiplierForSporadicRoutines + " (works only if isSentAllRtnSameTime == false)");
@@ -983,7 +1013,7 @@ public class Temp
         ////////////////////-CREATING-SUBDIRECTORY-/////////////////////////////
         String epoch = System.currentTimeMillis() + "";
         String parentDirPath = dataStorageDirectory + "\\" + epoch + "_VARY_"+ changingParameterName;
-        parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + maxCommandPerRtn;
+        parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + commandPerRtn;
 
         File parentDir = new File(parentDirPath);
         if(!parentDir.exists())
