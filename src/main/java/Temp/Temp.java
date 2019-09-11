@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class Temp
 {
-    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 3000;
+    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 5000;
 
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
@@ -36,9 +36,7 @@ public class Temp
     private static final boolean atleastOneDevFail = false;
     private static double mustCmdPercentage = 1.0;
 
-    private static int weakVisibilityDeviceAccessTime = 1;
-
-    private static int longRunningCmdDuration = 2000;
+    private static int longRunningCmdDuration = 5000;
     private static final boolean isLongCmdDurationVary = true;
     private static final double longCmdDurationVaryMultiplier = 2.0; // will vary upto N times
 
@@ -434,8 +432,8 @@ public class Temp
         devIDlist.add(DEV_ID.E);
         devIDlist.add(DEV_ID.F);
         devIDlist.add(DEV_ID.G);
-//        devIDlist.add(DEV_ID.H);
-//        devIDlist.add(DEV_ID.I);
+        devIDlist.add(DEV_ID.H);
+        devIDlist.add(DEV_ID.I);
 //        devIDlist.add(DEV_ID.J);
 //        devIDlist.add(DEV_ID.K);
 //        devIDlist.add(DEV_ID.L);
@@ -475,7 +473,7 @@ public class Temp
         ///////////////////////////
 
         final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
-        for(maxConcurrentRtn = 50; maxConcurrentRtn <= 50 ; maxConcurrentRtn++)
+        for(maxConcurrentRtn = 10; maxConcurrentRtn <= 60 ; maxConcurrentRtn += 10)
         {
             changingParameterValue = (double)maxConcurrentRtn; // NOTE: also change changingParameterName
 
@@ -543,9 +541,6 @@ public class Temp
             logStr += "longRunningRtnPercentage = " + longRunningRtnPercentage + "\n";
             System.out.println("atleastOneLongRunning = " + atleastOneLongRunning);
             logStr += "atleastOneLongRunning = " + atleastOneLongRunning + "\n";
-
-            System.out.println("weakVisibilityDeviceAccessTime = " + weakVisibilityDeviceAccessTime);
-            logStr += "weakVisibilityDeviceAccessTime = " + weakVisibilityDeviceAccessTime + "\n";
 
             System.out.println("SIMULATION_START_TIME = " + SIMULATION_START_TIME);
             logStr += "SIMULATION_START_TIME = " + SIMULATION_START_TIME + "\n";
@@ -946,6 +941,7 @@ public class Temp
         }
 
         String globalResult = "\n--------------------------------\n";
+        globalResult += "Summary-Start\t\n";
         //String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tLzyAvg\tLzySD\tEvnAvg\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
         String header = "G0:Variable";
 
@@ -964,6 +960,7 @@ public class Temp
         header += "\tG10:GSV_IsvltnVctmRtnPrcntPerRun\tG10:PSV_IsvltnVctmRtnPrcntPerRun\tG10:WV_IsvltnVctmRtnPrcntPerRun\tG10:EV_IsvltnVctmRtnPrcntPerRun\tG10:LV_IsvltnVctmRtnPrcntPerRun\tG10:FCFSV_IsvltnVctmRtnPrcntPerRun\tG10:LzPRIOTY_IsvltnVctmRtnPrcntPerRun";
         header += "\tG11:GSV_IsvltnPerRtnVctmCmdPrcnt\tG11:PSV_IsvltnPerRtnVctmCmdPrcnt\tG11:WV_IsvltnPerRtnVctmCmdPrcnt\tG11:EV_IsvltnPerRtnVctmCmdPrcnt\tG11:LV_IsvltnPerRtnVctmCmdPrcnt\tG11:FCFSV_IsvltnPerRtnVctmCmdPrcnt\tG11:LzPRIOTY_IsvltnPerRtnVctmCmdPrcnt";
 
+        header += "\t"; // NOTE: this tab is required for the python separator
         globalResult += header + "\n";
         for(double variable : variableTrakcer)
         {
@@ -973,20 +970,11 @@ public class Temp
             {
                 String formattedNumber = String.format("%.3f", stats);
                 globalResult += stats + "\t";
-
-//                if(stats < 1.0)
-//                {
-//                    String formattedNumber = String.format("%.3f", stats);
-//                    globalResult += formattedNumber + "\t";
-//                }
-//                else
-//                {
-//                    globalResult += stats + "\t";
-//                }
             }
 
             globalResult += "\n";
         }
+        globalResult += "Summary-End\t\n";
         globalResult += "--------------------------------\n";
 
         logStr += globalResult;
