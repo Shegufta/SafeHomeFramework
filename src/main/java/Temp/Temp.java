@@ -22,15 +22,15 @@ public class Temp
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static final double timelineMultiplierForSporadicRoutines = 1.0; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
-    private static final boolean isSentAllRtnSameTime = true;
+    private static final double timelineMultiplierForSporadicRoutines = 0.5; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
+    private static final boolean isSentAllRtnSameTime = false;
     private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
 
-    private static int maxCommandPerRtn = 3; // in current version totalCommandInThisRtn = maxCommandPerRtn;
+    private static int maxCommandPerRtn = 6; // in current version totalCommandInThisRtn = maxCommandPerRtn;
 
-    private static double zipfCoefficient = 0.01;
-    private static double longRunningRtnPercentage = 0.0;
-    private static final boolean atleastOneLongRunning = true;
+    private static double zipfCoefficient = 0.1;
+    private static double longRunningRtnPercentage = .05;
+    private static final boolean atleastOneLongRunning = false;
 
     private static double devFailureRatio = 0.0;
     private static final boolean atleastOneDevFail = false;
@@ -38,9 +38,9 @@ public class Temp
 
     private static int weakVisibilityDeviceAccessTime = 1;
 
-    private static int longRunningCmdDuration = 200;
-    private static final boolean isLongCmdDurationVary = false;
-    private static final double longCmdDurationVaryMultiplier = 1; // will vary upto N times
+    private static int longRunningCmdDuration = 2000;
+    private static final boolean isLongCmdDurationVary = true;
+    private static final double longCmdDurationVaryMultiplier = 2.0; // will vary upto N times
 
     private static final int shortCmdDuration = 5;
     private static final boolean isShortCmdDurationVary = true;
@@ -434,10 +434,10 @@ public class Temp
         devIDlist.add(DEV_ID.E);
         devIDlist.add(DEV_ID.F);
         devIDlist.add(DEV_ID.G);
-        devIDlist.add(DEV_ID.H);
-        devIDlist.add(DEV_ID.I);
-        devIDlist.add(DEV_ID.J);
-        devIDlist.add(DEV_ID.K);
+//        devIDlist.add(DEV_ID.H);
+//        devIDlist.add(DEV_ID.I);
+//        devIDlist.add(DEV_ID.J);
+//        devIDlist.add(DEV_ID.K);
 //        devIDlist.add(DEV_ID.L);
 //        devIDlist.add(DEV_ID.M);
 //        devIDlist.add(DEV_ID.N);
@@ -474,10 +474,10 @@ public class Temp
 //        logStr += zipFianStr;
         ///////////////////////////
 
-        final String changingParameterName = "maxCommandPerRtn"; // NOTE: also change changingParameterValue
-        for(maxCommandPerRtn = 1; maxCommandPerRtn <= 10 ; maxCommandPerRtn++)
+        final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
+        for(maxConcurrentRtn = 50; maxConcurrentRtn <= 50 ; maxConcurrentRtn++)
         {
-            changingParameterValue = (double)maxCommandPerRtn; // NOTE: also change changingParameterName
+            changingParameterValue = (double)maxConcurrentRtn; // NOTE: also change changingParameterName
 
             if(lastGeneratedZipfeanFor != zipfCoefficient)
             {

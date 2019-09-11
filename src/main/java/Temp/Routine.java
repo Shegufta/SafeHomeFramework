@@ -15,20 +15,29 @@ public class Routine implements Comparator<Routine>
     List<Command> commandList;
     int registrationTime = 0;
     public Map<DEV_ID, Boolean> devIdIsMustMap;
-    public Set<DEV_ID> deviceSet;
+    //public Set<DEV_ID> deviceSet;
+    public Map<DEV_ID, Command> devIDCommandMap;
+    public Map<Integer, Command> indexCommandMap;
+    public Map<Command, Integer> commandIndexMap;
     final int ID_NOT_ASSIGNED_YET = -1;
+    double backToBackCmdExecutionWithoutGap;
 
     public Routine()
     {
         this.ID = ID_NOT_ASSIGNED_YET;
         this.commandList = new ArrayList<>();
         this.devIdIsMustMap = new HashMap<>();
-        this.deviceSet = new HashSet<>();
+        //this.deviceSet = new HashSet<>();
+        this.devIDCommandMap = new HashMap();
+        this.indexCommandMap = new HashMap();
+        this.commandIndexMap = new HashMap();
+
+        this.backToBackCmdExecutionWithoutGap = 0.0;
     }
 
     public Set<DEV_ID> getAllDevIDSet()
     {
-        return this.deviceSet;
+        return this.devIDCommandMap.keySet(); //this.deviceSet;
         /*
         Set<DEV_ID> devIDset = new HashSet<DEV_ID>();
 
@@ -43,14 +52,15 @@ public class Routine implements Comparator<Routine>
 
     public double getBackToBackCmdExecutionTimeWithoutGap()
     {
-        Double backToBackCmdExecutionTime = 0.0;
-
-        for(Command cmd: this.commandList)
-        {
-            backToBackCmdExecutionTime += cmd.duration;
-        }
-
-        return backToBackCmdExecutionTime;
+        return this.backToBackCmdExecutionWithoutGap;
+//        Double backToBackCmdExecutionTime = 0.0;
+//
+//        for(Command cmd: this.commandList)
+//        {
+//            backToBackCmdExecutionTime += cmd.duration;
+//        }
+//
+//        return backToBackCmdExecutionTime;
     }
 
     public void addCommand(Command cmd)
@@ -58,10 +68,17 @@ public class Routine implements Comparator<Routine>
         //assert(!devSet.contains(cmd.devID));
         //devSet.add(cmd.devID);
 
-        assert(!deviceSet.contains(cmd.devID));
+        assert(!devIDCommandMap.containsKey(cmd.devID));
 
         devIdIsMustMap.put(cmd.devID, cmd.isMust);
-        this.deviceSet.add(cmd.devID);
+        //this.deviceSet.add(cmd.devID);
+
+        backToBackCmdExecutionWithoutGap += cmd.duration;
+
+        int cmdInsertionIndex = commandList.size();
+        this.indexCommandMap.put(cmdInsertionIndex, cmd);
+        this.commandIndexMap.put(cmd, cmdInsertionIndex);
+        this.devIDCommandMap.put(cmd.devID, cmd);
 
         this.commandList.add(cmd);
     }
@@ -71,11 +88,11 @@ public class Routine implements Comparator<Routine>
     {
         double gap = 0.0;
 
-        double continuousCmdExecutionTime = 0.0;
-        for(Command cmd : this.commandList)
-        {
-            continuousCmdExecutionTime += cmd.duration;
-        }
+//        double continuousCmdExecutionTime = 0.0;
+//        for(Command cmd : this.commandList)
+//        {
+//            continuousCmdExecutionTime += cmd.duration;
+//        }
 
         for(int idx = 0 ; idx < this.commandList.size()-1 ; ++idx)
         {
@@ -85,36 +102,45 @@ public class Routine implements Comparator<Routine>
             gap += nextCommand.startTime  - firstCommand.getCmdEndTime();
         }
 
-        if( continuousCmdExecutionTime == 0.0)
+        if( this.backToBackCmdExecutionWithoutGap == 0.0)
             return 0.0;
 
-        return (gap + continuousCmdExecutionTime)/continuousCmdExecutionTime;
+        return (gap + backToBackCmdExecutionWithoutGap)/backToBackCmdExecutionWithoutGap;
     }
 
 
 
     public Command getCommandByDevID(DEV_ID devID)
     {
-        int commandIndex = getCommandIndex(devID);
+        assert(this.devIDCommandMap.containsKey(devID));
 
-        if(-1 == commandIndex)
-            return null;
-        else
-            return this.commandList.get(commandIndex);
+        return this.devIDCommandMap.get(devID);
+
+//        int commandIndex = getCommandIndex(devID);
+//
+//        if(-1 == commandIndex)
+//            return null;
+//        else
+//            return this.commandList.get(commandIndex);
     }
 
     int getCommandIndex(DEV_ID devID)
     {
-        for(int index = 0 ; index < this.commandList.size() ; index++)
-        {
-            if(devID == this.commandList.get(index).devID)
-                return index;
-        }
+        assert(this.devIDCommandMap.containsKey(devID));
 
-        System.out.println(devID.name() + " not found");
-        assert(false);
+        Command cmd = this.devIDCommandMap.get(devID);
 
-        return -1;
+        return this.commandIndexMap.get(cmd);
+//        for(int index = 0 ; index < this.commandList.size() ; index++)
+//        {
+//            if(devID == this.commandList.get(index).devID)
+//                return index;
+//        }
+//
+//        System.out.println(devID.name() + " not found");
+//        assert(false);
+//
+//        return -1;
     }
 
     DEV_ID getDevID(int cmdIdx)
@@ -124,43 +150,56 @@ public class Routine implements Comparator<Routine>
 
     public int lockStartTime(DEV_ID _devID)
     {
-        for(Command cmd : commandList)
-        {
-            if(cmd.devID == _devID)
-                return cmd.startTime;
-        }
+        assert(this.devIDCommandMap.containsKey(_devID));
 
-        assert(false);
+        return this.devIDCommandMap.get(_devID).startTime;
 
-        return -1;
+//        for(Command cmd : commandList)
+//        {
+//            if(cmd.devID == _devID)
+//                return cmd.startTime;
+//        }
+//
+//        assert(false);
+//
+//        return -1;
     }
 
     public int lockEndTime(DEV_ID _devID)
     {
-        for(Command cmd : commandList)
-        {
-            if(cmd.devID == _devID)
-                return cmd.startTime + cmd.duration;
-        }
+        assert(this.devIDCommandMap.containsKey(_devID));
 
-        assert(false);
+        Command cmd = this.devIDCommandMap.get(_devID);
+        return cmd.startTime + cmd.duration;
 
-        return -1;
+//        for(Command cmd : commandList)
+//        {
+//            if(cmd.devID == _devID)
+//                return cmd.startTime + cmd.duration;
+//        }
+//
+//        assert(false);
+//
+//        return -1;
 
         //return this.lockStartTime(_devID) + this.lockDuration(_devID);
     }
 
     public int lockDuration(DEV_ID _devID)
     {
-        for(Command cmd : commandList)
-        {
-            if(cmd.devID == _devID)
-                return cmd.duration;
-        }
+        assert(this.devIDCommandMap.containsKey(_devID));
 
-        assert(false);
+        return this.devIDCommandMap.get(_devID).duration;
 
-        return -1;
+//        for(Command cmd : commandList)
+//        {
+//            if(cmd.devID == _devID)
+//                return cmd.duration;
+//        }
+//
+//        assert(false);
+//
+//        return -1;
     }
 
     public int routineStartTime()
@@ -243,8 +282,10 @@ public class Routine implements Comparator<Routine>
     {
         assert(startTimeInclusive < endTimeExclusive);
 
-        if(!deviceSet.contains(devId))
+        if(!this.devIDCommandMap.containsKey(devId))
             return false;
+//        if(!deviceSet.contains(devId))
+//            return false;
 
         int cmdStartTimeInclusive = getCommandByDevID(devId).startTime;
         //int cmdEndTimeExclusive = getCommandByDevID(devId).getCmdEndTime();
