@@ -12,22 +12,23 @@ public class Measurement
 {
     private final int TOTAL_ISOLATION_VIOLATION_CHECK_COUNT = 3;
     /////////////////////////////////////////////
-    public List<Double> parallalRtnCntList = new ArrayList<>();
-    public List<Double> devUtilizationPercentList = new ArrayList<>();
-    public double orderMismatchPercent = 0.0;
+    //Map<Float, Float> parallelismHistogram = new HashMap<>();
+    public List<Float> parallelRtnCntList = new ArrayList<>();
+    public List<Float> devUtilizationPercentList = new ArrayList<>();
+    public float orderMismatchPercent = 0.0f;
     //double isoltnVltnRatioAmongLineages = 0.0;
     //double isolationVltnRatioAmongRoutines = 0.0;
 
-    public List<Double> isvltn_perRtnVictimCmdPrcntList = new ArrayList<>();
-    public List<Double> isvltn_totalUniqueAttackerPerRoutineList = new ArrayList<>();
-    public Double isvltn_victimRtnPercentPerRun = 0.0;
+    public List<Float> isvltn_perRtnVictimCmdPrcntList = new ArrayList<>();
+    public List<Float> isvltn_totalUniqueAttackerPerRoutineList = new ArrayList<>();
+    public float isvltn_victimRtnPercentPerRun = 0.0f;
     /////////////////////////////////////////////
 
     private void measureDeviceUtilization(final LockTable _lockTable)
     {
         if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
         {
-            devUtilizationPercentList.add(100.0);
+            devUtilizationPercentList.add(100.0f);
             return;
         }
 
@@ -43,7 +44,7 @@ public class Measurement
 
 
 
-            double earliestAccessRequestTime = Double.MAX_VALUE;
+            float earliestAccessRequestTime = Float.MAX_VALUE;
             for(Routine rtn : entry.getValue())
             {
                 if(rtn.registrationTime < earliestAccessRequestTime)
@@ -53,9 +54,9 @@ public class Measurement
 
 
             Command lastCmd = entry.getValue().get(entryCount - 1).getCommandByDevID(devID);
-            final double totalTimeSpan = lastCmd.getCmdEndTime() - earliestAccessRequestTime;
+            final float totalTimeSpan = lastCmd.getCmdEndTime() - earliestAccessRequestTime;
 
-            double cmdExecutionSpan = 0.0;
+            float cmdExecutionSpan = 0.0f;
 
             for(Routine rtn : entry.getValue())
             {
@@ -64,13 +65,14 @@ public class Measurement
             }
 
 
-            double utilization = ( cmdExecutionSpan / totalTimeSpan) * 100.0;
+            float utilization = ( cmdExecutionSpan / totalTimeSpan) * 100.0f;
             devUtilizationPercentList.add( utilization );
         }
     }
 
     private void measureParallelization(final LockTable _lockTable)
     {
+
         List<Routine> allRtnList = _lockTable.getAllRoutineSet(); // the special case CONSISTENCY_TYPE.WEAK is handled inside this function!
 
         Map<Routine, Integer> routineAndTotalOtherParallelRtnCounter_Map = new HashMap<>();
@@ -95,9 +97,10 @@ public class Measurement
                 }
             }
 
-            double parallelCountForRtn1 = routineAndTotalOtherParallelRtnCounter_Map.get(rtn1);
-            this.parallalRtnCntList.add(parallelCountForRtn1);
+            float parallelCountForRtn1 = routineAndTotalOtherParallelRtnCounter_Map.get(rtn1);
+            this.parallelRtnCntList.add(parallelCountForRtn1);
         }
+
 
 /*
         final Map<DEV_ID, List<Routine>> lockTable = _lockTable.lockTable;
@@ -136,30 +139,59 @@ public class Measurement
                     }
                 }
 
-                this.parallalRtnCntList.add(parallalCount);
+                this.parallelRtnCntList.add(parallalCount);
             }
         }
 */
 
-        /*
-        Integer minStartTime = Integer.MAX_VALUE;
-        Integer maxEndTime = Integer.MIN_VALUE;
+        // This approach is creating a histogram... in each time slot how many routines were there
 
-        for(List<Routine> rtnList : lockTable.values())
+/*
+        Integer minStartTimeInclusive = Integer.MAX_VALUE;
+        Integer maxEndTimeExclusive = Integer.MIN_VALUE;
+
+        for(Routine rtn : _lockTable.getAllRoutineSet())
         {
-            for(Routine rtn : rtnList)
-            {
-                if(rtn.routineStartTime() < minStartTime)
-                    minStartTime = rtn.routineStartTime();
+            if(rtn.routineStartTime() < minStartTimeInclusive)
+                minStartTimeInclusive = rtn.routineStartTime();
 
-                if(maxEndTime < rtn.routineEndTime())
-                    maxEndTime = rtn.routineEndTime();
+            if(maxEndTimeExclusive < rtn.routineEndTime())
+                maxEndTimeExclusive = rtn.routineEndTime();
+        }
+
+        assert(minStartTimeInclusive < maxEndTimeExclusive);
+
+        int totalTimeSpan = maxEndTimeExclusive - minStartTimeInclusive; // start time is inclusive, end time is exclusive. e.g.  J : [<R1|C1>:1:2) [<R0|C3>:3:4) [<R2|C0>:4:5)
+
+
+
+        //this.parallelRtnCntList = new ArrayList<>(Collections.nCopies(totalTimeSpan, 0.0f));
+
+        int[] histogram = new int[totalTimeSpan];
+
+        for(Routine rtn : _lockTable.getAllRoutineSet())
+        {
+            int startIdx = rtn.routineStartTime() - minStartTimeInclusive;
+            int endIdx = rtn.routineEndTime() - minStartTimeInclusive;
+
+            for(int I = startIdx ; I < endIdx ; I++)
+            {
+                histogram[I]++;
+                //this.parallelRtnCntList.add(I, (this.parallelRtnCntList.get(I) + 1));
             }
         }
 
-        assert(minStartTime < maxEndTime);
+        for(float count : histogram)
+        {
+            Float value = parallelismHistogram.get(count);
 
-        int totalTimeSpan = maxEndTime - minStartTime; // start time is inclusive, end time is exclusive. e.g.  J : [<R1|C1>:1:2) [<R0|C3>:3:4) [<R2|C0>:4:5)
+            if(value == null)
+                parallelismHistogram.put(count, 0.0f);
+            else
+                parallelismHistogram.put(count, value + 1);
+        }
+        */
+     /*
         int[] timeSlotArray = new int[totalTimeSpan];
 
 
@@ -178,7 +210,7 @@ public class Measurement
         {
             for(int I = rtn.routineStartTime() ; I < rtn.routineEndTime() ; ++I)
             {
-                int index = I - minStartTime;
+                int index = I - minStartTimeInclusive;
                 timeSlotArray[index]++;
             }
         }
@@ -187,12 +219,12 @@ public class Measurement
         {
             for(Command cmd : rtn.commandList)
             {// calculate the total number of parallally running routine at each command start time
-                int scanTime = cmd.startTime - minStartTime;
+                int scanTime = cmd.startTime - minStartTimeInclusive;
                 double parallalFoundAtScanTime = timeSlotArray[scanTime];
-                this.parallalRtnCntList.add(parallalFoundAtScanTime);
+                this.parallelRtnCntList.add(parallalFoundAtScanTime);
             }
         }
-        */
+*/
 
     }
 
@@ -200,14 +232,14 @@ public class Measurement
     {
         if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
         {
-            orderMismatchPercent = -1.0;
+            orderMismatchPercent = -1.0f;
             return;
         }
 
         final Map<DEV_ID, List<Routine>> lockTable = _lockTable.lockTable;
         Map<Integer, Integer> routineOrderingViolation = new HashMap<>();
-        double totalCount = 0.0;
-        double violationCount = 0.0;
+        float totalCount = 0.0f;
+        float violationCount = 0.0f;
 
         for(List<Routine> rtnList : lockTable.values())
         {
@@ -220,7 +252,7 @@ public class Measurement
             }
         }
 
-        orderMismatchPercent = (totalCount == 0.0)? 0.0 : (violationCount/totalCount)*100.0;
+        orderMismatchPercent = (totalCount == 0.0f)? 0.0f : (violationCount/totalCount)*100.0f;
     }
 
 
@@ -397,30 +429,30 @@ public class Measurement
             }
         }
 
-        double victimRoutineCount = 0.0;
+        float victimRoutineCount = 0.0f;
 
         for(Routine rtn1 : allRtnList)
         {
-            double victimCommandCount = victimRtnAndItsVictimCmdSetMap.get(rtn1).size();
+            float victimCommandCount = victimRtnAndItsVictimCmdSetMap.get(rtn1).size();
 
             if(victimCommandCount == 0.0)
             {// no violation for this routine
-                isvltn_perRtnVictimCmdPrcntList.add(0.0);
-                isvltn_totalUniqueAttackerPerRoutineList.add(0.0);
+                isvltn_perRtnVictimCmdPrcntList.add(0.0f);
+                isvltn_totalUniqueAttackerPerRoutineList.add(0.0f);
             }
             else
             {
                 victimRoutineCount++;
-                double totalCommand = rtn1.commandList.size();
+                float totalCommand = rtn1.commandList.size();
 
-                double perRtnSpoiledCmdPercent = (victimCommandCount/totalCommand)*100.0;
+                float perRtnSpoiledCmdPercent = (victimCommandCount/totalCommand)*100.0f;
                 isvltn_perRtnVictimCmdPrcntList.add(perRtnSpoiledCmdPercent);
-                isvltn_totalUniqueAttackerPerRoutineList.add((double)victimRtnAndAttackerRtnSetMap.get(rtn1).size());
+                isvltn_totalUniqueAttackerPerRoutineList.add((float)victimRtnAndAttackerRtnSetMap.get(rtn1).size());
             }
         }
 
-        double totalRoutine = allRtnList.size();
-        isvltn_victimRtnPercentPerRun = (victimRoutineCount / totalRoutine)*100.0;
+        float totalRoutine = allRtnList.size();
+        isvltn_victimRtnPercentPerRun = (victimRoutineCount / totalRoutine)*100.0f;
 
     }
 

@@ -18,7 +18,7 @@ public class Routine implements Comparator<Routine>
     public Map<Integer, Command> indexCommandMap;
     public Map<Command, Integer> commandIndexMap;
     final int ID_NOT_ASSIGNED_YET = -1;
-    double backToBackCmdExecutionWithoutGap;
+    float backToBackCmdExecutionWithoutGap;
 
     public Routine()
     {
@@ -30,7 +30,7 @@ public class Routine implements Comparator<Routine>
         this.indexCommandMap = new HashMap();
         this.commandIndexMap = new HashMap();
 
-        this.backToBackCmdExecutionWithoutGap = 0.0;
+        this.backToBackCmdExecutionWithoutGap = 0.0f;
     }
 
     public Set<DEV_ID> getAllDevIDSet()
@@ -38,7 +38,7 @@ public class Routine implements Comparator<Routine>
         return this.devIDCommandMap.keySet(); //this.deviceSet;
     }
 
-    public double getBackToBackCmdExecutionTimeWithoutGap()
+    public float getBackToBackCmdExecutionTimeWithoutGap()
     {
         return this.backToBackCmdExecutionWithoutGap;
     }
@@ -60,9 +60,9 @@ public class Routine implements Comparator<Routine>
     }
 
 
-    public double getStretchRatio()
+    public float getStretchRatio()
     {
-        double gap = 0.0;
+        float gap = 0.0f;
 
         for(int idx = 0 ; idx < this.commandList.size()-1 ; ++idx)
         {
@@ -72,8 +72,8 @@ public class Routine implements Comparator<Routine>
             gap += nextCommand.startTime  - firstCommand.getCmdEndTime();
         }
 
-        if( this.backToBackCmdExecutionWithoutGap == 0.0)
-            return 0.0;
+        if( this.backToBackCmdExecutionWithoutGap == 0.0f)
+            return 0.0f;
 
         return (gap + backToBackCmdExecutionWithoutGap)/backToBackCmdExecutionWithoutGap;
     }
@@ -128,27 +128,27 @@ public class Routine implements Comparator<Routine>
         return this.commandList.get(0).startTime;
     }
 
-    private double getEndToEndLatency()
+    private float getEndToEndLatency()
     {
         return this.routineEndTime() - this.registrationTime;
     }
 
-    private double getRoutineExecutionTime()
+    private float getRoutineExecutionTime()
     {
         return this.routineEndTime() - this.routineStartTime();
     }
 
-    public double getLatencyOverheadPrcnt()
+    public float getLatencyOverheadPrcnt()
     {
-        double endToEndLatency = getEndToEndLatency();
-        double overhead = getStartDelay();
+        float endToEndLatency = getEndToEndLatency();
+        float overhead = getStartDelay();
 
         assert(0.0 < endToEndLatency);
 
-        return (overhead/endToEndLatency)*100.0;
+        return (overhead/endToEndLatency)*100.0f;
     }
 
-    public double getStartDelay()
+    public float getStartDelay()
     {
         return this.routineStartTime() - this.registrationTime;
     }

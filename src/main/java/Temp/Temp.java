@@ -22,7 +22,7 @@ public class Temp
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static final double timelineMultiplierForSporadicRoutines = 0.5; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
+    private static final float timelineMultiplierForSporadicRoutines = 0.5f; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
     private static final boolean isSentAllRtnSameTime = false;
     private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
 
@@ -31,21 +31,21 @@ public class Temp
     private static int minCommandCount = 3; // will work if isVaryCommandCount = true;
     private static int maxCommandCount = 9; // will work if isVaryCommandCount = true;
 
-    private static double zipfCoefficient = 0.05;
-    private static double longRunningRtnPercentage = 0.2;
+    private static float zipfCoefficient = 0.05f;
+    private static float longRunningRtnPercentage = 0.2f;
     private static final boolean atleastOneLongRunning = false;
 
-    private static double devFailureRatio = 0.0;
+    private static float devFailureRatio = 0.0f;
     private static final boolean atleastOneDevFail = false;
-    private static double mustCmdPercentage = 1.0;
+    private static float mustCmdPercentage = 1.0f;
 
     private static int longRunningCmdDuration = 2000;
     private static final boolean isLongCmdDurationVary = true;
-    private static final double longCmdDurationVaryMultiplier = 5.0; // will vary upto N times
+    private static final float longCmdDurationVaryMultiplier = 5.0f; // will vary upto N times
 
     private static final int shortCmdDuration = 5;
     private static final boolean isShortCmdDurationVary = true;
-    private static final double shortCmdDurationVaryMultiplier = 6; // will vary upto N times
+    private static final float shortCmdDurationVaryMultiplier = 6; // will vary upto N times
 
     private static final int totalSampleCount = 7500;//10000; // 100000;
     private static final boolean isPrint = false;
@@ -56,10 +56,10 @@ public class Temp
     private static final int SIMULATION_START_TIME = 0;
 
 
-    private static DEV_ID getZipfDistDevID(double randDouble)
+    private static DEV_ID getZipfDistDevID(float randDouble)
     {
         assert(0 < devID_ProbBoundaryMap.size());
-        assert(0.0 <= randDouble && randDouble <= 1.0);
+        assert(0.0f <= randDouble && randDouble <= 1.0f);
 
         for(Map.Entry<DEV_ID, ZipfProbBoundary> entry : devID_ProbBoundaryMap.entrySet())
         {
@@ -79,11 +79,11 @@ public class Temp
 
         ZipfDistribution zipf = new ZipfDistribution(numberOfElements, zipfCoefficient);
 
-        List<Double> cumulativeProbabilityList = new ArrayList<>();
+        List<Float> cumulativeProbabilityList = new ArrayList<>();
 
         for(int I = 0 ; I < devIDlist.size() ; I++)
         {
-            double probability = zipf.probability(I + 1);
+            float probability = (float)zipf.probability(I + 1);
 
             if(I == 0)
                 cumulativeProbabilityList.add(probability);
@@ -93,14 +93,14 @@ public class Temp
 
         //System.out.println(cumulativeProbabilityList);
 
-        double lowerInclusive = 0.0;
+        float lowerInclusive = 0.0f;
 
         for(int I = 0 ; I < devIDlist.size() ; I++)
         {
-            double upperExclusive = cumulativeProbabilityList.get(I);
+            float upperExclusive = cumulativeProbabilityList.get(I);
 
             if(I == devIDlist.size() - 1)
-                upperExclusive = 1.01;
+                upperExclusive = 1.01f;
 
             //System.out.println( "item " + I + " lowerInclusive = " + lowerInclusive + " upperExclusive = " + upperExclusive );
 
@@ -118,7 +118,7 @@ public class Temp
         Double sampleSize = 1000000.0;
         for(int I = 0 ; I < sampleSize ; I++)
         {
-            DEV_ID devId = getZipfDistDevID(rand.nextDouble());
+            DEV_ID devId = getZipfDistDevID(rand.nextFloat());
             if(!histogram.containsKey(devId))
                 histogram.put(devId, 0);
 
@@ -168,8 +168,8 @@ public class Temp
 
         for(int RoutineCount = 0 ; RoutineCount < totalConcurrentRtn ; ++RoutineCount)
         {
-            double nextDbl = rand.nextDouble();
-            nextDbl = (nextDbl == 1.0) ? nextDbl - 0.001 : nextDbl;
+            float nextDbl = rand.nextFloat();
+            nextDbl = (nextDbl == 1.0f) ? nextDbl - 0.001f : nextDbl;
             boolean isLongRunning = (nextDbl < longRunningRtnPercentage);
 
             if(isLongRunning)
@@ -211,7 +211,7 @@ public class Temp
                     //DEV_ID randDev = devIDlist.get( rand.nextInt(devIDlist.size()) );
                 }
                 */
-                devID = getZipfDistDevID(rand.nextDouble());
+                devID = getZipfDistDevID(rand.nextFloat());
 
                 if(devIDDurationMap.containsKey(devID))
                     continue;
@@ -258,8 +258,8 @@ public class Temp
             {
                 assert(devIDDurationMap.containsKey(devID));
 
-                nextDbl = rand.nextDouble();
-                nextDbl = (nextDbl == 1.0) ? nextDbl - 0.001 : nextDbl;
+                nextDbl = rand.nextFloat();
+                nextDbl = (nextDbl == 1.0f) ? nextDbl - 0.001f : nextDbl;
                 boolean isMust = (nextDbl < mustCmdPercentage);
                 Command cmd = new Command(devID, devIDDurationMap.get(devID), isMust);
                 //System.out.println("@ " + devID.name() + " => " + devIDDurationMap.get(devID));
@@ -279,20 +279,20 @@ public class Temp
         }
         else
         {
-            double allRtnBackToBackExcTime = 0.0;
+            float allRtnBackToBackExcTime = 0.0f;
             for(Routine rtn : routineList)
             {
                 allRtnBackToBackExcTime += rtn.getBackToBackCmdExecutionTimeWithoutGap();
             }
 
-            double simulationLastRtnStartTime = allRtnBackToBackExcTime * timelineMultiplierForSporadicRoutines;
+            float simulationLastRtnStartTime = allRtnBackToBackExcTime * timelineMultiplierForSporadicRoutines;
 
             int upperLimit = (int)Math.ceil(simulationLastRtnStartTime);
 
             List<Integer> randStartPointList = new ArrayList<>();
             for(int I = 0 ; I < routineList.size() ; I++)
             {
-                int randStartPoint = SIMULATION_START_TIME + rand.nextInt(upperLimit);
+                int randStartPoint = SIMULATION_START_TIME +  ((upperLimit == 0) ? 0 : rand.nextInt(upperLimit));
                 randStartPointList.add(randStartPoint);
             }
 
@@ -470,21 +470,21 @@ public class Temp
 
 
         MeasurementCollector measurementCollector = new MeasurementCollector(MAX_DATAPOINT_COLLECTON_SIZE);
-        Map<Double, List<Double>> globalDataCollector = new HashMap<>();
-        List<Double> variableTrakcer = new ArrayList<>();
-        Double changingParameterValue = -1.0;
+        Map<Float, List<Float>> globalDataCollector = new HashMap<>();
+        List<Float> variableTrakcer = new ArrayList<>();
+        Float changingParameterValue = -1.0f;
 
         ///////////////////////////
-        double lastGeneratedZipfeanFor = Double.MAX_VALUE;
+        float lastGeneratedZipfeanFor = Float.MAX_VALUE;
 //        String zipFianStr = prepareZipfian(); // we dont need to uncomment this line anymore. it has been taken care of inside the for loop
 //        System.out.println(zipFianStr);
 //        logStr += zipFianStr;
         ///////////////////////////
 
         final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
-        for(maxConcurrentRtn = 1; maxConcurrentRtn <= 101 ; maxConcurrentRtn += 20)
+        for(maxConcurrentRtn = 10; maxConcurrentRtn <= 101 ; maxConcurrentRtn += 20)
         {
-            changingParameterValue = (double)maxConcurrentRtn; // NOTE: also change changingParameterName
+            changingParameterValue = (float)maxConcurrentRtn; // NOTE: also change changingParameterName
 
             if(isVaryCommandCount)
             {
@@ -507,7 +507,7 @@ public class Temp
                 ///////////////////////////
             }
             variableTrakcer.add(changingParameterValue); // add the variable name
-            List<Double> resultCollector = new ArrayList<>();
+            List<Float> resultCollector = new ArrayList<>();
 
 
             System.out.println("--------------------------------");
@@ -594,7 +594,7 @@ public class Temp
                 }
                 else if(totalSampleCount % stepSize == 0)
                 {
-                    System.out.println("currently Running for, " + changingParameterName + " = " +  changingParameterValue  + " Progress = " + (int) (100.0 * ((double)I / (double)totalSampleCount)) + "%");
+                    System.out.println("currently Running for, " + changingParameterName + " = " +  changingParameterValue  + " Progress = " + (int) (100.0 * ((float)I / (float)totalSampleCount)) + "%");
                 }
 
 
@@ -603,8 +603,8 @@ public class Temp
 
                 FailureResult failureResult;
                 ExpResults expResult;
-                double abtRatio;
-                double recoverCmdRatio;
+                float abtRatio;
+                float recoverCmdRatio;
 
 ///////////////////////////////////////-------STRONG------////////////////////////////////////////////////////////////
                 expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.STRONG, routineSet, SIMULATION_START_TIME);
@@ -626,7 +626,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallalRtnCntList);
+                        expResult.measurement.parallelRtnCntList);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -673,7 +673,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallalRtnCntList);
+                        expResult.measurement.parallelRtnCntList);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -707,7 +707,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallalRtnCntList);
+                        expResult.measurement.parallelRtnCntList);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -755,7 +755,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallalRtnCntList);
+                        expResult.measurement.parallelRtnCntList);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -789,7 +789,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallalRtnCntList);
+                        expResult.measurement.parallelRtnCntList);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -823,7 +823,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallalRtnCntList);
+                        expResult.measurement.parallelRtnCntList);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -857,7 +857,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallalRtnCntList);
+                        expResult.measurement.parallelRtnCntList);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -992,11 +992,11 @@ public class Temp
 
         header += "\t"; // NOTE: this tab is required for the python separator
         globalResult += header + "\n";
-        for(double variable : variableTrakcer)
+        for(float variable : variableTrakcer)
         {
             globalResult += variable + "\t";
 
-            for(double stats : globalDataCollector.get(variable))
+            for(float stats : globalDataCollector.get(variable))
             {
                 String formattedNumber = String.format("%.3f", stats);
                 globalResult += stats + "\t";
@@ -1012,7 +1012,7 @@ public class Temp
 
         ////////////////////-CREATING-SUBDIRECTORY-/////////////////////////////
         String epoch = System.currentTimeMillis() + "";
-        String parentDirPath = dataStorageDirectory + "\\" + epoch + "_VARY_"+ changingParameterName;
+        String parentDirPath = dataStorageDirectory + File.separator + epoch + "_VARY_"+ changingParameterName;
         parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + commandPerRtn;
 
         File parentDir = new File(parentDirPath);

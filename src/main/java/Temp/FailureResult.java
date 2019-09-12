@@ -8,14 +8,14 @@ package Temp;
  */
 public class FailureResult
 {
-    public double abortedRtnCnt;
-    public double totalOnTheFlyCmdCount;
-    public double totalFailureRecoveryCommandSent;
+    public float abortedRtnCnt;
+    public float totalOnTheFlyCmdCount;
+    public float totalFailureRecoveryCommandSent;
 
     public FailureResult(
-            double _abortedRtnCnt,
-            double _totalFailureRecoveryCommandSent,
-            double _totalOnTheFlyCmdCount
+            float _abortedRtnCnt,
+            float _totalFailureRecoveryCommandSent,
+            float _totalOnTheFlyCmdCount
     )
     {
         this.abortedRtnCnt = _abortedRtnCnt;
@@ -23,18 +23,18 @@ public class FailureResult
         this.totalOnTheFlyCmdCount = _totalOnTheFlyCmdCount;
     }
 
-    public double getAbtRtnVsTotalRtnRatio(double totalRoutine)
+    public float getAbtRtnVsTotalRtnRatio(float totalRoutine)
     {
-        if(totalRoutine == 0.0)
-            return 0.0;
+        if(totalRoutine == 0.0f)
+            return 0.0f;
 
         return this.abortedRtnCnt / totalRoutine;
     }
 
-    public double getRecoveryCmdSentRatio()
+    public float getRecoveryCmdSentRatio()
     {
-        if(this.totalOnTheFlyCmdCount == 0.0)
-            return 0.0;
+        if(this.totalOnTheFlyCmdCount == 0.0f)
+            return 0.0f;
 
         return this.totalFailureRecoveryCommandSent/this.totalOnTheFlyCmdCount;
     }

@@ -15,8 +15,8 @@ public class MeasurementCollector
 {
     private class DataHolder
     {
-        public double average = Double.MIN_VALUE;
-        public List<Double> dataList;
+        public float average = Float.MIN_VALUE;
+        public List<Float> dataList;
         public Boolean isListFinalized;
         String statLog = "";
 
@@ -26,7 +26,7 @@ public class MeasurementCollector
             isListFinalized = false;
         }
 
-        public double getNthDataOrMinusOne(int N)
+        public float getNthDataOrMinusOne(int N)
         {
             if( (N < 0) || (this.itemCount() == 0) || (this.itemCount() <= N))
                 return -1;
@@ -34,24 +34,24 @@ public class MeasurementCollector
             return dataList.get(N);
         }
 
-        public double getNthCDFOrMinusOne(int N)
+        public float getNthCDFOrMinusOne(int N)
         {
             if( (N < 0) || (this.itemCount() == 0) || (this.itemCount() <= N))
                 return -1;
 
-            double frequency = 1.0 / this.itemCount();
+            float frequency = 1.0f / this.itemCount();
 
-            return frequency * (N + 1.0);
+            return frequency * (N + 1.0f);
         }
 
-        public double itemCount()
+        public float itemCount()
         {
             return this.dataList.size();
         }
     }
 
     private int maxDataPoint;
-    Map<Double, Map<CONSISTENCY_TYPE, Map<MEASUREMENT_TYPE, DataHolder>>> variableMeasurementMap;
+    Map<Float, Map<CONSISTENCY_TYPE, Map<MEASUREMENT_TYPE, DataHolder>>> variableMeasurementMap;
 
     public MeasurementCollector(int _maxDataPoint)
     {
@@ -59,7 +59,7 @@ public class MeasurementCollector
         this.variableMeasurementMap = new HashMap<>();
     }
 
-    private void initiate(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
+    private void initiate(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
     {
         if(!this.variableMeasurementMap.containsKey(variable))
             this.variableMeasurementMap.put(variable, new HashMap<>() );
@@ -71,27 +71,27 @@ public class MeasurementCollector
             this.variableMeasurementMap.get(variable).get(consistencyType).put(measurementType, new DataHolder());
     }
 
-    public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, double measurementData, boolean skipZeroValue)
+    public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, float measurementData, boolean skipZeroValue)
     {
         initiate(variable, consistencyType, measurementType);
 
         if(measurementData == 0.0 && skipZeroValue)
             return;
 
-        List<Double> tempList = new ArrayList<>();
+        List<Float> tempList = new ArrayList<>();
         tempList.add(measurementData);
 
         this.collectData(variable, consistencyType, measurementType, tempList);
     }
 
 
-    public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, List<Double> measurementData)
+    public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, List<Float> measurementData)
     {
         initiate(variable, consistencyType, measurementType);
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.addAll(measurementData);
     }
 
-    private void sortAndTrimLargeData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
+    private void sortAndTrimLargeData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
     {
         //Collections.sort(_dataList);
 
@@ -111,7 +111,7 @@ public class MeasurementCollector
                     uniqueIndexSet.add(randIndex);
             }
 
-            List<Double> trimmedList = new ArrayList<>();
+            List<Float> trimmedList = new ArrayList<>();
 
             for(int index : uniqueIndexSet)
             {
@@ -126,22 +126,22 @@ public class MeasurementCollector
     }
 
 
-    public double finalizePrepareStatsAndGetAvg(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
+    public float finalizePrepareStatsAndGetAvg(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
     {
         if(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isListFinalized)
             return this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).average;
 
         this.sortAndTrimLargeData(variable, consistencyType, measurementType);
 
-        double avg = 0.0;
-        double itemCount = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
+        float avg = 0.0f;
+        float itemCount = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
 
         for(int I = 0 ; I < itemCount ; ++I)
         {
             avg += this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.get(I);
         }
 
-        avg = (itemCount == 0.0)? 0.0 : avg/itemCount;
+        avg = (itemCount == 0.0f)? 0.0f : avg/itemCount;
 
         String logString = consistencyType.name() + " : " + measurementType.name() + " -> " ;
         logString += " count = " + String.format("%.0f",itemCount);
@@ -201,10 +201,10 @@ public class MeasurementCollector
         CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
 
 
-        for(double variable : variableMeasurementMap.keySet())
+        for(float variable : variableMeasurementMap.keySet())
         {
             String subDirPartialName = changingParameterName + variable;
-            String subDirPath = parentDirPath + "\\" + subDirPartialName;
+            String subDirPath = parentDirPath + File.separator + subDirPartialName;
 
             File subDir = new File(subDirPath);
             if(!subDir.exists())
@@ -216,7 +216,7 @@ public class MeasurementCollector
                 for(MEASUREMENT_TYPE measurementType : this.variableMeasurementMap.get(variable).get(consistencyType).keySet())
                 {
 //                    String fileName = consistencyType.name() + "_" + measurementType.name() + ".dat";
-//                    String filePath = subDirPath + "\\" + fileName;
+//                    String filePath = subDirPath + File.separator + fileName;
 //
 //                    writeToFile(filePath, variable, consistencyType, measurementType);
 
@@ -255,9 +255,9 @@ public class MeasurementCollector
         assert(insertedInConsistencyOrder.size() == consistencyHeader.size());
 
         String fileName = currentMeasurement.name() + ".dat";
-        String filePath = subDirPath + "\\" + fileName;
+        String filePath = subDirPath + File.separator + fileName;
 
-        double maxItemCount = Integer.MIN_VALUE;
+        float maxItemCount = Integer.MIN_VALUE;
 
         String combinedCDFStr = "";
         for(int I = 0 ; I < consistencyHeader.size() ; I++)
@@ -277,8 +277,8 @@ public class MeasurementCollector
         {
             for(int I = 0 ; I < insertedInConsistencyOrder.size() ; I++)
             {
-                double data = insertedInConsistencyOrder.get(I).getNthDataOrMinusOne(N);
-                double CDF = insertedInConsistencyOrder.get(I).getNthCDFOrMinusOne(N);
+                float data = insertedInConsistencyOrder.get(I).getNthDataOrMinusOne(N);
+                float CDF = insertedInConsistencyOrder.get(I).getNthCDFOrMinusOne(N);
 
                 combinedCDFStr += data + "\t" + CDF;
 
@@ -303,7 +303,7 @@ public class MeasurementCollector
     }
 
     private void arrangeListsForPrinting(
-            final double variable,
+            final float variable,
             final MEASUREMENT_TYPE currentMeasurement,
             final List<CONSISTENCY_TYPE> currentMeasurementAvailableConsistencyList,
             final String subDirPath,

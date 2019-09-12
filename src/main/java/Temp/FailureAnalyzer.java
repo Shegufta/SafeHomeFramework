@@ -121,14 +121,14 @@ public class FailureAnalyzer
         }
     }
 
-    private List<DEV_ID> prepareFailedDevList(double failedDevPercent, boolean atleastOneFailure, Random rand)
+    private List<DEV_ID> prepareFailedDevList(float failedDevPercent, boolean atleastOneFailure, Random rand)
     {
         List<DEV_ID> failedDevList = new ArrayList<>();
 
         for(DEV_ID devId : lockTableForFailureAnalysis.keySet())
         {
-            double nextDbl = rand.nextDouble();
-            nextDbl = (nextDbl == 1.0) ? nextDbl - 0.001 : nextDbl;
+            float nextDbl = rand.nextFloat();
+            nextDbl = (nextDbl == 1.0f) ? nextDbl - 0.001f : nextDbl;
 
             if(nextDbl < failedDevPercent)
             {
@@ -214,8 +214,8 @@ public class FailureAnalyzer
             }
         }
 
-        double totalOnTheFlyCmdCount = 0.0;
-        double totalFailureRecoveryCommandSent = 0.0;
+        float totalOnTheFlyCmdCount = 0.0f;
+        float totalFailureRecoveryCommandSent = 0.0f;
 
         for(DEV_ID devID : lockTableForFailureAnalysis.keySet())
         {
@@ -252,7 +252,7 @@ public class FailureAnalyzer
         return failureResult;
     }
 
-    public FailureResult simulateFailure(double failedDevPercent, boolean atleastOneFailure)
+    public FailureResult simulateFailure(float failedDevPercent, boolean atleastOneFailure)
     {
         Random rand = new Random();
 

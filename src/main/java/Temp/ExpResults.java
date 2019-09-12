@@ -12,9 +12,9 @@ import java.util.List;
 public class ExpResults
 {
     //public String logString;
-    public List<Double> waitTimeList;
-    public List<Double> endToEndLatencyList;
-    public List<Double> stretchRatioList;
+    public List<Float> waitTimeList;
+    public List<Float> endToEndLatencyList;
+    public List<Float> stretchRatioList;
     public FailureAnalyzer failureAnalyzer = null;
     public Measurement measurement;
 
