@@ -1,7 +1,9 @@
 package Temp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Shegufta Ahsan
@@ -11,24 +13,31 @@ import java.util.List;
  */
 public class ExpResults
 {
-    //public String logString;
-    public List<Float> waitTimeList;
-    public List<Float> endToEndLatencyList;
-    public List<Float> stretchRatioList;
+    //public List<Float> waitTimeList;
+    //public List<Float> latencyOverheadList;
+    //public List<Float> stretchRatioList;
+
+    public Map<Float, Float> waitTimeHistogram;
+    public Map<Float, Float> latencyOverheadHistogram;
+    public Map<Float, Float> stretchRatioHistogram;
+
     public FailureAnalyzer failureAnalyzer = null;
     public Measurement measurement;
 
-    public double itemCount;
-    public double rawAvg;
-    public int roundedAvg;
-    public double rawSD;
-    public int roundedSD;
+//    public double itemCount;
+//    public double rawAvg;
+//    public int roundedAvg;
+//    public double rawSD;
+//    public int roundedSD;
 
     public ExpResults()
     {
-        //this.logString = "";
-        this.waitTimeList = new ArrayList<>();
-        this.endToEndLatencyList = new ArrayList<>();
-        this.stretchRatioList = new ArrayList<>();
+        //this.waitTimeList = new ArrayList<>();
+        //this.latencyOverheadList = new ArrayList<>();
+        //this.stretchRatioList = new ArrayList<>();
+
+        this.waitTimeHistogram = new HashMap<>();
+        this.latencyOverheadHistogram = new HashMap<>();
+        this.stretchRatioHistogram = new HashMap<>();
     }
 }
