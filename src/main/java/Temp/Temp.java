@@ -257,15 +257,15 @@ public class Temp
                 ///////
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntList);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_victimRtnPercentPerRun, false);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineList);
+                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -304,15 +304,15 @@ public class Temp
                 ///////
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntList);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_victimRtnPercentPerRun, false);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineList);
+                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -338,15 +338,15 @@ public class Temp
                 ///////
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntList);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_victimRtnPercentPerRun, false);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineList);
+                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -386,15 +386,15 @@ public class Temp
                 ///////
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntList);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_victimRtnPercentPerRun, false);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineList);
+                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -420,15 +420,15 @@ public class Temp
                 ///////
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntList);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_victimRtnPercentPerRun, false);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineList);
+                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -454,15 +454,15 @@ public class Temp
                 ///////
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntList);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_victimRtnPercentPerRun, false);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineList);
+                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -488,15 +488,15 @@ public class Temp
                 ///////
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntList);
+                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_victimRtnPercentPerRun, false);
+                        expResult.measurement.isvltn_victimRtnPercentHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineList);
+                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -754,9 +754,6 @@ public class Temp
 
         }
 
-
-        //System.out.println(str);
-
         return str;
     }
 
@@ -861,12 +858,9 @@ public class Temp
                     }
                 }
 
-                //System.out.println(randDev.name() + " " + duration);
-
                 devIDDurationMap.put(devID, duration);
                 devList.add(devID);
             }
-            //System.out.println("===");
 
             Routine rtn = new Routine();
 
@@ -986,15 +980,9 @@ public class Temp
 
                 boolean isMust = true;
                 Command cmd = new Command(devID, devIDDurationMap.get(devID), isMust);
-                //System.out.println("@ " + devID.name() + " => " + devIDDurationMap.get(devID));
                 rtn.addCommand(cmd);
             }
-//            for(Map.Entry<DEV_ID, Integer> entry : devIDDurationMap.entrySet())
-//            {
-//                Command cmd = new Command(entry.getKey(), entry.getValue());
-//                System.out.println("@ " + entry.getKey().name() + " => " + entry.getValue());
-//                rtn.addCommand(cmd);
-//            }
+
             routineList.add(rtn);
         }
 
@@ -1032,7 +1020,7 @@ public class Temp
         if(_consistencyType != CONSISTENCY_TYPE.WEAK)
             expResults.failureAnalyzer = new FailureAnalyzer(lockTable.lockTable, _consistencyType);
 
-        expResults.measurement = new Measurement(lockTable, _consistencyType);
+        expResults.measurement = new Measurement(lockTable);
 
 
         for(Routine routine : perExpRtnList)
@@ -1062,7 +1050,7 @@ public class Temp
                 expResults.latencyOverheadHistogram.put(data, count + 1f);
             //////////////////////////////////////////////////
             //expResults.stretchRatioList.add(routine.getStretchRatio());
-            data = routine.getLatencyOverheadPrcnt();
+            data = routine.getStretchRatio();
             count = expResults.stretchRatioHistogram.get(data);
 
             if(count == null)
@@ -1071,8 +1059,9 @@ public class Temp
                 expResults.stretchRatioHistogram.put(data, count + 1f);
             //////////////////////////////////////////////////
 
-
-
+            assert(!expResults.waitTimeHistogram.isEmpty());
+            assert(!expResults.latencyOverheadHistogram.isEmpty());
+            assert(!expResults.stretchRatioHistogram.isEmpty());
         }
 
         return expResults;

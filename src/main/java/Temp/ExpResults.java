@@ -13,10 +13,6 @@ import java.util.Map;
  */
 public class ExpResults
 {
-    //public List<Float> waitTimeList;
-    //public List<Float> latencyOverheadList;
-    //public List<Float> stretchRatioList;
-
     public Map<Float, Float> waitTimeHistogram;
     public Map<Float, Float> latencyOverheadHistogram;
     public Map<Float, Float> stretchRatioHistogram;
@@ -24,17 +20,9 @@ public class ExpResults
     public FailureAnalyzer failureAnalyzer = null;
     public Measurement measurement;
 
-//    public double itemCount;
-//    public double rawAvg;
-//    public int roundedAvg;
-//    public double rawSD;
-//    public int roundedSD;
 
     public ExpResults()
     {
-        //this.waitTimeList = new ArrayList<>();
-        //this.latencyOverheadList = new ArrayList<>();
-        //this.stretchRatioList = new ArrayList<>();
 
         this.waitTimeHistogram = new HashMap<>();
         this.latencyOverheadHistogram = new HashMap<>();

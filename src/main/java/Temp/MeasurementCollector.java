@@ -69,11 +69,6 @@ public class MeasurementCollector
             return (globalItemCount == 0.0f)? 0.0f : this.globalSum/globalItemCount ;
         }
 
-//        private float itemCount()
-//        {
-//            return this.globalItemCount;
-//        }
-
         public int cdfListSize()
         {
             if(this.isHistogramMode)
@@ -123,8 +118,6 @@ public class MeasurementCollector
                 else
                     globalHistogram.put(data, (partialFrequency + globalFrequency));
             }
-
-            int debug = 1;
         }
     }
 
@@ -166,14 +159,12 @@ public class MeasurementCollector
     public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, List<Float> measurementData)
     {
         initiate(variable, consistencyType, measurementType);
-        //this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.addAll(measurementData);
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(measurementData);
     }
 
     public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, Map<Float, Float> histogram)
     {
         initiate(variable, consistencyType, measurementType);
-        //this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.addAll(measurementData);
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(histogram);
     }
 
@@ -262,55 +253,8 @@ public class MeasurementCollector
         this.sortAndTrimAndAverageAndFinalizeLargeData(variable, consistencyType, measurementType);
 
         return this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).getAverage();
-
-        /*
-        float avg = 0.0f;
-        float itemCount = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
-
-        for(int I = 0 ; I < itemCount ; ++I)
-        {
-            avg += this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.get(I);
-        }
-
-        avg = (itemCount == 0.0f)? 0.0f : avg/itemCount;
-
-        float avg = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).average;
-
-        float itemCount = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).itemCount();
-
-        String logString = consistencyType.name() + " : " + measurementType.name() + " -> " ;
-        logString += " count = " + String.format("%.0f",itemCount);
-        logString += "; avg = " + String.format("%7.2f",avg);
-
-        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isListFinalized = true;
-        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).average = avg;
-        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).statLog = logString;
-
-
-        return avg;
-
-
-         */
     }
 
-
-    /*
-    public String getStats(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
-    {
-        if(!this.variableMeasurementMap.containsKey(variable))
-            return "ERROR: variable " + variable + " not available (for " + consistencyType.name() + ", " + measurementType.name() + " )";
-
-        if(!this.variableMeasurementMap.get(variable).containsKey(consistencyType))
-            return "ERROR: " + consistencyType.name() + " not available!";
-
-        if(!this.variableMeasurementMap.get(variable).get(consistencyType).containsKey(measurementType))
-            return "ERROR: " + measurementType.name() + " for " + consistencyType.name() + " not available!";
-
-        finalizePrepareStatsAndGetAvg(variable, consistencyType, measurementType); // this call makes it sure that the list has been finalized
-
-        return this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).statLog;
-    }
-    */
 
     public void writeStatsInFile(String parentDirPath, String changingParameterName)
     {
@@ -354,11 +298,6 @@ public class MeasurementCollector
             {
                 for(MEASUREMENT_TYPE measurementType : this.variableMeasurementMap.get(variable).get(consistencyType).keySet())
                 {
-//                    String fileName = consistencyType.name() + "_" + measurementType.name() + ".dat";
-//                    String filePath = subDirPath + File.separator + fileName;
-//
-//                    writeToFile(filePath, variable, consistencyType, measurementType);
-
                     if(!perMeasurementConsistencyMap.containsKey(measurementType))
                         perMeasurementConsistencyMap.put(measurementType, new ArrayList<>());
 
@@ -472,48 +411,4 @@ public class MeasurementCollector
                 consistencyHeader);
 
     }
-
-    /*
-    private String listToString(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
-    {
-        finalizePrepareStatsAndGetAvg(variable, consistencyType, measurementType); // this call makes it sure that the list has been finalized
-
-        String str = "data\tactualFrequency\n";
-
-        double globalItemCount = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
-        final double actualFrequency = 1.0 / globalItemCount;
-
-        double frequencySum = 0.0;
-
-        for(int I = 0 ; I < globalItemCount ; ++I)
-        {
-            double data = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.get(I);
-            frequencySum += actualFrequency;
-
-            str += String.format("%.3f", data) + "\t" + String.format("%.3f", frequencySum);;
-
-            if(I < (globalItemCount -1))
-                str += "\n";
-        }
-
-        return str;
-    }
-
-    private void writeToFile(String filePath, double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
-    {
-        String listToString = listToString(variable, consistencyType, measurementType);
-        try
-        {
-            Writer fileWriter = new FileWriter(filePath);
-            fileWriter.write(listToString);
-            fileWriter.close();
-        }
-        catch (Exception ex)
-        {
-            System.out.println("\n\nERROR: cannot write file " + filePath);
-            System.exit(1);
-        }
-
-    }
-    */
 }
