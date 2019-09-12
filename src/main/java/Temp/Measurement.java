@@ -185,19 +185,19 @@ public class Measurement
                     }
                 }
 
-                float effectiveTimeRatio = 100.0f;
+                float timeSpentInCollisionRatio = 0.0f;
 
                 if(earliestCollisionTime < Float.MAX_VALUE)
                 {
                     assert(spanStartTimeInclusive <= earliestCollisionTime);
 
                     float expectedConsistencySpanCmd1 = spanEndTimeExclusive - spanStartTimeInclusive;
-                    float effectiveTime = earliestCollisionTime - spanStartTimeInclusive;
+                    float collisionTime = spanEndTimeExclusive - earliestCollisionTime;
 
-                    effectiveTimeRatio = (effectiveTime / expectedConsistencySpanCmd1) * 100.0f;
+                    timeSpentInCollisionRatio = (collisionTime / expectedConsistencySpanCmd1) * 100.0f;
                 }
 
-                Float data = effectiveTimeRatio;
+                Float data = timeSpentInCollisionRatio;
                 Float count = this.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.get(data);
 
                 if(count == null)
