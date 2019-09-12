@@ -256,16 +256,20 @@ public class Temp
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
+                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
+                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
+                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
+                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -303,16 +307,20 @@ public class Temp
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
+                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
+                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
+                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
+                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -337,16 +345,20 @@ public class Temp
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
+                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
+                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
+                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
+                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
+                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -385,16 +397,20 @@ public class Temp
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
+                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
+                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
+                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
+                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -419,16 +435,20 @@ public class Temp
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
+                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
+                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
+                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
+                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
+                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -453,16 +473,20 @@ public class Temp
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
+                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
+                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
+                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
+                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
+                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -487,16 +511,20 @@ public class Temp
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT,
-                        expResult.measurement.isvltn_perRtnVictimCmdPrcntHistogram);
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
+                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN,
-                        expResult.measurement.isvltn_victimRtnPercentHistogram);
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
+                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT,
-                        expResult.measurement.isvltn_totalUniqueAttackerPerRoutineHistogram);
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
+                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
+                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
                 ///////
 
                 measurementCollector.collectData(changingParameterValue,
@@ -566,29 +594,37 @@ public class Temp
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
             ////////////////////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_PER_VICTIM_RTN_ATTCKER_COUNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
             /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_VICTIM_RTN_PRCNT_PER_RUN));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
             /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN_PER_RTN_VICTIM_CMD_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
+            /////////////////////////////////////////////////////////////
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
             /////////////////////////////////////////////////////////////
 
             globalDataCollector.put(changingParameterValue, resultCollector);
@@ -612,9 +648,10 @@ public class Temp
         header += "\tG7:GSV_OdrMismtch\tG7:PSV_OdrMismtch\tG7:WV_OdrMismtch\tG7:EV_OdrMismtch\tG7:LV_OdrMismtch\tG7:FCFSV_OdrMismtch\tG7:LzPRIOTY_OdrMismtch";
         header += "\tG8:GSV_DevUtlz\tG8:PSV_DevUtlz\tG8:WV_DevUtlz\tG8:EV_DevUtlz\tG8:LV_DevUtlz\tG8:FCFSV_DevUtlz\tG8:LzPRIOTY_DevUtlz";
 
-        header += "\tG9:GSV_IsvltnPerVctmUniqAttckrCnt\tG9:PSV_IsvltnPerVctmUniqAttckrCnt\tG9:WV_IsvltnPerVctmUniqAttckrCnt\tG9:EV_IsvltnPerVctmUniqAttckrCnt\tG9:LV_IsvltnPerVctmUniqAttckrCnt\tG9:FCFSV_IsvltnPerVctmUniqAttckrCnt\tG9:LzPRIOTY_IsvltnPerVctmUniqAttckrCnt";
-        header += "\tG10:GSV_IsvltnVctmRtnPrcntPerRun\tG10:PSV_IsvltnVctmRtnPrcntPerRun\tG10:WV_IsvltnVctmRtnPrcntPerRun\tG10:EV_IsvltnVctmRtnPrcntPerRun\tG10:LV_IsvltnVctmRtnPrcntPerRun\tG10:FCFSV_IsvltnVctmRtnPrcntPerRun\tG10:LzPRIOTY_IsvltnVctmRtnPrcntPerRun";
-        header += "\tG11:GSV_IsvltnPerRtnVctmCmdPrcnt\tG11:PSV_IsvltnPerRtnVctmCmdPrcnt\tG11:WV_IsvltnPerRtnVctmCmdPrcnt\tG11:EV_IsvltnPerRtnVctmCmdPrcnt\tG11:LV_IsvltnPerRtnVctmCmdPrcnt\tG11:FCFSV_IsvltnPerRtnVctmCmdPrcnt\tG11:LzPRIOTY_IsvltnPerRtnVctmCmdPrcnt";
+        header += "\tG9:GSV_IsvltnPerRtnCollision\tG9:PSV_IsvltnPerRtnCollision\tG9:WV_IsvltnPerRtnCollision\tG9:EV_IsvltnPerRtnCollision\tG9:LV_IsvltnPerRtnCollision\tG9:FCFSV_IsvltnPerRtnCollision\tG9:LzPRIOTY_IsvltnPerRtnCollision";
+        header += "\tG10:GSV_IsvltnViolatedRtnPrcnt\tG10:PSV_IsvltnViolatedRtnPrcnt\tG10:WV_IsvltnViolatedRtnPrcnt\tG10:EV_IsvltnViolatedRtnPrcnt\tG10:LV_IsvltnViolatedRtnPrcnt\tG10:FCFSV_IsvltnViolatedRtnPrcnt\tG10:LzPRIOTY_IsvltnViolatedRtnPrcnt";
+        header += "\tG11:GSV_IsvltnViolatedCmdPrcnt\tG11:PSV_IsvltnViolatedCmdPrcnt\tG11:WV_IsvltnViolatedCmdPrcnt\tG11:EV_IsvltnViolatedCmdPrcnt\tG11:LV_IsvltnViolatedCmdPrcnt\tG11:FCFSV_IsvltnViolatedCmdPrcnt\tG11:LzPRIOTY_IsvltnViolatedCmdPrcnt";
+        header += "\tG12:GSV_CmdToCommitVioltnTimePcnt\tG12:PSV_CmdToCommitVioltnTimePcnt\tG12:WV_CmdToCommitVioltnTimePcnt\tG12:EV_CmdToCommitVioltnTimePcnt\tG12:LV_CmdToCommitVioltnTimePcnt\tG12:FCFSV_CmdToCommitVioltnTimePcnt\tG12:LzPRIOTY_CmdToCommitVioltnTimePcnt";
 
         header += "\t"; // NOTE: this tab is required for the python separator
         globalResult += header + "\n";

@@ -15,14 +15,12 @@ public class Measurement
     public List<Float> devUtilizationPercentList = new ArrayList<>();
     public float orderMismatchPercent = 0.0f;
 
-    //public List<Float> isvltn_perRtnVictimCmdPrcntList = new ArrayList<>();
-    Map<Float, Float> isvltn_perRtnVictimCmdPrcntHistogram = new HashMap<>();
+    Map<Float, Float> isvltn1_perRtnCollisionCountHistogram = new HashMap<>();
+    Map<Float, Float> isvltn3_CMDviolationPercentHistogram = new HashMap<>(); // Command Violation Per Routine
+    Map<Float, Float> isvltn2_RTNviolationPercentHistogram = new HashMap<>();
 
-    //public List<Float> isvltn_totalUniqueAttackerPerRoutineList = new ArrayList<>();
-    Map<Float, Float> isvltn_totalUniqueAttackerPerRoutineHistogram = new HashMap<>();
-
-    //public float isvltn_victimRtnPercentPerRun = 0.0f;
-    Map<Float, Float> isvltn_victimRtnPercentHistogram = new HashMap<>();
+    Map<Float, Float> isvltn4_cmdToCommitCollisionTimespanPrcntHistogram = new HashMap<>();
+    //ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT
     /////////////////////////////////////////////
 
     private void measureDeviceUtilization(final LockTable _lockTable)
@@ -159,27 +157,57 @@ public class Measurement
             assert(!victimRtnAndItsVictimCmdSetMap.containsKey(rtn1));
             victimRtnAndItsVictimCmdSetMap.put(rtn1, new HashSet<>());
 
-            for(Routine rtn2 : allRtnList)
-            {
-                if(rtn1 == rtn2)
-                    continue;
 
-                for(Command cmd1 : rtn1.commandList)
+            for(Command cmd1 : rtn1.commandList)
+            {
+                DEV_ID devID = cmd1.devID;
+                int spanStartTimeInclusive = cmd1.startTime;
+                int spanEndTimeExclusive = rtn1.routineEndTime();
+
+                float earliestCollisionTime = Float.MAX_VALUE;
+
+                for (Routine rtn2 : allRtnList)
                 {
-                    DEV_ID devID = cmd1.devID;
-                    int spanStartTimeInclusive = cmd1.startTime;
-                    int spanEndTimeExclusive = rtn1.routineEndTime();
+                    if (rtn1 == rtn2)
+                        continue;
 
                     boolean isAttackedByRtn2 = rtn2.isDevAccessStartsDuringTimeSpan(devID, spanStartTimeInclusive, spanEndTimeExclusive);
 
-                    if(isAttackedByRtn2)
+                    if (isAttackedByRtn2)
                     {
                         victimRtnAndAttackerRtnSetMap.get(rtn1).add(rtn2);
                         victimRtnAndItsVictimCmdSetMap.get(rtn1).add(cmd1);
+
+                        float collisionTime = rtn2.getCommandByDevID(devID).startTime;
+
+                        if(collisionTime < earliestCollisionTime)
+                            earliestCollisionTime = collisionTime;
                     }
                 }
+
+                float effectiveTimeRatio = 100.0f;
+
+                if(earliestCollisionTime < Float.MAX_VALUE)
+                {
+                    assert(spanStartTimeInclusive <= earliestCollisionTime);
+
+                    float expectedConsistencySpanCmd1 = spanEndTimeExclusive - spanStartTimeInclusive;
+                    float effectiveTime = earliestCollisionTime - spanStartTimeInclusive;
+
+                    effectiveTimeRatio = (effectiveTime / expectedConsistencySpanCmd1) * 100.0f;
+                }
+
+                Float data = effectiveTimeRatio;
+                Float count = this.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.get(data);
+
+                if(count == null)
+                    this.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.put(data, 1f);
+                else
+                    this.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.put(data, count + 1f);
             }
+
         }
+
 
         float victimRoutineCount = 0.0f;
 
@@ -205,21 +233,21 @@ public class Measurement
             //////////////////////////////////////////
             //isvltn_perRtnVictimCmdPrcntList.add(perRtnSpoiledCmdPercent);
             data = isvltn_perRtnVictimCmdPrcnt;
-            count = this.isvltn_perRtnVictimCmdPrcntHistogram.get(data);
+            count = this.isvltn3_CMDviolationPercentHistogram.get(data);
 
             if(count == null)
-                this.isvltn_perRtnVictimCmdPrcntHistogram.put(data, 1f);
+                this.isvltn3_CMDviolationPercentHistogram.put(data, 1f);
             else
-                this.isvltn_perRtnVictimCmdPrcntHistogram.put(data, count + 1f);
+                this.isvltn3_CMDviolationPercentHistogram.put(data, count + 1f);
             //////////////////////////////////////////////////////////////////
 
             data = isvltn_totalUniqueAttackerPerRoutine;
-            count = this.isvltn_totalUniqueAttackerPerRoutineHistogram.get(data);
+            count = this.isvltn1_perRtnCollisionCountHistogram.get(data);
 
             if(count == null)
-                this.isvltn_totalUniqueAttackerPerRoutineHistogram.put(data, 1f);
+                this.isvltn1_perRtnCollisionCountHistogram.put(data, 1f);
             else
-                this.isvltn_totalUniqueAttackerPerRoutineHistogram.put(data, count + 1f);
+                this.isvltn1_perRtnCollisionCountHistogram.put(data, count + 1f);
             //////////////////////////////////////////////////////////////////
         }
 
@@ -228,17 +256,18 @@ public class Measurement
         float totalRoutine = allRtnList.size();
         //isvltn_victimRtnPercentPerRun = (victimRoutineCount / totalRoutine)*100.0f;
         Float data = (victimRoutineCount / totalRoutine)*100.0f;
-        Float count = this.isvltn_victimRtnPercentHistogram.get(data);
+        Float count = this.isvltn2_RTNviolationPercentHistogram.get(data);
 
         if(count == null)
-            this.isvltn_victimRtnPercentHistogram.put(data, 1f);
+            this.isvltn2_RTNviolationPercentHistogram.put(data, 1f);
         else
-            this.isvltn_victimRtnPercentHistogram.put(data, count + 1f);
+            this.isvltn2_RTNviolationPercentHistogram.put(data, count + 1f);
         /////////////////////////////////////////////////////////////////
 
-        assert(!isvltn_perRtnVictimCmdPrcntHistogram.isEmpty());
-        assert(!isvltn_totalUniqueAttackerPerRoutineHistogram.isEmpty());
-        assert(!isvltn_victimRtnPercentHistogram.isEmpty());
+        assert(!isvltn3_CMDviolationPercentHistogram.isEmpty());
+        assert(!isvltn1_perRtnCollisionCountHistogram.isEmpty());
+        assert(!isvltn2_RTNviolationPercentHistogram.isEmpty());
+        assert(!isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.isEmpty());
     }
 
     public Measurement(final LockTable lockTable)
