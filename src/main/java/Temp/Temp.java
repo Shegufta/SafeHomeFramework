@@ -47,7 +47,7 @@ public class Temp
     private static final boolean isShortCmdDurationVary = true;
     private static final float shortCmdDurationVaryMultiplier = 6; // will vary upto N times
 
-    private static final int totalSampleCount = 7500;//10000; // 100000;
+    private static final int totalSampleCount = 1000;//7500;//10000; // 100000;
     private static final boolean isPrint = false;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
@@ -482,7 +482,7 @@ public class Temp
         ///////////////////////////
 
         final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
-        for(maxConcurrentRtn = 10; maxConcurrentRtn <= 101 ; maxConcurrentRtn += 20)
+        for(maxConcurrentRtn = 1; maxConcurrentRtn <= 10 ; maxConcurrentRtn += 1)
         {
             changingParameterValue = (float)maxConcurrentRtn; // NOTE: also change changingParameterName
 
@@ -626,7 +626,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelRtnCntList);
+                        expResult.measurement.parallelismHistogram);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -673,7 +673,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelRtnCntList);
+                        expResult.measurement.parallelismHistogram);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -707,7 +707,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelRtnCntList);
+                        expResult.measurement.parallelismHistogram);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -755,7 +755,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelRtnCntList);
+                        expResult.measurement.parallelismHistogram);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -789,7 +789,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelRtnCntList);
+                        expResult.measurement.parallelismHistogram);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -823,7 +823,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelRtnCntList);
+                        expResult.measurement.parallelismHistogram);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
@@ -857,7 +857,7 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelRtnCntList);
+                        expResult.measurement.parallelismHistogram);
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,

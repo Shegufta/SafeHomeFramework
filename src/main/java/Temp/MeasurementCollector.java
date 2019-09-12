@@ -15,38 +15,116 @@ public class MeasurementCollector
 {
     private class DataHolder
     {
-        public float average = Float.MIN_VALUE;
+        //public float average = Float.MIN_VALUE;
         public List<Float> dataList;
+
+        public boolean isHistogramMode;
+        private float HISTOGRAM_KEY_RESOLUTION = 1000.0f; /// convert 3.14159 to 3.14100000... so now 3.14159 and 3.14161 are same... This will save space
+        public Map<Float,Float> globalHistogram;
+        List<Float> cdfDataListInHistogramMode = new ArrayList<>();
+        List<Float> cdfFrequencyListInHisotgramMode = new ArrayList<>();
+
         public Boolean isListFinalized;
-        String statLog = "";
+        int globalItemCount;
+        float globalSum;
 
         public DataHolder()
         {
             this.dataList = new ArrayList<>();
-            isListFinalized = false;
+            this.globalHistogram = new HashMap<>();
+
+            this.isListFinalized = false;
+            this.isHistogramMode = false;
+            this.globalItemCount = 0;
+            this.globalSum = 0.0f;
         }
 
-        public float getNthDataOrMinusOne(int N)
+        public float getNthDataOrMinusOne(int N, float dummyMaxItemCount)
         {
-            if( (N < 0) || (this.itemCount() == 0) || (this.itemCount() <= N))
-                return -1;
+            if( (N < 0) || (this.cdfListSize() == 0) || (this.cdfListSize() <= N))
+                    return -1;
 
-            return dataList.get(N);
+            if (isHistogramMode)
+                return cdfDataListInHistogramMode.get(N);
+            else
+                return dataList.get(N);
         }
 
         public float getNthCDFOrMinusOne(int N)
         {
-            if( (N < 0) || (this.itemCount() == 0) || (this.itemCount() <= N))
+            if( (N < 0) || (this.cdfListSize() == 0) || (this.cdfListSize() <= N))
                 return -1;
 
-            float frequency = 1.0f / this.itemCount();
-
-            return frequency * (N + 1.0f);
+            if(isHistogramMode)
+                return cdfFrequencyListInHisotgramMode.get(N);
+            else
+            {
+                float frequency = 1.0f / this.cdfListSize();
+                return frequency * (N + 1.0f);
+            }
         }
 
-        public float itemCount()
+        public float getAverage()
         {
-            return this.dataList.size();
+            return (globalItemCount == 0.0f)? 0.0f : this.globalSum/globalItemCount ;
+        }
+
+//        private float itemCount()
+//        {
+//            return this.globalItemCount;
+//        }
+
+        public int cdfListSize()
+        {
+            if(this.isHistogramMode)
+            {
+                assert(!cdfDataListInHistogramMode.isEmpty());
+                return cdfDataListInHistogramMode.size();
+            }
+            else
+            {
+                return this.globalItemCount;
+            }
+        }
+
+        public void addData(List<Float> measurementData)
+        {
+            this.isHistogramMode = false;
+            this.dataList.addAll(measurementData);
+
+            for(float data: measurementData)
+            {
+                this.dataList.add(data);
+                this.globalSum += data;
+                this.globalItemCount++;
+            }
+        }
+
+        public void addData(Map<Float,Float> partialHistogram)
+        {
+            this.isHistogramMode = true;
+            this.dataList = null; // to prevent it from being accidentally used!
+
+            for(Map.Entry<Float, Float> entry : partialHistogram.entrySet())
+            {
+                float data = entry.getKey();
+                float partialFrequency = entry.getValue();
+
+                data = (float)((int)(data * HISTOGRAM_KEY_RESOLUTION))/ HISTOGRAM_KEY_RESOLUTION; /// convert 3.141592654 to 3.14100000
+                /// convert 3.14159 to 3.141... so now 3.14159 and 3.14161 both are 3.141... both will go to the same Map-bucket. This will save huge space
+
+                this.globalSum += data;
+                this.globalItemCount += partialFrequency;
+
+                Float globalFrequency = globalHistogram.get(data);
+
+                if(globalFrequency == null)
+                    globalHistogram.put(data, partialFrequency);
+                else
+                    globalHistogram.put(data, (partialFrequency + globalFrequency));
+            }
+
+            int debug = 1;
         }
     }
 
@@ -88,51 +166,104 @@ public class MeasurementCollector
     public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, List<Float> measurementData)
     {
         initiate(variable, consistencyType, measurementType);
-        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.addAll(measurementData);
+        //this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.addAll(measurementData);
+        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(measurementData);
     }
 
-    private void sortAndTrimLargeData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
+    public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, Map<Float, Float> histogram)
     {
-        //Collections.sort(_dataList);
+        initiate(variable, consistencyType, measurementType);
+        //this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.addAll(measurementData);
+        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(histogram);
+    }
 
-        int currentListSize = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
+    private void sortAndTrimAndAverageAndFinalizeLargeData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
+    {
+        if(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isHistogramMode)
+        {
+            List<Float> sortedDataSequenceFromHistogram = new ArrayList<>();
 
-        if(maxDataPoint < currentListSize)
-        {// requires trimming
-
-            Set<Integer> uniqueIndexSet = new HashSet<>();
-            Random rand = new Random();
-
-            while(uniqueIndexSet.size() < maxDataPoint)
+            for(float data : this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.keySet())
             {
-                int randIndex = rand.nextInt(currentListSize);
-
-                if(!uniqueIndexSet.contains(randIndex))
-                    uniqueIndexSet.add(randIndex);
+                sortedDataSequenceFromHistogram.add(data);
             }
 
-            List<Float> trimmedList = new ArrayList<>();
+            Collections.sort(sortedDataSequenceFromHistogram);
 
-            for(int index : uniqueIndexSet)
+            int indexTracker = 1;
+            final float frequencyMultiplyer = 1.0f / this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount; // NOTE: this is total item count... not the CDF list size... that CDF list has not been initialized yet!
+
+            for(float sortedData : sortedDataSequenceFromHistogram)
             {
-                trimmedList.add(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.get(index));
+                float frequency = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.get(sortedData);
+
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).cdfDataListInHistogramMode.add(sortedData);
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).cdfFrequencyListInHisotgramMode.add(indexTracker * frequencyMultiplyer);
+
+                if(1 < frequency)
+                {
+                    indexTracker = indexTracker + (int)frequency - 1;
+                    this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).cdfDataListInHistogramMode.add(sortedData);
+                    this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).cdfFrequencyListInHisotgramMode.add(indexTracker * frequencyMultiplyer);
+                }
+
+                indexTracker++;
+            }
+        }
+        else
+        {
+            int currentListSize = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
+
+            if(maxDataPoint < currentListSize)
+            {// requires trimming
+
+                Set<Integer> uniqueIndexSet = new HashSet<>();
+                Random rand = new Random();
+
+                while(uniqueIndexSet.size() < maxDataPoint)
+                {
+                    int randIndex = rand.nextInt(currentListSize);
+
+                    if(!uniqueIndexSet.contains(randIndex))
+                        uniqueIndexSet.add(randIndex);
+                }
+
+                List<Float> trimmedList = new ArrayList<>();
+
+                float newSum = 0.0f;
+                int newCount = 0;
+                for(int index : uniqueIndexSet)
+                {
+                    float selectedData = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.get(index);
+                    trimmedList.add(selectedData);
+
+                    newSum += selectedData;
+                    newCount++;
+                }
+
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.clear();
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.addAll(trimmedList);
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum = newSum;
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount = newCount;
             }
 
-            this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.clear();
-            this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.addAll(trimmedList);
+            Collections.sort(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList);
         }
 
-        Collections.sort(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList);
+        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isListFinalized = true;
     }
 
 
     public float finalizePrepareStatsAndGetAvg(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
     {
         if(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isListFinalized)
-            return this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).average;
+            return this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).getAverage();
 
-        this.sortAndTrimLargeData(variable, consistencyType, measurementType);
+        this.sortAndTrimAndAverageAndFinalizeLargeData(variable, consistencyType, measurementType);
 
+        return this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).getAverage();
+
+        /*
         float avg = 0.0f;
         float itemCount = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
 
@@ -143,6 +274,10 @@ public class MeasurementCollector
 
         avg = (itemCount == 0.0f)? 0.0f : avg/itemCount;
 
+        float avg = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).average;
+
+        float itemCount = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).itemCount();
+
         String logString = consistencyType.name() + " : " + measurementType.name() + " -> " ;
         logString += " count = " + String.format("%.0f",itemCount);
         logString += "; avg = " + String.format("%7.2f",avg);
@@ -151,7 +286,11 @@ public class MeasurementCollector
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).average = avg;
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).statLog = logString;
 
+
         return avg;
+
+
+         */
     }
 
 
@@ -262,8 +401,8 @@ public class MeasurementCollector
         String combinedCDFStr = "";
         for(int I = 0 ; I < consistencyHeader.size() ; I++)
         {
-            if( maxItemCount < insertedInConsistencyOrder.get(I).itemCount())
-                maxItemCount = insertedInConsistencyOrder.get(I).itemCount();
+            if( maxItemCount < insertedInConsistencyOrder.get(I).cdfListSize())
+                maxItemCount = insertedInConsistencyOrder.get(I).cdfListSize();
 
             combinedCDFStr += "data\t" + consistencyHeader.get(I);
 
@@ -277,7 +416,7 @@ public class MeasurementCollector
         {
             for(int I = 0 ; I < insertedInConsistencyOrder.size() ; I++)
             {
-                float data = insertedInConsistencyOrder.get(I).getNthDataOrMinusOne(N);
+                float data = insertedInConsistencyOrder.get(I).getNthDataOrMinusOne(N, maxItemCount);
                 float CDF = insertedInConsistencyOrder.get(I).getNthCDFOrMinusOne(N);
 
                 combinedCDFStr += data + "\t" + CDF;
@@ -341,19 +480,19 @@ public class MeasurementCollector
 
         String str = "data\tactualFrequency\n";
 
-        double itemCount = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
-        final double actualFrequency = 1.0 / itemCount;
+        double globalItemCount = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
+        final double actualFrequency = 1.0 / globalItemCount;
 
         double frequencySum = 0.0;
 
-        for(int I = 0 ; I < itemCount ; ++I)
+        for(int I = 0 ; I < globalItemCount ; ++I)
         {
             double data = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.get(I);
             frequencySum += actualFrequency;
 
             str += String.format("%.3f", data) + "\t" + String.format("%.3f", frequencySum);;
 
-            if(I < (itemCount -1))
+            if(I < (globalItemCount -1))
                 str += "\n";
         }
 

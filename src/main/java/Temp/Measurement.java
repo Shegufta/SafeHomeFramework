@@ -12,8 +12,8 @@ public class Measurement
 {
     private final int TOTAL_ISOLATION_VIOLATION_CHECK_COUNT = 3;
     /////////////////////////////////////////////
-    //Map<Float, Float> parallelismHistogram = new HashMap<>();
-    public List<Float> parallelRtnCntList = new ArrayList<>();
+    Map<Float, Float> parallelismHistogram = new HashMap<>();
+
     public List<Float> devUtilizationPercentList = new ArrayList<>();
     public float orderMismatchPercent = 0.0f;
     //double isoltnVltnRatioAmongLineages = 0.0;
@@ -72,7 +72,7 @@ public class Measurement
 
     private void measureParallelization(final LockTable _lockTable)
     {
-
+/*
         List<Routine> allRtnList = _lockTable.getAllRoutineSet(); // the special case CONSISTENCY_TYPE.WEAK is handled inside this function!
 
         Map<Routine, Integer> routineAndTotalOtherParallelRtnCounter_Map = new HashMap<>();
@@ -100,7 +100,7 @@ public class Measurement
             float parallelCountForRtn1 = routineAndTotalOtherParallelRtnCounter_Map.get(rtn1);
             this.parallelRtnCntList.add(parallelCountForRtn1);
         }
-
+*/
 
 /*
         final Map<DEV_ID, List<Routine>> lockTable = _lockTable.lockTable;
@@ -146,7 +146,7 @@ public class Measurement
 
         // This approach is creating a histogram... in each time slot how many routines were there
 
-/*
+
         Integer minStartTimeInclusive = Integer.MAX_VALUE;
         Integer maxEndTimeExclusive = Integer.MIN_VALUE;
 
@@ -181,16 +181,17 @@ public class Measurement
             }
         }
 
-        for(float count : histogram)
+        for(float frequency : histogram)
         {
-            Float value = parallelismHistogram.get(count);
+            Float count = parallelismHistogram.get(frequency);
+            // here the count is the data. we have to count how many time these "count" appear
 
-            if(value == null)
-                parallelismHistogram.put(count, 0.0f);
+            if(count == null)
+                parallelismHistogram.put(frequency, 1f);
             else
-                parallelismHistogram.put(count, value + 1);
+                parallelismHistogram.put(frequency, count + 1f);
         }
-        */
+
      /*
         int[] timeSlotArray = new int[totalTimeSpan];
 
