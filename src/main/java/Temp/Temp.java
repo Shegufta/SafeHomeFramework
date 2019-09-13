@@ -15,6 +15,8 @@ import java.util.*;
  * @date 17-Jul-19
  * @time 10:32 AM
  */
+// traph plotting tool command:  "python .\gen_all.py -d C:\Users\shegufta\Desktop\smartHomeData\1568337471715_VARY_maxConcurrentRtn_R_101_C_6"
+
 public class Temp
 {
     public static final int MAX_DATAPOINT_COLLECTON_SIZE = 5000;
