@@ -24,23 +24,23 @@ public class Temp
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static final float timelineMultiplierForSporadicRoutines = 0.5f; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
+    private static double timelineMultiplierForSporadicRoutines = 0.5; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
     private static final boolean isSentAllRtnSameTime = false;
-    private static int maxConcurrentRtn = 5; //in current version totalConcurrentRtn = maxConcurrentRtn;
+    private static int maxConcurrentRtn = 100; //in current version totalConcurrentRtn = maxConcurrentRtn;
 
     private static int commandPerRtn = 6; // will work if isVaryCommandCount = false;
-    private static boolean isVaryCommandCount = true;
+    private static boolean isVaryCommandCount = false;
     private static int minCommandCount = 3; // will work if isVaryCommandCount = true;
     private static int maxCommandCount = 9; // will work if isVaryCommandCount = true;
 
     private static float zipfCoefficient = 0.05f;
-    private static float longRunningRtnPercentage = 0.2f;
-    private static final boolean atleastOneLongRunning = false;
 
     private static float devFailureRatio = 0.0f;
     private static final boolean atleastOneDevFail = false;
     private static float mustCmdPercentage = 1.0f;
 
+    private static float longRunningRtnPercentage = 0.2f;
+    private static final boolean atleastOneLongRunning = false;
     private static int longRunningCmdDuration = 2000;
     private static final boolean isLongCmdDurationVary = true;
     private static final float longCmdDurationVaryMultiplier = 2.0f; // will vary upto N times
@@ -109,10 +109,10 @@ public class Temp
 //        logStr += zipFianStr;
         ///////////////////////////
 
-        final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
-        for(maxConcurrentRtn = 100; maxConcurrentRtn <= 100 ; maxConcurrentRtn += 1)
+        final String changingParameterName = "timelineMultiplierForSporadicRoutines"; // NOTE: also change changingParameterValue
+        for(timelineMultiplierForSporadicRoutines = 0.0; timelineMultiplierForSporadicRoutines <= 1.2 ; timelineMultiplierForSporadicRoutines += 0.50)
         {
-            changingParameterValue = (float)maxConcurrentRtn; // NOTE: also change changingParameterName
+            changingParameterValue = (float)timelineMultiplierForSporadicRoutines; // NOTE: also change changingParameterName
 
             if(isVaryCommandCount)
             {
@@ -276,11 +276,11 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderMismatchPercent, false);
+                        expResult.measurement.orderingMismatchPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPercentList);
+                        expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -327,11 +327,11 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderMismatchPercent, false);
+                        expResult.measurement.orderingMismatchPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPercentList);
+                        expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -365,11 +365,11 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderMismatchPercent, false);
+                        expResult.measurement.orderingMismatchPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPercentList);
+                        expResult.measurement.devUtilizationPrcntHistogram);
 
 
 
@@ -417,11 +417,11 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderMismatchPercent, false);
+                        expResult.measurement.orderingMismatchPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPercentList);
+                        expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -455,11 +455,11 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderMismatchPercent, false);
+                        expResult.measurement.orderingMismatchPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPercentList);
+                        expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -493,11 +493,11 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderMismatchPercent, false);
+                        expResult.measurement.orderingMismatchPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPercentList);
+                        expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -531,11 +531,11 @@ public class Temp
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderMismatchPercent, false);
+                        expResult.measurement.orderingMismatchPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPercentList);
+                        expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -934,7 +934,7 @@ public class Temp
                 allRtnBackToBackExcTime += rtn.getBackToBackCmdExecutionTimeWithoutGap();
             }
 
-            float simulationLastRtnStartTime = allRtnBackToBackExcTime * timelineMultiplierForSporadicRoutines;
+            double simulationLastRtnStartTime = allRtnBackToBackExcTime * timelineMultiplierForSporadicRoutines;
 
             int upperLimit = (int)Math.ceil(simulationLastRtnStartTime);
 
