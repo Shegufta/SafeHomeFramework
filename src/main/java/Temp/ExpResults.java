@@ -13,9 +13,9 @@ import java.util.Map;
  */
 public class ExpResults
 {
-    public Map<Float, Float> waitTimeHistogram;
-    public Map<Float, Float> latencyOverheadHistogram;
-    public Map<Float, Float> stretchRatioHistogram;
+    public Map<Float, Integer> waitTimeHistogram;
+    public Map<Float, Integer> latencyOverheadHistogram;
+    public Map<Float, Integer> stretchRatioHistogram;
 
     public FailureAnalyzer failureAnalyzer = null;
     public Measurement measurement;

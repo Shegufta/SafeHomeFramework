@@ -1067,7 +1067,7 @@ public class Temp
             if(isPrint) System.out.println(routine);
 
             float data;
-            Float count;
+            Integer count;
 
             //////////////////////////////////////////////////
             //expResults.waitTimeList.add(routine.getStartDelay());
@@ -1075,27 +1075,27 @@ public class Temp
             count = expResults.waitTimeHistogram.get(data);
 
             if(count == null)
-                expResults.waitTimeHistogram.put(data, 1f);
+                expResults.waitTimeHistogram.put(data, 1);
             else
-                expResults.waitTimeHistogram.put(data, count + 1f);
+                expResults.waitTimeHistogram.put(data, count + 1);
             //////////////////////////////////////////////////
             //expResults.latencyOverheadList.add(routine.getLatencyOverheadPrcnt());
             data = routine.getLatencyOverheadPrcnt();
             count = expResults.latencyOverheadHistogram.get(data);
 
             if(count == null)
-                expResults.latencyOverheadHistogram.put(data, 1f);
+                expResults.latencyOverheadHistogram.put(data, 1);
             else
-                expResults.latencyOverheadHistogram.put(data, count + 1f);
+                expResults.latencyOverheadHistogram.put(data, count + 1);
             //////////////////////////////////////////////////
             //expResults.stretchRatioList.add(routine.getStretchRatio());
             data = routine.getStretchRatio();
             count = expResults.stretchRatioHistogram.get(data);
 
             if(count == null)
-                expResults.stretchRatioHistogram.put(data, 1f);
+                expResults.stretchRatioHistogram.put(data, 1);
             else
-                expResults.stretchRatioHistogram.put(data, count + 1f);
+                expResults.stretchRatioHistogram.put(data, count + 1);
             //////////////////////////////////////////////////
 
             assert(!expResults.waitTimeHistogram.isEmpty());

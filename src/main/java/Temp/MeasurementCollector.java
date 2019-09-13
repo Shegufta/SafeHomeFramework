@@ -20,7 +20,7 @@ public class MeasurementCollector
 
         public boolean isHistogramMode;
         private float HISTOGRAM_KEY_RESOLUTION = 1000.0f; /// convert 3.14159 to 3.14100000... so now 3.14159 and 3.14161 are same... This will save space
-        public Map<Float,Float> globalHistogram;
+        public Map<Float,Integer> globalHistogram;
         List<Float> cdfDataListInHistogramMode = new ArrayList<>();
         List<Float> cdfFrequencyListInHisotgramMode = new ArrayList<>();
 
@@ -96,15 +96,15 @@ public class MeasurementCollector
             }
         }
 
-        public void addData(Map<Float,Float> partialHistogram)
+        public void addData(Map<Float,Integer> partialHistogram)
         {
             this.isHistogramMode = true;
             this.dataList = null; // to prevent it from being accidentally used!
 
-            for(Map.Entry<Float, Float> entry : partialHistogram.entrySet())
+            for(Map.Entry<Float, Integer> entry : partialHistogram.entrySet())
             {
-                float data = entry.getKey();
-                float partialFrequency = entry.getValue();
+                Float data = entry.getKey();
+                Integer partialFrequency = entry.getValue();
 
                 data = (float)((int)(data * HISTOGRAM_KEY_RESOLUTION))/ HISTOGRAM_KEY_RESOLUTION; /// convert 3.141592654 to 3.14100000
                 /// convert 3.14159 to 3.141... so now 3.14159 and 3.14161 both are 3.141... both will go to the same Map-bucket. This will save huge space
@@ -112,12 +112,12 @@ public class MeasurementCollector
                 this.globalSum += data;
                 this.globalItemCount += partialFrequency;
 
-                Float globalFrequency = globalHistogram.get(data);
+                Integer currentDataFrequency = globalHistogram.get(data);
 
-                if(globalFrequency == null)
+                if(currentDataFrequency == null)
                     globalHistogram.put(data, partialFrequency);
                 else
-                    globalHistogram.put(data, (partialFrequency + globalFrequency));
+                    globalHistogram.put(data, (partialFrequency + currentDataFrequency));
             }
         }
     }
@@ -163,7 +163,7 @@ public class MeasurementCollector
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(measurementData);
     }
 
-    public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, Map<Float, Float> histogram)
+    public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, Map<Float, Integer> histogram)
     {
         initiate(variable, consistencyType, measurementType);
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(histogram);
@@ -171,50 +171,65 @@ public class MeasurementCollector
 
     private void sortAndTrimAndAverageAndFinalizeLargeData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
     {
+        System.out.println("\tFinalizing for variable = " + variable + "; consistencyType = " + consistencyType + "; measurementType = " + measurementType);
         if(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isHistogramMode)
         {
-            int currentHistogramSize = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount;
 
-            if(maxDataPoint < currentHistogramSize)
+            int currentHistogramSize  = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount;
+            final int maxDataPointForHistogram = maxDataPoint;
+
+            System.out.println("\t\tHistogram mode: currentHistogramSize = " + currentHistogramSize + " | maxDataPointForHistogram = " + maxDataPointForHistogram);
+
+            if(maxDataPointForHistogram < currentHistogramSize)
             {
-                float[] tempArray = new float[1 + currentHistogramSize];  // TODO: without the 1 the program gets memory out of bound error... but it should not happen, right?  later figure out why it is happening
 
-                int I = 0;
-                for(Map.Entry<Float, Float> entry : this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.entrySet())
-                {
-                    float data = entry.getKey();
-                    float trimmedFrequency = entry.getValue();
-
-                    for( int P = 0 ; P < trimmedFrequency ; P++)
-                    {
-                        tempArray[I++] = data;
-                    }
-                }
+                float[] tempDataArray = new float[maxDataPointForHistogram];
 
                 Set<Integer> uniqueIndexSet = new HashSet<>();
                 Random rand = new Random();
 
-                while(uniqueIndexSet.size() < maxDataPoint)
+                while(uniqueIndexSet.size() < maxDataPointForHistogram)
                 {
-                    int randIndex = rand.nextInt(currentHistogramSize);
+                    int randHistogramPosition = 1 + rand.nextInt(currentHistogramSize); // random number from 1 to currentHistogramSize
 
-                    if(!uniqueIndexSet.contains(randIndex))
-                        uniqueIndexSet.add(randIndex);
+                    if(!uniqueIndexSet.contains(randHistogramPosition))
+                        uniqueIndexSet.add(randHistogramPosition);
+                }
+
+                assert(tempDataArray.length == uniqueIndexSet.size());
+
+                int trimmedIndex = 0;
+                for(int randHistogramPosition : uniqueIndexSet)
+                {
+                    int I = 0;
+                    for(Map.Entry<Float, Integer> entry : this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.entrySet())
+                    {
+                        Float data = entry.getKey();
+                        Integer frequency = entry.getValue();
+
+                        I += frequency;
+
+                        if( randHistogramPosition <= I)
+                        {
+                            tempDataArray[trimmedIndex++] = data;
+                            break;
+                        }
+                    }
                 }
 
                 this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount = 0;
                 this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum = 0.0f;
                 this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.clear();
 
-                for(int index : uniqueIndexSet) // note, here index starts from 1 and ends at currentHistogramSize
+                for(float data : tempDataArray)
                 {
-                    float data = tempArray[index];//tempList.get(index);
-                    Float currentFrequency = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.get(data);
+                    //float data = tempDataArray[index];//tempList.get(index);
+                    Integer currentFrequency = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.get(data);
 
                     if(currentFrequency == null)
-                        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.put(data, 1f);
+                        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.put(data, 1);
                     else
-                        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.put(data, currentFrequency + 1f);
+                        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.put(data, currentFrequency + 1);
 
                     this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount++;
                     this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum += data;
@@ -256,7 +271,10 @@ public class MeasurementCollector
         }
         else
         {
+            System.out.println("\t\tList mode");
             int currentListSize = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
+            System.out.println("\t\tHistogram mode: currentListSize = " + currentListSize + " | maxDataPoint = " + maxDataPoint);
+
 
             if(maxDataPoint < currentListSize)
             {// requires trimming

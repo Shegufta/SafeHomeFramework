@@ -10,16 +10,15 @@ import java.util.*;
  */
 public class Measurement
 {
-    Map<Float, Float> parallelismHistogram = new HashMap<>();
+    Map<Float, Integer> parallelismHistogram = new HashMap<>();
 
     public List<Float> devUtilizationPercentList = new ArrayList<>();
     public float orderMismatchPercent = 0.0f;
 
-    Map<Float, Float> isvltn1_perRtnCollisionCountHistogram = new HashMap<>();
-    Map<Float, Float> isvltn3_CMDviolationPercentHistogram = new HashMap<>(); // Command Violation Per Routine
-    Map<Float, Float> isvltn2_RTNviolationPercentHistogram = new HashMap<>();
-
-    Map<Float, Float> isvltn4_cmdToCommitCollisionTimespanPrcntHistogram = new HashMap<>();
+    Map<Float, Integer> isvltn1_perRtnCollisionCountHistogram = new HashMap<>();
+    Map<Float, Integer> isvltn3_CMDviolationPercentHistogram = new HashMap<>(); // Command Violation Per Routine
+    Map<Float, Integer> isvltn2_RTNviolationPercentHistogram = new HashMap<>();
+    Map<Float, Integer> isvltn4_cmdToCommitCollisionTimespanPrcntHistogram = new HashMap<>();
     //ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT
     /////////////////////////////////////////////
 
@@ -103,13 +102,13 @@ public class Measurement
 
         for(float frequency : histogram)
         {
-            Float count = parallelismHistogram.get(frequency);
+            Integer count = parallelismHistogram.get(frequency);
             // here the count is the data. we have to count how many time these "count" appear
 
             if(count == null)
-                parallelismHistogram.put(frequency, 1f);
+                parallelismHistogram.put(frequency, 1);
             else
-                parallelismHistogram.put(frequency, count + 1f);
+                parallelismHistogram.put(frequency, count + 1);
         }
 
         assert(!parallelismHistogram.isEmpty());
@@ -198,12 +197,12 @@ public class Measurement
                 }
 
                 Float data = timeSpentInCollisionRatio;
-                Float count = this.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.get(data);
+                Integer count = this.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.get(data);
 
                 if(count == null)
-                    this.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.put(data, 1f);
+                    this.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.put(data, 1);
                 else
-                    this.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.put(data, count + 1f);
+                    this.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.put(data, count + 1);
             }
 
         }
@@ -229,25 +228,25 @@ public class Measurement
 
             //////////////////////////////////////////////////////////////////
             Float data;
-            Float count;
+            Integer count;
             //////////////////////////////////////////
             //isvltn_perRtnVictimCmdPrcntList.add(perRtnSpoiledCmdPercent);
             data = isvltn_perRtnVictimCmdPrcnt;
             count = this.isvltn3_CMDviolationPercentHistogram.get(data);
 
             if(count == null)
-                this.isvltn3_CMDviolationPercentHistogram.put(data, 1f);
+                this.isvltn3_CMDviolationPercentHistogram.put(data, 1);
             else
-                this.isvltn3_CMDviolationPercentHistogram.put(data, count + 1f);
+                this.isvltn3_CMDviolationPercentHistogram.put(data, count + 1);
             //////////////////////////////////////////////////////////////////
 
             data = isvltn_totalUniqueAttackerPerRoutine;
             count = this.isvltn1_perRtnCollisionCountHistogram.get(data);
 
             if(count == null)
-                this.isvltn1_perRtnCollisionCountHistogram.put(data, 1f);
+                this.isvltn1_perRtnCollisionCountHistogram.put(data, 1);
             else
-                this.isvltn1_perRtnCollisionCountHistogram.put(data, count + 1f);
+                this.isvltn1_perRtnCollisionCountHistogram.put(data, count + 1);
             //////////////////////////////////////////////////////////////////
         }
 
@@ -256,12 +255,12 @@ public class Measurement
         float totalRoutine = allRtnList.size();
         //isvltn_victimRtnPercentPerRun = (victimRoutineCount / totalRoutine)*100.0f;
         Float data = (victimRoutineCount / totalRoutine)*100.0f;
-        Float count = this.isvltn2_RTNviolationPercentHistogram.get(data);
+        Integer count = this.isvltn2_RTNviolationPercentHistogram.get(data);
 
         if(count == null)
-            this.isvltn2_RTNviolationPercentHistogram.put(data, 1f);
+            this.isvltn2_RTNviolationPercentHistogram.put(data, 1);
         else
-            this.isvltn2_RTNviolationPercentHistogram.put(data, count + 1f);
+            this.isvltn2_RTNviolationPercentHistogram.put(data, count + 1);
         /////////////////////////////////////////////////////////////////
 
         assert(!isvltn3_CMDviolationPercentHistogram.isEmpty());
