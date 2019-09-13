@@ -125,6 +125,51 @@ public class Measurement
         }
     }
 
+    private void measureOrderingMismatch(final LockTable _lockTable, ORDER_MISTACH_MEASURE_TYPE type) {
+        if (type == ORDER_MISTACH_MEASURE_TYPE.L1_DISTANCE) {
+            measureOrderingMismatch(_lockTable);
+        } else if (type == ORDER_MISTACH_MEASURE_TYPE.L2_DISTANCE) {
+            measureOrderingMismathL2(_lockTable);
+        }
+    }
+
+    private void measureOrderingMismathL2(final LockTable _lockTable) {
+        if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK) {
+            this.orderingMismatchPrcntHistogram.put(-1.0f, -1);
+        } else {
+            for (List<Routine> lineage : _lockTable.lockTable.values()) {
+                double orderMismatchPercent;
+                if (lineage.size() == 1) {
+                    orderMismatchPercent = 0.0;
+                } else {
+                    Map<Integer, Integer> rtnIDVsCurrentIndexMap = new HashMap<>();
+                    List<Integer> sortedRtnList = new ArrayList<>();
+                    int index = 0;
+                    for (Routine rtn : lineage) {
+                        rtnIDVsCurrentIndexMap.put(rtn.ID, index++);
+                        sortedRtnList.add(rtn.ID);
+                    }
+                    Collections.sort(sortedRtnList);
+
+                    double maxPossibleMismatch = 0;
+                    double orderMismatch = 0;
+                    final int maxIndex = sortedRtnList.size() - 1;
+                    for (int I = 0; I < sortedRtnList.size(); I++) {
+                        int rtnID = sortedRtnList.get(I);
+                        int indexInLineage = rtnIDVsCurrentIndexMap.get(rtnID);
+
+                        orderMismatch += Math.pow((I - indexInLineage), 2);
+                        maxPossibleMismatch += Math.pow((2 * I - maxIndex), 2);
+                    }
+                    orderMismatchPercent = (Math.sqrt(orderMismatch) / Math.sqrt(maxPossibleMismatch)) * 100.0;
+                }
+
+                Float data = (float) orderMismatchPercent;
+                this.orderingMismatchPrcntHistogram.merge(data, 1, (a, b) -> a + b);
+            }
+        }
+    }
+
     private void measureOrderingMismatch(final LockTable _lockTable)
     {
         if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
