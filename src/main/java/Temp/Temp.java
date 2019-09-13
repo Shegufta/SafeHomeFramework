@@ -41,7 +41,7 @@ public class Temp
 
     private static int longRunningCmdDuration = 2000;
     private static final boolean isLongCmdDurationVary = true;
-    private static final float longCmdDurationVaryMultiplier = 5.0f; // will vary upto N times
+    private static final float longCmdDurationVaryMultiplier = 2.0f; // will vary upto N times
 
     private static final int shortCmdDuration = 5;
     private static final boolean isShortCmdDurationVary = true;
@@ -108,7 +108,7 @@ public class Temp
         ///////////////////////////
 
         final String changingParameterName = "maxConcurrentRtn"; // NOTE: also change changingParameterValue
-        for(maxConcurrentRtn = 1; maxConcurrentRtn <= 10 ; maxConcurrentRtn += 1)
+        for(maxConcurrentRtn = 100; maxConcurrentRtn <= 100 ; maxConcurrentRtn += 1)
         {
             changingParameterValue = (float)maxConcurrentRtn; // NOTE: also change changingParameterName
 

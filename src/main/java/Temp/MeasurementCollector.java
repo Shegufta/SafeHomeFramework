@@ -71,6 +71,7 @@ public class MeasurementCollector
 
         public int cdfListSize()
         {
+            assert(this.isListFinalized); // should not call until finalize.
             if(this.isHistogramMode)
             {
                 assert(!cdfDataListInHistogramMode.isEmpty());
@@ -172,6 +173,103 @@ public class MeasurementCollector
     {
         if(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isHistogramMode)
         {
+            int currentHistogramSize = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount;
+
+            if(maxDataPoint < currentHistogramSize)
+            {
+                float[] tempArray = new float[1 + currentHistogramSize];
+                //List<Float> tempList = new ArrayList<>();
+
+                int I = 0;
+                for(Map.Entry<Float, Float> entry : this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.entrySet())
+                {
+                    float data = entry.getKey();
+                    float trimmedFrequency = entry.getValue();
+
+                    for( int P = 0 ; P < trimmedFrequency ; P++)
+                    {
+                        tempArray[I++] = data;
+                        //tempList.add(data);
+                    }
+                }
+
+                Set<Integer> uniqueIndexSet = new HashSet<>();
+                Random rand = new Random();
+
+                while(uniqueIndexSet.size() < maxDataPoint)
+                {
+                    int randIndex = rand.nextInt(currentHistogramSize);
+
+                    if(!uniqueIndexSet.contains(randIndex))
+                        uniqueIndexSet.add(randIndex);
+                }
+
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount = 0;
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum = 0.0f;
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.clear();
+                //Map<Float,Float> trimmedHistogram = new HashMap<>();
+
+                for(int index : uniqueIndexSet) // note, here index starts from 1 and ends at currentHistogramSize
+                {
+                    float data = tempArray[index];//tempList.get(index);
+                    Float currentFrequency = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.get(data);
+
+                    if(currentFrequency == null)
+                        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.put(data, 1f);
+                    else
+                        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.put(data, currentFrequency + 1f);
+
+                    this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount++;
+                    this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum += data;
+
+                    /*
+                    int frequencyTracker = 0;
+                    for(Map.Entry<Float, Float> entry : this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.entrySet())
+                    {
+                        float data = entry.getKey();
+                        float frequency = entry.getValue();
+
+                        frequencyTracker += frequency;
+
+                        if(index <= frequencyTracker)
+                        {
+                            Float currentFrequency = trimmedHistogram.get(index);
+
+                            if(currentFrequency == null)
+                                trimmedHistogram.put(data, 1f);
+                            else
+                                trimmedHistogram.put(data, currentFrequency + 1f);
+                        }
+                    }
+                    */
+                }
+
+
+//                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount = 0;
+//                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum = 0.0f;
+//                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.clear();
+
+//                for(Map.Entry<Float, Float> entry : trimmedHistogram.entrySet())
+//                {
+//                    float data = entry.getKey();
+//                    float trimmedFrequency = entry.getValue();
+//
+//                    this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum += data;
+//                    this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount += trimmedFrequency;
+//
+//                    Float globalFrequency = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.get(data);
+//
+//                    if(globalFrequency == null)
+//                        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.put(data, trimmedFrequency);
+//                    else
+//                        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.put(data, (trimmedFrequency + globalFrequency));
+//                }
+
+//                trimmedHistogram.clear();
+//                trimmedHistogram = null;
+            }
+
+
             List<Float> sortedDataSequenceFromHistogram = new ArrayList<>();
 
             for(float data : this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.keySet())
@@ -200,6 +298,9 @@ public class MeasurementCollector
 
                 indexTracker++;
             }
+
+            this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.clear();
+            this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram = null;
         }
         else
         {
@@ -351,6 +452,8 @@ public class MeasurementCollector
                 combinedCDFStr += "\n";
         }
 
+        System.out.println("\tPrepared the header: " + combinedCDFStr + "\t\tnext working to extract the data...: maxItemCount = " + maxItemCount);
+
         for(int N = 0 ; N < maxItemCount ; N++)
         {
             for(int I = 0 ; I < insertedInConsistencyOrder.size() ; I++)
@@ -388,6 +491,8 @@ public class MeasurementCollector
             final List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING,
             final Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER)
     {
+
+        System.out.println("\nnow arrenging the lists for: variable = " + variable + ", measurement Type  = " + currentMeasurement );
 
         List<DataHolder> insertedInConsistencyOrder = new ArrayList<>();
         List<String> consistencyHeader = new ArrayList<>();
