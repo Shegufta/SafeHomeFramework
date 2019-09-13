@@ -160,8 +160,8 @@ public class Temp
 
             System.out.println("isSentAllRtnSameTime = " + isSentAllRtnSameTime);
             logStr += "isSentAllRtnSameTime = " + isSentAllRtnSameTime + "\n";
-            System.out.println("isSentAllRtnSameTime = " + timelineMultiplierForSporadicRoutines + " (works only if isSentAllRtnSameTime == false)");
-            logStr += "isSentAllRtnSameTime = " + timelineMultiplierForSporadicRoutines + " (works only if isSentAllRtnSameTime == false)\n";
+            System.out.println("timelineMultiplierForSporadicRoutines = " + timelineMultiplierForSporadicRoutines + " (works only if isSentAllRtnSameTime == false)");
+            logStr += "timelineMultiplierForSporadicRoutines = " + timelineMultiplierForSporadicRoutines + " (works only if isSentAllRtnSameTime == false)\n";
 
 
             System.out.println("zipfCoefficient = " + zipfCoefficient);
