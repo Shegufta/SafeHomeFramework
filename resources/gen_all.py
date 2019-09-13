@@ -14,7 +14,7 @@ import random
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dir_expr", required=False, help="the path of root directory of the experiment folder destination")
 parser.add_argument("-min_line", "--min_line", help="Minimal number of data line to generate a plot", default=4)
-parser.add_argument("-dpi", "--dpi", help="Figure dpi, default 100 (low)", default=100)
+parser.add_argument("-dpi", "--dpi", help="Figure dpi, default 100 (low)", default=400)
 args = parser.parse_args()
 # folder = '1568308891645_VARY_maxConcurrentRtn_R_11_C_6'
 folder = args.dir_expr
@@ -23,14 +23,14 @@ fig_dpi = args.dpi
 sub_folders = next(os.walk(folder))[1]
 
 # Plot setting for different serial mechanism
-color_dict = {'GSV': 'b', 'PSV' : 'g', 'EV' : 'c', 'WV' : 'y', 'LV' : 'm', 'LAZY_FCFS' : 'r', 'LAZY_PRIORITY': 'chartreuse'}
+color_dict = {'GSV': 'b', 'PSV' : 'g', 'EV' : 'c', 'WV' : 'y', 'LV' : 'm', 'LAZY_FCFS' : 'r', 'LAZY_PRIORITY': 'chartreuse', 'FCFSV': 'orange', 'LzPRIOTY': 'chartreuse'}
 mark_dict = {'GSV': 's', 'PSV' : 'o', 'EV': 'd', 'WV': '^', 'LV': '<', 'LAZY_FCFS': '>', 'LAZY_PRIORITY': '*'}
 
 def get_color(line_name):
   if line_name in color_dict:
     return color_dict[line_name]
   else:
-    return 'b'
+    return 'k'
 def get_marker(line_name):
   if line_name in mark_dict:
     return mark_dict[line_name]
@@ -95,7 +95,8 @@ for sub_folder in sub_folders:
 #         Overall figures          #
 ####################################
 
-overall_fname = folder + '/VARY_maxConcurrentRtn.dat'
+fname = [ fi for fi in next(os.walk(folder))[2] if fi.endswith(".dat") ][0]
+overall_fname = folder + '/' + fname
 overall_figure_folder = folder + '/figure/overall/'
 if not os.path.exists(overall_figure_folder):
     os.makedirs(overall_figure_folder)
@@ -132,7 +133,7 @@ for graph in graphs:
     
     # Start ploting this line
     ax = plt.gca()
-    plt_line = Line2D(g0, y_axis, color=get_color(legend_name), label=legend_name, marker='o')
+    plt_line = Line2D(g0, y_axis, color=get_color(legend_name), label=legend_name, marker=get_marker(legend_name))
     y_min.append(min(y_axis))
     y_max.append(max(y_axis))
     ax.add_line(plt_line)
