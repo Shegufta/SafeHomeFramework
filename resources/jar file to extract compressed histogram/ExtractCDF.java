@@ -5,9 +5,7 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * @author Shegufta Ahsan
@@ -18,7 +16,7 @@ import java.util.Scanner;
 public class ExtractCDF
 {
 
-    public ExtractCDF(String _filePathStr, String columnHeader) throws Exception
+    public ExtractCDF(String _filePathStr, String columnHeader, int trimmingPoint) throws Exception
     {
         final Path filePath = Paths.get(_filePathStr);
 
@@ -110,6 +108,36 @@ public class ExtractCDF
                     }
                 }
 
+
+                if(trimmingPoint < regeneratedList.size())
+                {
+                    Set<Integer> uniqueIndexSet = new HashSet<>();
+                    Random rand = new Random();
+
+                    while(uniqueIndexSet.size() < trimmingPoint)
+                    {
+                        int randomIndex = rand.nextInt(regeneratedList.size());
+
+                        if(!uniqueIndexSet.contains(randomIndex))
+                            uniqueIndexSet.add(randomIndex);
+                    }
+
+                    List<Double> trimmedList = new ArrayList<>();
+
+                    for(int randIndex : uniqueIndexSet)
+                    {
+                        trimmedList.add(regeneratedList.get(randIndex));
+                    }
+
+                    regeneratedList.clear();
+
+                    regeneratedList.addAll(trimmedList);
+
+                    Collections.sort(regeneratedList);
+                }
+
+
+
                 String outputFileName = columnHeader + ".dat";
                 File file = new File(outputFileName);
                 fw = new FileWriter(file);
@@ -150,16 +178,19 @@ public class ExtractCDF
 
     public static void main(String[] args) throws Exception
     {
-        if(args.length < 2)
+        if(args.length < 3)
         {
-            System.out.println("argument1: filePath, argument2: consistencyType");
+            System.out.println("\targument1: trimmingPoint, say 1000. If the list is larger than 1000, then it will uniformly select 1000 points and generate a list of length 1000;\n" +
+                    "\targument2: filePath;\n" +
+                    "\targument3: consistencyType. e.g. LAZY_FCFS");
             System.exit(1);
         }
 
-        String filePathStr = args[0]; //Paths.get("data/ISVLTN1_PER_RTN_COLLISION_COUNT.dat").toString();
-        String columnHeader = args[1];//"LAZY_FCFS";
+        int trimmingPoint = Integer.valueOf(args[0].trim()); //
+        String filePathStr = args[1].trim(); //Paths.get("data/ISVLTN1_PER_RTN_COLLISION_COUNT.dat").toString();
+        String columnHeader = args[2].trim();//"LAZY_FCFS";
 
-        ExtractCDF extractCDF = new ExtractCDF(filePathStr, columnHeader);
+        ExtractCDF extractCDF = new ExtractCDF(filePathStr, columnHeader, trimmingPoint);
 
 
     }
