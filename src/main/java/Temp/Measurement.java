@@ -150,7 +150,7 @@ public class Measurement
                     }
                     System.out.println(Arrays.toString(rtnList.toArray()));
                     int num_swap = sortRtnList(rtnList);
-                    int max_swap = rtnList.size() * rtnList.size() / 2;
+                    int max_swap = rtnList.size() * (rtnList.size() - 1) / 2;
 
                     orderMismatchPercent = (num_swap / max_swap) * 100.0;
                     System.out.printf("num_swap : %d, pecentage: %f\n", num_swap, orderMismatchPercent);
