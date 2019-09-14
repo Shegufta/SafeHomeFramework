@@ -24,22 +24,22 @@ public class Temp
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static double timelineMultiplierForSporadicRoutines = 0.5; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
+    private static double timeStretchFactor = 0.5; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
     private static final boolean isSentAllRtnSameTime = false;
     private static int maxConcurrentRtn = 100; //in current version totalConcurrentRtn = maxConcurrentRtn;
 
     private static int commandPerRtn = 6; // will work if isVaryCommandCount = false;
-    private static boolean isVaryCommandCount = false;
+    private static boolean isVaryCommandCount = true;
     private static int minCommandCount = 3; // will work if isVaryCommandCount = true;
     private static int maxCommandCount = 9; // will work if isVaryCommandCount = true;
 
-    private static float zipfCoefficient = 0.05f;
+    private static float zipfCoefficient = 0.01f;
 
     private static float devFailureRatio = 0.0f;
     private static final boolean atleastOneDevFail = false;
     private static float mustCmdPercentage = 1.0f;
 
-    private static float longRunningRtnPercentage = 0.2f;
+    private static float longRunningRtnPercentage = 0.1f;
     private static final boolean atleastOneLongRunning = false;
     private static int longRunningCmdDuration = 2000;
     private static final boolean isLongCmdDurationVary = true;
@@ -109,10 +109,10 @@ public class Temp
 //        logStr += zipFianStr;
         ///////////////////////////
 
-        final String changingParameterName = "timelineMultiplierForSporadicRoutines"; // NOTE: also change changingParameterValue
-        for(timelineMultiplierForSporadicRoutines = 0.0; timelineMultiplierForSporadicRoutines <= 1.2 ; timelineMultiplierForSporadicRoutines += 0.50)
+        final String changingParameterName = "timeStretchFactor"; // NOTE: also change changingParameterValue
+        for(timeStretchFactor = 0.5; timeStretchFactor <= 1.7 ; timeStretchFactor += 0.50)
         {
-            changingParameterValue = (float)timelineMultiplierForSporadicRoutines; // NOTE: also change changingParameterName
+            changingParameterValue = (float)timeStretchFactor; // NOTE: also change changingParameterName
 
             if(isVaryCommandCount)
             {
@@ -160,8 +160,8 @@ public class Temp
 
             System.out.println("isSentAllRtnSameTime = " + isSentAllRtnSameTime);
             logStr += "isSentAllRtnSameTime = " + isSentAllRtnSameTime + "\n";
-            System.out.println("timelineMultiplierForSporadicRoutines = " + timelineMultiplierForSporadicRoutines + " (works only if isSentAllRtnSameTime == false)");
-            logStr += "timelineMultiplierForSporadicRoutines = " + timelineMultiplierForSporadicRoutines + " (works only if isSentAllRtnSameTime == false)\n";
+            System.out.println("timeStretchFactor = " + timeStretchFactor + " (works only if isSentAllRtnSameTime == false)");
+            logStr += "timeStretchFactor = " + timeStretchFactor + " (works only if isSentAllRtnSameTime == false)\n";
 
 
             System.out.println("zipfCoefficient = " + zipfCoefficient);
@@ -934,7 +934,7 @@ public class Temp
                 allRtnBackToBackExcTime += rtn.getBackToBackCmdExecutionTimeWithoutGap();
             }
 
-            double simulationLastRtnStartTime = allRtnBackToBackExcTime * timelineMultiplierForSporadicRoutines;
+            double simulationLastRtnStartTime = allRtnBackToBackExcTime * timeStretchFactor;
 
             int upperLimit = (int)Math.ceil(simulationLastRtnStartTime);
 
