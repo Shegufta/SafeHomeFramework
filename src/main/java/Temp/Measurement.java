@@ -130,7 +130,57 @@ public class Measurement
             measureOrderingMismatch(_lockTable);
         } else if (type == ORDER_MISTACH_MEASURE_TYPE.L2_DISTANCE) {
             measureOrderingMismathL2(_lockTable);
+        } else if (type == ORDER_MISTACH_MEASURE_TYPE.BUBBLE_SWAP) {
+            measureOrderingMismatchBubble(_lockTable);
         }
+    }
+
+    private void measureOrderingMismatchBubble(final LockTable _lockTable) {
+        if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK) {
+            this.orderingMismatchPrcntHistogram.put(-1.0f, -1);
+        } else {
+            for (List<Routine> lineage : _lockTable.lockTable.values()) {
+                double orderMismatchPercent;
+                if (lineage.size() == 1) {
+                    orderMismatchPercent = 0.0;
+                } else {
+                    List<Integer> rtnList = new ArrayList<>();
+                    for (Routine rtn : lineage) {
+                        rtnList.add(rtn.ID);
+                    }
+                    System.out.println(Arrays.toString(rtnList.toArray()));
+                    int num_swap = sortRtnList(rtnList);
+                    int max_swap = rtnList.size() * rtnList.size() / 2;
+
+                    orderMismatchPercent = (num_swap / max_swap) * 100.0;
+                    System.out.printf("num_swap : %d, pecentage: %f\n", num_swap, orderMismatchPercent);
+                }
+
+                Float data = (float) orderMismatchPercent;
+                if (data > 0) {
+                    System.out.printf("-----\nBubble: %f", data);
+                }
+                this.orderingMismatchPrcntHistogram.merge(data, 1, (a, b) -> a + b);
+            }
+        }
+    }
+
+    private int sortRtnList(List<Integer> rtnList) {
+        int i, j, temp;
+        int swaps = 0;
+        for(i = 0; i < rtnList.size() - 1; ++i){
+            for(j=0; j< rtnList.size() - 1 - i; ++j){
+
+                if(rtnList.get(j) > rtnList.get(j+1)){
+
+                    temp = rtnList.get(j+1);
+                    rtnList.set(j+1, rtnList.get(j));
+                    rtnList.set(j, temp);
+                    swaps++;
+                }
+            }
+        }
+        return swaps;
     }
 
     private void measureOrderingMismathL2(final LockTable _lockTable) {
@@ -165,6 +215,9 @@ public class Measurement
                 }
 
                 Float data = (float) orderMismatchPercent;
+                if (data > 0) {
+                    System.out.printf("  L1: %f -----\n", data);
+                }
                 this.orderingMismatchPrcntHistogram.merge(data, 1, (a, b) -> a + b);
             }
         }
@@ -196,8 +249,8 @@ public class Measurement
                     {
                         rtnIDVsCurrentIndexMap.put(rtn.ID, index++);
                         sortedRtnList.add(rtn.ID);
+                        System.out.println(Arrays.toString(sortedRtnList.toArray()));
                     }
-
                     Collections.sort(sortedRtnList);
 
                     double maxPossibleMismatch = 0;
@@ -212,7 +265,6 @@ public class Measurement
                         orderMismatch += Math.abs(I - indexInLineage);
                         maxPossibleMismatch += Math.abs(2*I - maxIndex);
                     }
-
                     orderMismatchPercent = (orderMismatch / maxPossibleMismatch) * 100.0;
                 }
 
@@ -376,7 +428,8 @@ public class Measurement
     public Measurement(final LockTable lockTable)
     {
         measureParallelization(lockTable);
-        measureOrderingMismatch(lockTable);
+//        measureOrderingMismatch(lockTable, ORDER_MISTACH_MEASURE_TYPE.BUBBLE_SWAP);
+        measureOrderingMismatch(lockTable, ORDER_MISTACH_MEASURE_TYPE.L1_DISTANCE);
         measureDeviceUtilization(lockTable);
         isolationViolation(lockTable);
 
