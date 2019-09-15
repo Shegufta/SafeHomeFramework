@@ -140,26 +140,20 @@ public class Measurement
             this.orderingMismatchPrcntHistogram.put(-1.0f, -1);
         } else {
             for (List<Routine> lineage : _lockTable.lockTable.values()) {
-                double orderMismatchPercent;
-                if (lineage.size() == 1) {
+                double orderMismatchPercent = 0.0;
+                if (lineage.size() <= 1) {
                     orderMismatchPercent = 0.0;
                 } else {
                     List<Integer> rtnList = new ArrayList<>();
                     for (Routine rtn : lineage) {
                         rtnList.add(rtn.ID);
                     }
-                    System.out.println(Arrays.toString(rtnList.toArray()));
                     int num_swap = sortRtnList(rtnList);
                     int max_swap = rtnList.size() * (rtnList.size() - 1) / 2;
-
-                    orderMismatchPercent = (num_swap / max_swap) * 100.0;
-                    System.out.printf("num_swap : %d, pecentage: %f\n", num_swap, orderMismatchPercent);
+                    orderMismatchPercent = (num_swap * 100.0 / max_swap);
                 }
 
                 Float data = (float) orderMismatchPercent;
-                if (data > 0) {
-                    System.out.printf("-----\nBubble: %f", data);
-                }
                 this.orderingMismatchPrcntHistogram.merge(data, 1, (a, b) -> a + b);
             }
         }
@@ -215,9 +209,9 @@ public class Measurement
                 }
 
                 Float data = (float) orderMismatchPercent;
-                if (data > 0) {
-                    System.out.printf("  L1: %f -----\n", data);
-                }
+//                if (data > 0) {
+//                    System.out.printf("  L1: %f -----\n", data);
+//                }
                 this.orderingMismatchPrcntHistogram.merge(data, 1, (a, b) -> a + b);
             }
         }
@@ -263,9 +257,9 @@ public class Measurement
                         int indexInLineage = rtnIDVsCurrentIndexMap.get(rtnID);
 
                         orderMismatch += Math.abs(I - indexInLineage);
-                        maxPossibleMismatch += Math.abs(2*I - maxIndex);
+                        maxPossibleMismatch += Math.abs(2 * I - maxIndex);
                     }
-                    orderMismatchPercent = (orderMismatch / maxPossibleMismatch) * 100.0;
+                    orderMismatchPercent = (orderMismatch * 100.0 / maxPossibleMismatch);
                 }
 
                 Float data = (float)orderMismatchPercent;
