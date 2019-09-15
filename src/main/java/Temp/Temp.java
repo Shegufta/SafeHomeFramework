@@ -24,16 +24,16 @@ public class Temp
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static double stretch = 0.5; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
+    private static double shrinkFactor = 0.25; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
     private static final boolean isSentAllRtnSameTime = false;
     private static int maxConcurrentRtn = 100; //in current version totalConcurrentRtn = maxConcurrentRtn;
 
-    private static int commandPerRtn = 2; // will work if isVaryCommandCount = false;
-    private static boolean isVaryCommandCount = true;
-    private static int minCommandCount = 1; // will work if isVaryCommandCount = true;
-    private static int maxCommandCount = 3; // will work if isVaryCommandCount = true;
+    private static int cmndPerRtn = 6; // will work if isVaryCommandCount = false;
+    private static boolean isVaryCommandCount = false;
+    private static int minCommandCount = 3; // will work if isVaryCommandCount = true;
+    private static int maxCommandCount = 9; // will work if isVaryCommandCount = true;
 
-    private static float zipfCoefficient = 0.01f;
+    private static float zipF = 0.01f;
 
     private static float devFailureRatio = 0.0f;
     private static final boolean atleastOneDevFail = false;
@@ -71,7 +71,7 @@ public class Temp
         devIDlist.add(DEV_ID.G);
         devIDlist.add(DEV_ID.H);
         devIDlist.add(DEV_ID.I);
-//        devIDlist.add(DEV_ID.J);
+        devIDlist.add(DEV_ID.J);
 //        devIDlist.add(DEV_ID.K);
 //        devIDlist.add(DEV_ID.L);
 //        devIDlist.add(DEV_ID.M);
@@ -111,13 +111,13 @@ public class Temp
 
         List<Float> variableList = new ArrayList<>();
 
-//        variableList.add(0.0f);
-//        variableList.add(0.2f);
-//        variableList.add(0.4f);
-//        variableList.add(0.6f);
-//        variableList.add(0.8f);
-//        variableList.add(1.0f);
-//        variableList.add(1.2f);
+        variableList.add(0.0f);
+        variableList.add(0.2f);
+        variableList.add(0.4f);
+        variableList.add(0.6f);
+        variableList.add(0.8f);
+        variableList.add(1.0f);
+        variableList.add(1.2f);
         variableList.add(1.4f);
         variableList.add(1.6f);
         variableList.add(1.8f);
@@ -125,16 +125,16 @@ public class Temp
 
         String changingParameterName = null; // NOTE: also change changingParameterValue
         for(float variable : variableList)
-        //for(stretch = 0.5; stretch <= 1.7 ; stretch += 0.50)
+        //for(shrinkFactor = 0.5; shrinkFactor <= 1.7 ; shrinkFactor += 0.50)
         {
-            stretch = variable;
-            changingParameterName = "stretch";
+            shrinkFactor = variable;
+            changingParameterName = "shrinkFactor";
 
             changingParameterValue = variable; // NOTE: also change changingParameterName
 
             if(isVaryCommandCount)
             {
-                if(0 == changingParameterName.compareTo("commandPerRtn"))
+                if(0 == changingParameterName.compareTo("cmndPerRtn"))
                 {
                     System.out.println("\n\nERROR: if command Count varies by uniform distribution, it can not be varied inside the for loop\n");
                     assert(false);
@@ -142,9 +142,9 @@ public class Temp
             }
 
 
-            if(lastGeneratedZipfeanFor != zipfCoefficient)
+            if(lastGeneratedZipfeanFor != zipF)
             {
-                lastGeneratedZipfeanFor = zipfCoefficient;
+                lastGeneratedZipfeanFor = zipF;
                 //dont need to comment-on/off for variable zipfean.If zipfean varies, it will automatically log it and prepare the zipfean for each run.
                 ///////////////////////////
                 String zipFianStr = prepareZipfian();
@@ -167,23 +167,23 @@ public class Temp
             System.out.println("isVaryCommandCount = " + isVaryCommandCount);
             logStr += "isVaryCommandCount = " + isVaryCommandCount + "\n";
 
-            System.out.println("commandPerRtn = " + commandPerRtn);
-            logStr += "commandPerRtn = " + commandPerRtn + "\n";
+            System.out.println("cmndPerRtn = " + cmndPerRtn);
+            logStr += "cmndPerRtn = " + cmndPerRtn + "\n";
 
             System.out.println("minCommandCount = " + minCommandCount + " #will work if isVaryCommandCount = true;");
             logStr += "minCommandCount = " + minCommandCount + " #will work if isVaryCommandCount = true;\n";
-            System.out.println("commandPerRtn = " + commandPerRtn + " #will work if isVaryCommandCount = true;");
+            System.out.println("cmndPerRtn = " + cmndPerRtn + " #will work if isVaryCommandCount = true;");
             logStr += "maxCommandCount = " + maxCommandCount + " #will work if isVaryCommandCount = true;\n";
 
 
             System.out.println("isSentAllRtnSameTime = " + isSentAllRtnSameTime);
             logStr += "isSentAllRtnSameTime = " + isSentAllRtnSameTime + "\n";
-            System.out.println("stretch = " + stretch + " (works only if isSentAllRtnSameTime == false)");
-            logStr += "stretch = " + stretch + " (works only if isSentAllRtnSameTime == false)\n";
+            System.out.println("shrinkFactor = " + shrinkFactor + " (works only if isSentAllRtnSameTime == false)");
+            logStr += "shrinkFactor = " + shrinkFactor + " (works only if isSentAllRtnSameTime == false)\n";
 
 
-            System.out.println("zipfCoefficient = " + zipfCoefficient);
-            logStr += "zipfCoefficient = " + zipfCoefficient + "\n";
+            System.out.println("zipF = " + zipF);
+            logStr += "zipF = " + zipF + "\n";
 
             System.out.println("devFailureRatio = " + devFailureRatio);
             logStr += "devFailureRatio = " + devFailureRatio + "\n";
@@ -781,7 +781,7 @@ public class Temp
 
         String epoch = System.currentTimeMillis() + "";
         String parentDirPath = dataStorageDirectory + File.separator + epoch + "_VARY_"+ changingParameterName;
-        parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + commandPerRtn;
+        parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + cmndPerRtn;
 
         File parentDir = new File(parentDirPath);
         if(!parentDir.exists())
@@ -835,7 +835,7 @@ public class Temp
 
         int numberOfElements = devIDlist.size();
 
-        ZipfDistribution zipf = new ZipfDistribution(numberOfElements, zipfCoefficient);
+        ZipfDistribution zipf = new ZipfDistribution(numberOfElements, zipF);
 
         List<Float> cumulativeProbabilityList = new ArrayList<>();
 
@@ -935,7 +935,7 @@ public class Temp
                 isLongRunning = true; // at least one routine will be long running;
             }
 
-            int totalCommandInThisRtn = commandPerRtn;
+            int totalCommandInThisRtn = cmndPerRtn;
 
             if(isVaryCommandCount)
             {
@@ -1037,7 +1037,7 @@ public class Temp
                 allRtnBackToBackExcTime += rtn.getBackToBackCmdExecutionTimeWithoutGap();
             }
 
-            double simulationLastRtnStartTime = allRtnBackToBackExcTime * stretch;
+            double simulationLastRtnStartTime = allRtnBackToBackExcTime * shrinkFactor;
 
             int upperLimit = (int)Math.ceil(simulationLastRtnStartTime);
 
@@ -1084,7 +1084,7 @@ public class Temp
 
         for(int RoutineCount = 0 ; RoutineCount < totalConcurrentRtn ; ++RoutineCount)
         {
-            int totalCommandInThisRtn = commandPerRtn;
+            int totalCommandInThisRtn = cmndPerRtn;
             int middleCommandIndex = totalCommandInThisRtn / 2;
             assert(totalCommandInThisRtn <= devIDlist.size());
 
