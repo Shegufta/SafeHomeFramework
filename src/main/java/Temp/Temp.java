@@ -24,14 +24,14 @@ public class Temp
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static double timeStretchFactor = 0.5; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
+    private static double stretch = 0.5; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
     private static final boolean isSentAllRtnSameTime = false;
     private static int maxConcurrentRtn = 100; //in current version totalConcurrentRtn = maxConcurrentRtn;
 
-    private static int commandPerRtn = 6; // will work if isVaryCommandCount = false;
+    private static int commandPerRtn = 2; // will work if isVaryCommandCount = false;
     private static boolean isVaryCommandCount = true;
-    private static int minCommandCount = 3; // will work if isVaryCommandCount = true;
-    private static int maxCommandCount = 9; // will work if isVaryCommandCount = true;
+    private static int minCommandCount = 1; // will work if isVaryCommandCount = true;
+    private static int maxCommandCount = 3; // will work if isVaryCommandCount = true;
 
     private static float zipfCoefficient = 0.01f;
 
@@ -39,9 +39,9 @@ public class Temp
     private static final boolean atleastOneDevFail = false;
     private static float mustCmdPercentage = 1.0f;
 
-    private static float longRunningRtnPercentage = 0.1f;
+    private static float longRrtnPcntg = 0.1f;
     private static final boolean atleastOneLongRunning = false;
-    private static int longRunningCmdDuration = 2000;
+    private static int longRnCmdTimeSpn = 2000;
     private static final boolean isLongCmdDurationVary = true;
     private static final float longCmdDurationVaryMultiplier = 2.0f; // will vary upto N times
 
@@ -111,24 +111,25 @@ public class Temp
 
         List<Float> variableList = new ArrayList<>();
 
-//        variableList.add(0.0f);
-//        variableList.add(0.2f);
-//        variableList.add(0.4f);
-//        variableList.add(0.6f);
-//        variableList.add(0.8f);
-//        variableList.add(1.0f);
-//        variableList.add(1.2f);
-//        variableList.add(1.4f);
-//        variableList.add(1.6f);
+        variableList.add(0.0f);
+        variableList.add(0.2f);
+        variableList.add(0.4f);
+        variableList.add(0.6f);
+        variableList.add(0.8f);
+        variableList.add(1.0f);
+        variableList.add(1.2f);
+        variableList.add(1.4f);
+        variableList.add(1.6f);
         variableList.add(1.8f);
         variableList.add(2.0f);
 
         String changingParameterName = null; // NOTE: also change changingParameterValue
         for(float variable : variableList)
-        //for(timeStretchFactor = 0.5; timeStretchFactor <= 1.7 ; timeStretchFactor += 0.50)
+        //for(stretch = 0.5; stretch <= 1.7 ; stretch += 0.50)
         {
-            timeStretchFactor = variable;
-            changingParameterName = "timeStretchFactor";
+            stretch = variable;
+            changingParameterName = "stretch";
+
             changingParameterValue = variable; // NOTE: also change changingParameterName
 
             if(isVaryCommandCount)
@@ -177,8 +178,8 @@ public class Temp
 
             System.out.println("isSentAllRtnSameTime = " + isSentAllRtnSameTime);
             logStr += "isSentAllRtnSameTime = " + isSentAllRtnSameTime + "\n";
-            System.out.println("timeStretchFactor = " + timeStretchFactor + " (works only if isSentAllRtnSameTime == false)");
-            logStr += "timeStretchFactor = " + timeStretchFactor + " (works only if isSentAllRtnSameTime == false)\n";
+            System.out.println("stretch = " + stretch + " (works only if isSentAllRtnSameTime == false)");
+            logStr += "stretch = " + stretch + " (works only if isSentAllRtnSameTime == false)\n";
 
 
             System.out.println("zipfCoefficient = " + zipfCoefficient);
@@ -206,14 +207,14 @@ public class Temp
             System.out.println("shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier);
             logStr += "shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier + "\n";
 
-            System.out.println("longRunningCmdDuration = " + longRunningCmdDuration);
-            logStr += "longRunningCmdDuration = " + longRunningCmdDuration + "\n";
+            System.out.println("longRnCmdTimeSpn = " + longRnCmdTimeSpn);
+            logStr += "longRnCmdTimeSpn = " + longRnCmdTimeSpn + "\n";
             System.out.println("isLongCmdDurationVary = " + isLongCmdDurationVary);
             logStr += "isLongCmdDurationVary = " + isLongCmdDurationVary + "\n";
             System.out.println("longCmdDurationVaryMultiplier = " + longCmdDurationVaryMultiplier);
             logStr += "longCmdDurationVaryMultiplier = " + longCmdDurationVaryMultiplier + "\n";
-            System.out.println("longRunningRtnPercentage = " + longRunningRtnPercentage);
-            logStr += "longRunningRtnPercentage = " + longRunningRtnPercentage + "\n";
+            System.out.println("longRrtnPcntg = " + longRrtnPcntg);
+            logStr += "longRrtnPcntg = " + longRrtnPcntg + "\n";
             System.out.println("atleastOneLongRunning = " + atleastOneLongRunning);
             logStr += "atleastOneLongRunning = " + atleastOneLongRunning + "\n";
 
@@ -296,6 +297,10 @@ public class Temp
                         expResult.measurement.orderingMismatchPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
+                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
                         expResult.measurement.devUtilizationPrcntHistogram);
 
@@ -347,6 +352,10 @@ public class Temp
                         expResult.measurement.orderingMismatchPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
+                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
                         expResult.measurement.devUtilizationPrcntHistogram);
 
@@ -383,6 +392,10 @@ public class Temp
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ORDDER_MISMATCH,
                         expResult.measurement.orderingMismatchPrcntHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
+                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
@@ -435,6 +448,10 @@ public class Temp
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDDER_MISMATCH,
                         expResult.measurement.orderingMismatchPrcntHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
+                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
@@ -554,6 +571,10 @@ public class Temp
                         expResult.measurement.orderingMismatchPrcntHistogram);
 
                 measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
+                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
                         expResult.measurement.devUtilizationPrcntHistogram);
 
@@ -607,6 +628,14 @@ public class Temp
 //            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDDER_MISMATCH));
 //            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ORDDER_MISMATCH));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ORDDER_MISMATCH));
+            /////////////////////////////////////////////////////////////
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
+//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
+//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
             /////////////////////////////////////////////////////////////
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
@@ -669,6 +698,7 @@ public class Temp
 
         header += "\tG6:GSV_Parrl\tG6:PSV_Parrl\tG6:WV_Parrl\tG6:EV_Parrl\tG6:LzPRIOTY_Parrl";
         header += "\tG7:GSV_OdrMismtch\tG7:PSV_OdrMismtch\tG7:WV_OdrMismtch\tG7:EV_OdrMismtch\tG7:LzPRIOTY_OdrMismtch";
+        header += "\tG71:GSV_OdrMismtchBBL\tG71:PSV_OdrMismtchBBL\tG71:WV_OdrMismtchBBL\tG71:EV_OdrMismtchBBL\tG71:LzPRIOTY_OdrMismtchBBL";
         header += "\tG8:GSV_DevUtlz\tG8:PSV_DevUtlz\tG8:WV_DevUtlz\tG8:EV_DevUtlz\tG8:LzPRIOTY_DevUtlz";
 
         header += "\tG9:GSV_IsvltnPerRtnCollision\tG9:PSV_IsvltnPerRtnCollision\tG9:WV_IsvltnPerRtnCollision\tG9:EV_IsvltnPerRtnCollision\tG9:LzPRIOTY_IsvltnPerRtnCollision";
@@ -865,7 +895,7 @@ public class Temp
         {
             float nextDbl = rand.nextFloat();
             nextDbl = (nextDbl == 1.0f) ? nextDbl - 0.001f : nextDbl;
-            boolean isLongRunning = (nextDbl < longRunningRtnPercentage);
+            boolean isLongRunning = (nextDbl < longRrtnPcntg);
 
             if(isLongRunning)
                 longRunningRoutineCount++;
@@ -919,12 +949,12 @@ public class Temp
 
                     if(isLongCmdDurationVary)
                     {
-                        int durationUpperBoundExclusive = (int)Math.ceil(longRunningCmdDuration*longCmdDurationVaryMultiplier);
-                        duration = longRunningCmdDuration + rand.nextInt(durationUpperBoundExclusive) ;
+                        int durationUpperBoundExclusive = (int)Math.ceil(longRnCmdTimeSpn *longCmdDurationVaryMultiplier);
+                        duration = longRnCmdTimeSpn + rand.nextInt(durationUpperBoundExclusive) ;
                     }
                     else
                     {
-                        duration = longRunningCmdDuration;
+                        duration = longRnCmdTimeSpn;
                     }
                 }
                 else
@@ -977,7 +1007,7 @@ public class Temp
                 allRtnBackToBackExcTime += rtn.getBackToBackCmdExecutionTimeWithoutGap();
             }
 
-            double simulationLastRtnStartTime = allRtnBackToBackExcTime * timeStretchFactor;
+            double simulationLastRtnStartTime = allRtnBackToBackExcTime * stretch;
 
             int upperLimit = (int)Math.ceil(simulationLastRtnStartTime);
 
@@ -1044,7 +1074,7 @@ public class Temp
                 int currentDurationMapSize = devIDDurationMap.size();
                 if((RoutineCount == longRunningRoutineID) && ( currentDurationMapSize == middleCommandIndex) )
                 { // select the middle routine's middle command as long running command
-                    duration = longRunningCmdDuration;
+                    duration = longRnCmdTimeSpn;
                 }
 
                 //System.out.println(randDev.name() + " " + duration);

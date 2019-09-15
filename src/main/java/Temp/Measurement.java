@@ -12,6 +12,7 @@ public class Measurement
 {
     Map<Float, Integer> parallelismHistogram = new HashMap<>();
     Map<Float, Integer> orderingMismatchPrcntHistogram = new HashMap<>();
+    Map<Float, Integer> orderingMismatchPrcntBUBBLEHistogram = new HashMap<>();
     Map<Float, Integer> devUtilizationPrcntHistogram = new HashMap<>();
 
     //public List<Float> devUtilizationPercentList = new ArrayList<>();
@@ -207,6 +208,64 @@ public class Measurement
         */
     }
 
+
+    private void measureOrderingMismatchBubble(final LockTable _lockTable)
+    {
+        if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
+        {
+            this.orderingMismatchPrcntBUBBLEHistogram.put(-1.0f, -1);
+        }
+        else
+        {
+            for (List<Routine> lineage : _lockTable.lockTable.values())
+            {
+                double orderMismatchPercent = 0.0;
+                if (lineage.size() <= 1)
+                {
+                    orderMismatchPercent = 0.0;
+                }
+                else
+                {
+                    List<Integer> rtnList = new ArrayList<>();
+                    for (Routine rtn : lineage)
+                    {
+                        rtnList.add(rtn.ID);
+                    }
+                    int num_swap = sortRtnList(rtnList);
+                    int max_swap = rtnList.size() * (rtnList.size() - 1) / 2;
+                    orderMismatchPercent = (num_swap * 100.0 / max_swap);
+                }
+
+                Float data = (float) orderMismatchPercent;
+                this.orderingMismatchPrcntBUBBLEHistogram.merge(data, 1, (a, b) -> a + b);
+            }
+        }
+    }
+
+    private int sortRtnList(List<Integer> rtnList)
+    {
+        int i, j, temp;
+        int swaps = 0;
+        for(i = 0; i < rtnList.size() - 1; ++i)
+        {
+            for(j=0; j< rtnList.size() - 1 - i; ++j)
+            {
+
+                if(rtnList.get(j) > rtnList.get(j+1))
+                {
+
+                    temp = rtnList.get(j+1);
+                    rtnList.set(j+1, rtnList.get(j));
+                    rtnList.set(j, temp);
+                    swaps++;
+                }
+            }
+        }
+        return swaps;
+    }
+
+
+
     private void isolationViolation(final LockTable _lockTable)
     {
         List<Routine> allRtnList = _lockTable.getAllRoutineSet();
@@ -332,6 +391,7 @@ public class Measurement
     {
         measureParallelization(lockTable);
         measureOrderingMismatch(lockTable);
+        measureOrderingMismatchBubble(lockTable);
         measureDeviceUtilization(lockTable);
         isolationViolation(lockTable);
 
@@ -341,6 +401,7 @@ public class Measurement
         assert(!isvltn2_RTNviolationPercentHistogram.isEmpty());
         assert(!isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.isEmpty());
         assert(!orderingMismatchPrcntHistogram.isEmpty());
+        assert(!orderingMismatchPrcntBUBBLEHistogram.isEmpty());
         assert(!parallelismHistogram.isEmpty());
         assert(!devUtilizationPrcntHistogram.isEmpty());
     }
