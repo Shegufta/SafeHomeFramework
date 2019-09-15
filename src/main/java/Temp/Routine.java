@@ -11,18 +11,33 @@ import java.util.*;
 public class Routine implements Comparator<Routine>
 {
     public int ID;
+    public String abbr = "";
     List<Command> commandList;
-    int registrationTime = 0;
+    public int registrationTime = 0;
     public Map<DEV_ID, Boolean> devIdIsMustMap;
     public Map<DEV_ID, Command> devIDCommandMap;
     public Map<Integer, Command> indexCommandMap;
     public Map<Command, Integer> commandIndexMap;
     final int ID_NOT_ASSIGNED_YET = -1;
-    float backToBackCmdExecutionWithoutGap;
+    public float backToBackCmdExecutionWithoutGap;
 
     public Routine()
     {
         this.ID = ID_NOT_ASSIGNED_YET;
+        this.commandList = new ArrayList<>();
+        this.devIdIsMustMap = new HashMap<>();
+        //this.deviceSet = new HashSet<>();
+        this.devIDCommandMap = new HashMap();
+        this.indexCommandMap = new HashMap();
+        this.commandIndexMap = new HashMap();
+
+        this.backToBackCmdExecutionWithoutGap = 0.0f;
+    }
+
+    public Routine(String abbr)
+    {
+        this.ID = ID_NOT_ASSIGNED_YET;
+        this.abbr = abbr;
         this.commandList = new ArrayList<>();
         this.devIdIsMustMap = new HashMap<>();
         //this.deviceSet = new HashSet<>();
@@ -254,6 +269,7 @@ public class Routine implements Comparator<Routine>
         String str = "";
 
         str += "{ Routine ID:" + this.ID;
+        str += "; abbr: " + this.abbr;
         str += "; delay:" + this.getStartDelay();
         str += "; stretchRatio:" + this.getStretchRatio() + " || ";
 

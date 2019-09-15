@@ -1,6 +1,7 @@
 package Temp;
 
 
+import BenchmarkingTool.*;
 import org.apache.commons.math3.distribution.ZipfDistribution;
 
 import java.io.File;
@@ -19,6 +20,8 @@ import java.util.*;
 
 public class Temp
 {
+    public static final boolean IS_RUNNIGN_BENCHMARK = true; // Careful... if it is TRUE, all other parameters will be in don't care mode!
+
     public static final int MAX_DATAPOINT_COLLECTON_SIZE = 5000;
 
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
@@ -28,10 +31,10 @@ public class Temp
     private static final boolean isSentAllRtnSameTime = false;
     private static int maxConcurrentRtn = 100; //in current version totalConcurrentRtn = maxConcurrentRtn;
 
-    private static int cmndPerRtn = 6; // will work if isVaryCommandCount = false;
-    private static boolean isVaryCommandCount = false;
-    private static int minCommandCount = 3; // will work if isVaryCommandCount = true;
-    private static int maxCommandCount = 9; // will work if isVaryCommandCount = true;
+    private static int cmndPerRtn = 2; // will work if isVaryCommandCount = false;
+    private static boolean isVaryCommandCount = true;
+    private static int minCommandCount = 1; // will work if isVaryCommandCount = true;
+    private static int maxCommandCount = 3; // will work if isVaryCommandCount = true;
 
     private static float zipF = 0.01f;
 
@@ -57,10 +60,7 @@ public class Temp
 
     private static final int SIMULATION_START_TIME = 0;
 
-
-
-
-    public static void main (String[] args)
+    private static void initiateSyntheticDevices()
     {
         devIDlist.add(DEV_ID.A);
         devIDlist.add(DEV_ID.B);
@@ -71,18 +71,33 @@ public class Temp
         devIDlist.add(DEV_ID.G);
         devIDlist.add(DEV_ID.H);
         devIDlist.add(DEV_ID.I);
-        devIDlist.add(DEV_ID.J);
+//        devIDlist.add(DEV_ID.J);
 //        devIDlist.add(DEV_ID.K);
 //        devIDlist.add(DEV_ID.L);
 //        devIDlist.add(DEV_ID.M);
 //        devIDlist.add(DEV_ID.N);
 //        devIDlist.add(DEV_ID.O);
+    }
+
+
+    public static void main (String[] args) throws Exception
+    {
+        Benchmark benchmarkingTool = null;
+
+        if(IS_RUNNIGN_BENCHMARK)
+        {
+            benchmarkingTool = new Benchmark();
+            benchmarkingTool.initiateDevices(devIDlist);
+        }
+        else
+        {
+            initiateSyntheticDevices();
+        }
 
 
         //////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////---CHECKING-DIRECTORY-///////////////////////////////
         String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
-
         File dataStorageDir = new File(dataStorageDirectory);
 
         if(!dataStorageDir.exists())
@@ -90,9 +105,7 @@ public class Temp
             System.out.println("\n ERROR: directory not found: " + dataStorageDirectory);
             System.exit(1);
         }
-
         //////////////////////////////////////////////////////////////////////////////////
-
 
         String logStr = "";
 
@@ -111,121 +124,119 @@ public class Temp
 
         List<Float> variableList = new ArrayList<>();
 
-        variableList.add(0.0f);
-        variableList.add(0.2f);
-        variableList.add(0.4f);
-        variableList.add(0.6f);
-        variableList.add(0.8f);
-        variableList.add(1.0f);
-        variableList.add(1.2f);
-        variableList.add(1.4f);
-        variableList.add(1.6f);
-        variableList.add(1.8f);
-        variableList.add(2.0f);
+        variableList.add(0.1f);
+//        variableList.add(0.2f);
+//        variableList.add(0.3f);
+//        variableList.add(0.4f);
+//        variableList.add(0.5f);
+//        variableList.add(0.6f);
+//        variableList.add(0.7f);
+//        variableList.add(0.8f);
+//        variableList.add(0.9f);
 
         String changingParameterName = null; // NOTE: also change changingParameterValue
         for(float variable : variableList)
-        //for(shrinkFactor = 0.5; shrinkFactor <= 1.7 ; shrinkFactor += 0.50)
         {
-            shrinkFactor = variable;
-            changingParameterName = "shrinkFactor";
-
+            longRrtnPcntg = variable;
+            changingParameterName = "longRrtnPcntg";
             changingParameterValue = variable; // NOTE: also change changingParameterName
 
-            if(isVaryCommandCount)
-            {
-                if(0 == changingParameterName.compareTo("cmndPerRtn"))
-                {
-                    System.out.println("\n\nERROR: if command Count varies by uniform distribution, it can not be varied inside the for loop\n");
-                    assert(false);
-                }
-            }
-
-
-            if(lastGeneratedZipfeanFor != zipF)
-            {
-                lastGeneratedZipfeanFor = zipF;
-                //dont need to comment-on/off for variable zipfean.If zipfean varies, it will automatically log it and prepare the zipfean for each run.
-                ///////////////////////////
-                String zipFianStr = prepareZipfian();
-                System.out.println(zipFianStr);
-                logStr += zipFianStr;
-                ///////////////////////////
-            }
             variableTrakcer.add(changingParameterValue); // add the variable name
             List<Float> resultCollector = new ArrayList<>();
 
+            if(!IS_RUNNIGN_BENCHMARK)
+            {
+                if(isVaryCommandCount)
+                {
+                    if(0 == changingParameterName.compareTo("cmndPerRtn"))
+                    {
+                        System.out.println("\n\nERROR: if command Count varies by uniform distribution, it can not be varied inside the for loop\n");
+                        System.exit(1);
+                    }
+                }
 
-            System.out.println("--------------------------------");
-            logStr += "--------------------------------\n";
-            System.out.println("Total Device Count: = " + devIDlist.size());
-            logStr += "Total Device Count: = " + devIDlist.size() + "\n";
+                if(lastGeneratedZipfeanFor != zipF)
+                {
+                    lastGeneratedZipfeanFor = zipF;
+                    //dont need to comment-on/off for variable zipfean.If zipfean varies, it will automatically log it and prepare the zipfean for each run.
+                    ///////////////////////////
+                    String zipFianStr = prepareZipfian();
+                    System.out.println(zipFianStr);
+                    logStr += zipFianStr;
+                    ///////////////////////////
+                }
 
-            System.out.println("totalConcurrentRtn = " + maxConcurrentRtn);
-            logStr += "totalConcurrentRtn = " + maxConcurrentRtn + "\n";
+                System.out.println("--------------------------------");
+                logStr += "--------------------------------\n";
+                System.out.println("Total Device Count: = " + devIDlist.size());
+                logStr += "Total Device Count: = " + devIDlist.size() + "\n";
 
-            System.out.println("isVaryCommandCount = " + isVaryCommandCount);
-            logStr += "isVaryCommandCount = " + isVaryCommandCount + "\n";
+                System.out.println("totalConcurrentRtn = " + maxConcurrentRtn);
+                logStr += "totalConcurrentRtn = " + maxConcurrentRtn + "\n";
 
-            System.out.println("cmndPerRtn = " + cmndPerRtn);
-            logStr += "cmndPerRtn = " + cmndPerRtn + "\n";
+                System.out.println("isVaryCommandCount = " + isVaryCommandCount);
+                logStr += "isVaryCommandCount = " + isVaryCommandCount + "\n";
 
-            System.out.println("minCommandCount = " + minCommandCount + " #will work if isVaryCommandCount = true;");
-            logStr += "minCommandCount = " + minCommandCount + " #will work if isVaryCommandCount = true;\n";
-            System.out.println("cmndPerRtn = " + cmndPerRtn + " #will work if isVaryCommandCount = true;");
-            logStr += "maxCommandCount = " + maxCommandCount + " #will work if isVaryCommandCount = true;\n";
+                System.out.println("cmndPerRtn = " + cmndPerRtn);
+                logStr += "cmndPerRtn = " + cmndPerRtn + "\n";
 
-
-            System.out.println("isSentAllRtnSameTime = " + isSentAllRtnSameTime);
-            logStr += "isSentAllRtnSameTime = " + isSentAllRtnSameTime + "\n";
-            System.out.println("shrinkFactor = " + shrinkFactor + " (works only if isSentAllRtnSameTime == false)");
-            logStr += "shrinkFactor = " + shrinkFactor + " (works only if isSentAllRtnSameTime == false)\n";
-
-
-            System.out.println("zipF = " + zipF);
-            logStr += "zipF = " + zipF + "\n";
-
-            System.out.println("devFailureRatio = " + devFailureRatio);
-            logStr += "devFailureRatio = " + devFailureRatio + "\n";
-            System.out.println("atleastOneDevFail = " + atleastOneDevFail);
-            logStr += "atleastOneDevFail = " + atleastOneDevFail + "\n";
-
-            System.out.println("mustCmdPercentage = " + mustCmdPercentage);
-            logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n";
-
-            System.out.println("IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED);
-            logStr += "IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED + "\n";
-
-            System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED);
-            logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n";
+                System.out.println("minCommandCount = " + minCommandCount + " #will work if isVaryCommandCount = true;");
+                logStr += "minCommandCount = " + minCommandCount + " #will work if isVaryCommandCount = true;\n";
+                System.out.println("cmndPerRtn = " + cmndPerRtn + " #will work if isVaryCommandCount = true;");
+                logStr += "maxCommandCount = " + maxCommandCount + " #will work if isVaryCommandCount = true;\n";
 
 
-            System.out.println("shortCmdDuration = " + shortCmdDuration);
-            logStr += "shortCmdDuration = " + shortCmdDuration + "\n";
-            System.out.println("isShortCmdDurationVary = " + isShortCmdDurationVary);
-            logStr += "isShortCmdDurationVary = " + isShortCmdDurationVary + "\n";
-            System.out.println("shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier);
-            logStr += "shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier + "\n";
+                System.out.println("isSentAllRtnSameTime = " + isSentAllRtnSameTime);
+                logStr += "isSentAllRtnSameTime = " + isSentAllRtnSameTime + "\n";
+                System.out.println("shrinkFactor = " + shrinkFactor + " (works only if isSentAllRtnSameTime == false)");
+                logStr += "shrinkFactor = " + shrinkFactor + " (works only if isSentAllRtnSameTime == false)\n";
 
-            System.out.println("longRnCmdTimeSpn = " + longRnCmdTimeSpn);
-            logStr += "longRnCmdTimeSpn = " + longRnCmdTimeSpn + "\n";
-            System.out.println("isLongCmdDurationVary = " + isLongCmdDurationVary);
-            logStr += "isLongCmdDurationVary = " + isLongCmdDurationVary + "\n";
-            System.out.println("longCmdDurationVaryMultiplier = " + longCmdDurationVaryMultiplier);
-            logStr += "longCmdDurationVaryMultiplier = " + longCmdDurationVaryMultiplier + "\n";
-            System.out.println("longRrtnPcntg = " + longRrtnPcntg);
-            logStr += "longRrtnPcntg = " + longRrtnPcntg + "\n";
-            System.out.println("atleastOneLongRunning = " + atleastOneLongRunning);
-            logStr += "atleastOneLongRunning = " + atleastOneLongRunning + "\n";
 
-            System.out.println("SIMULATION_START_TIME = " + SIMULATION_START_TIME);
-            logStr += "SIMULATION_START_TIME = " + SIMULATION_START_TIME + "\n";
+                System.out.println("zipF = " + zipF);
+                logStr += "zipF = " + zipF + "\n";
 
-            System.out.println("totalSampleCount = " + totalSampleCount);
-            logStr += "totalSampleCount = " + totalSampleCount + "\n";
+                System.out.println("devFailureRatio = " + devFailureRatio);
+                logStr += "devFailureRatio = " + devFailureRatio + "\n";
+                System.out.println("atleastOneDevFail = " + atleastOneDevFail);
+                logStr += "atleastOneDevFail = " + atleastOneDevFail + "\n";
 
-            System.out.println("--------------------------------");
-            logStr += "--------------------------------\n";
+                System.out.println("mustCmdPercentage = " + mustCmdPercentage);
+                logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n";
+
+                System.out.println("IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED);
+                logStr += "IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED + "\n";
+
+                System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED);
+                logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n";
+
+
+                System.out.println("shortCmdDuration = " + shortCmdDuration);
+                logStr += "shortCmdDuration = " + shortCmdDuration + "\n";
+                System.out.println("isShortCmdDurationVary = " + isShortCmdDurationVary);
+                logStr += "isShortCmdDurationVary = " + isShortCmdDurationVary + "\n";
+                System.out.println("shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier);
+                logStr += "shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier + "\n";
+
+                System.out.println("longRnCmdTimeSpn = " + longRnCmdTimeSpn);
+                logStr += "longRnCmdTimeSpn = " + longRnCmdTimeSpn + "\n";
+                System.out.println("isLongCmdDurationVary = " + isLongCmdDurationVary);
+                logStr += "isLongCmdDurationVary = " + isLongCmdDurationVary + "\n";
+                System.out.println("longCmdDurationVaryMultiplier = " + longCmdDurationVaryMultiplier);
+                logStr += "longCmdDurationVaryMultiplier = " + longCmdDurationVaryMultiplier + "\n";
+                System.out.println("longRrtnPcntg = " + longRrtnPcntg);
+                logStr += "longRrtnPcntg = " + longRrtnPcntg + "\n";
+                System.out.println("atleastOneLongRunning = " + atleastOneLongRunning);
+                logStr += "atleastOneLongRunning = " + atleastOneLongRunning + "\n";
+
+                System.out.println("SIMULATION_START_TIME = " + SIMULATION_START_TIME);
+                logStr += "SIMULATION_START_TIME = " + SIMULATION_START_TIME + "\n";
+
+                System.out.println("totalSampleCount = " + totalSampleCount);
+                logStr += "totalSampleCount = " + totalSampleCount + "\n";
+
+                System.out.println("--------------------------------");
+                logStr += "--------------------------------\n";
+            }
 
             int resolution = 10;
             int stepSize = totalSampleCount / resolution;
@@ -234,6 +245,8 @@ public class Temp
 
             for(int I = 0 ; I < totalSampleCount ; I++)
             {
+                List<Routine> routineSet = null;
+
                 if(I == totalSampleCount - 1)
                 {
                     System.out.println("currently Running for, " + changingParameterName + " = " +  changingParameterValue  + " Progress = " + " 100%");
@@ -244,7 +257,16 @@ public class Temp
                 }
 
 
-                final List<Routine> routineSet = generateAutomatedRtn(-1);
+                if(IS_RUNNIGN_BENCHMARK)
+                {
+                    routineSet = benchmarkingTool.GetOneWorkload(5, -1);
+                    int size = routineSet.size();
+                }
+                else
+                {
+                    routineSet = generateAutomatedRtn(-1);
+                }
+
 
 
                 FailureResult failureResult;
@@ -943,7 +965,11 @@ public class Temp
                 totalCommandInThisRtn = minCommandCount + rand.nextInt(difference);
             }
 
-            assert(totalCommandInThisRtn <= devIDlist.size());
+            if(devIDlist.size() < totalCommandInThisRtn )
+            {
+                System.out.println("\n ERROR: ID 2z3A9s : totalCommandInThisRtn = " + totalCommandInThisRtn + " > devIDlist.size() = " + devIDlist.size());
+                System.exit(1);
+            }
 
             Map<DEV_ID, Integer> devIDDurationMap = new HashMap<>();
             List<DEV_ID> devList = new ArrayList<>();
@@ -1086,7 +1112,12 @@ public class Temp
         {
             int totalCommandInThisRtn = cmndPerRtn;
             int middleCommandIndex = totalCommandInThisRtn / 2;
-            assert(totalCommandInThisRtn <= devIDlist.size());
+
+            if(devIDlist.size() < totalCommandInThisRtn )
+            {
+                System.out.println("\n ERROR: ID 0alaXpo :  totalCommandInThisRtn = " + totalCommandInThisRtn + " > devIDlist.size() = " + devIDlist.size());
+                System.exit(1);
+            }
 
             Map<DEV_ID, Integer> devIDDurationMap = new HashMap<>();
 
