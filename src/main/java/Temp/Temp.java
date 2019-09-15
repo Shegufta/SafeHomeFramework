@@ -111,13 +111,13 @@ public class Temp
 
         List<Float> variableList = new ArrayList<>();
 
-        variableList.add(0.0f);
-        variableList.add(0.2f);
-        variableList.add(0.4f);
-        variableList.add(0.6f);
-        variableList.add(0.8f);
-        variableList.add(1.0f);
-        variableList.add(1.2f);
+//        variableList.add(0.0f);
+//        variableList.add(0.2f);
+//        variableList.add(0.4f);
+//        variableList.add(0.6f);
+//        variableList.add(0.8f);
+//        variableList.add(1.0f);
+//        variableList.add(1.2f);
         variableList.add(1.4f);
         variableList.add(1.6f);
         variableList.add(1.8f);
@@ -276,6 +276,10 @@ public class Temp
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
+                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
                         expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
 
@@ -331,6 +335,10 @@ public class Temp
 
                 ///////
                 measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
+                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
+
+                measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
                         expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
 
@@ -372,6 +380,10 @@ public class Temp
                         expResult.measurement.parallelismHistogram);
 
                 ///////
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
+                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
+
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
                         expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
@@ -428,6 +440,10 @@ public class Temp
                         expResult.measurement.parallelismHistogram);
 
                 ///////
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
+                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
+
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
                         expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
@@ -549,6 +565,10 @@ public class Temp
                         expResult.measurement.parallelismHistogram);
 
                 ///////
+                measurementCollector.collectData(changingParameterValue,
+                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
+                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
+
                 measurementCollector.collectData(changingParameterValue,
                         CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
                         expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
@@ -677,6 +697,15 @@ public class Temp
 //            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
             /////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
+//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
+//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
+            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
+            /////////////////////////////////////////////////////////////
 
             globalDataCollector.put(changingParameterValue, resultCollector);
 
@@ -701,10 +730,11 @@ public class Temp
         header += "\tG71:GSV_OdrMismtchBBL\tG71:PSV_OdrMismtchBBL\tG71:WV_OdrMismtchBBL\tG71:EV_OdrMismtchBBL\tG71:LzPRIOTY_OdrMismtchBBL";
         header += "\tG8:GSV_DevUtlz\tG8:PSV_DevUtlz\tG8:WV_DevUtlz\tG8:EV_DevUtlz\tG8:LzPRIOTY_DevUtlz";
 
-        header += "\tG9:GSV_IsvltnPerRtnCollision\tG9:PSV_IsvltnPerRtnCollision\tG9:WV_IsvltnPerRtnCollision\tG9:EV_IsvltnPerRtnCollision\tG9:LzPRIOTY_IsvltnPerRtnCollision";
-        header += "\tG10:GSV_IsvltnViolatedRtnPrcnt\tG10:PSV_IsvltnViolatedRtnPrcnt\tG10:WV_IsvltnViolatedRtnPrcnt\tG10:EV_IsvltnViolatedRtnPrcnt\tG10:LzPRIOTY_IsvltnViolatedRtnPrcnt";
-        header += "\tG11:GSV_IsvltnViolatedCmdPrcnt\tG11:PSV_IsvltnViolatedCmdPrcnt\tG11:WV_IsvltnViolatedCmdPrcnt\tG11:EV_IsvltnViolatedCmdPrcnt\tG11:LzPRIOTY_IsvltnViolatedCmdPrcnt";
-        header += "\tG12:GSV_IsvltnCmdToCommitVioltnTimePcnt\tG12:PSV_IsvltnCmdToCommitVioltnTimePcnt\tG12:WV_IsvltnCmdToCommitVioltnTimePcnt\tG12:EV_IsvltnCmdToCommitVioltnTimePcnt\tG12:LzPRIOTY_IsvltnCmdToCommitVioltnTimePcnt";
+        header += "\tG9:GSV_Isvltn1PerRtnCollision\tG9:PSV_Isvltn1PerRtnCollision\tG9:WV_Isvltn1PerRtnCollision\tG9:EV_Isvltn1PerRtnCollision\tG9:LzPRIOTY_Isvltn1PerRtnCollision";
+        header += "\tG10:GSV_Isvltn2ViolatedRtnPrcnt\tG10:PSV_Isvltn2ViolatedRtnPrcnt\tG10:WV_Isvltn2ViolatedRtnPrcnt\tG10:EV_Isvltn2ViolatedRtnPrcnt\tG10:LzPRIOTY_Isvltn2ViolatedRtnPrcnt";
+        header += "\tG11:GSV_Isvltn3ViolatedCmdPrcnt\tG11:PSV_Isvltn3ViolatedCmdPrcnt\tG11:WV_Isvltn3ViolatedCmdPrcnt\tG11:EV_Isvltn3ViolatedCmdPrcnt\tG11:LzPRIOTY_Isvltn3ViolatedCmdPrcnt";
+        header += "\tG12:GSV_Isvltn4CmdToCommitVioltnTimePcnt\tG12:PSV_Isvltn4CmdToCommitVioltnTimePcnt\tG12:WV_Isvltn4CmdToCommitVioltnTimePcnt\tG12:EV_Isvltn4CmdToCommitVioltnTimePcnt\tG12:LzPRIOTY_Isvltn4CmdToCommitVioltnTimePcnt";
+        header += "\tG13:GSV_Isvltn5RtnVltnTimePcnt\tG13:PSV_Isvltn5RtnVltnTimePcnt\tG13:WV_Isvltn5RtnVltnTimePcnt\tG13:EV_Isvltn5RtnVltnTimePcnt\tG13:LzPRIOTY_Isvltn5RtnVltnTimePcnt";
 /*
         header += "\tG1:GSV_WaitTm\tG1:PSV_WaitTm\tG1:WV_WaitTm\tG1:EV_WaitTm\tG1:LV_WaitTm\tG1:FCFSV_WaitTm\tG1:LzPRIOTY_WaitTm";
         header += "\tG2:GSV_LtncyOvrhdPcnt\tG2:PSV_LtncyOvrhdPcnt\tG2:WV_LtncyOvrhdPcnt\tG2:EV_LtncyOvrhdPcnt\tG2:LV_LtncyOvrhdPcnt\tG2:FCFSV_LtncyOvrhdPcnt\tG2:LzPRIOTY_LtncyOvrhdPcnt";

@@ -22,6 +22,7 @@ public class Measurement
     Map<Float, Integer> isvltn3_CMDviolationPercentHistogram = new HashMap<>(); // Command Violation Per Routine
     Map<Float, Integer> isvltn2_RTNviolationPercentHistogram = new HashMap<>();
     Map<Float, Integer> isvltn4_cmdToCommitCollisionTimespanPrcntHistogram = new HashMap<>();
+    Map<Float, Integer> isvltn5_routineLvlIsolationViolationTimePrcntHistogram = new HashMap<>();
     //ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT
     /////////////////////////////////////////////
 
@@ -272,6 +273,7 @@ public class Measurement
 
         Map<Routine, Set<Routine>> victimRtnAndAttackerRtnSetMap = new HashMap<>();
         Map<Routine, Set<Command>> victimRtnAndItsVictimCmdSetMap = new HashMap<>();
+        Map<Routine, Float> victimRtnAndEarliestCollisionTimeMap = new HashMap<>();
 
         for(Routine rtn1 : allRtnList)
         {
@@ -319,6 +321,14 @@ public class Measurement
                     float collisionTime = spanEndTimeExclusive - earliestCollisionTime;
 
                     timeSpentInCollisionRatio = (collisionTime / expectedConsistencySpanCmd1) * 100.0f;
+
+
+                    if(!victimRtnAndEarliestCollisionTimeMap.containsKey(rtn1))
+                    {// to analysis routine-timespan-level collision, we need only the first colliding command
+                        // hence this check is required. if we have already seen a command, there is no need to check for next violation
+                        // as in routine level, isolation-violation starts from the very first command-violation;
+                        victimRtnAndEarliestCollisionTimeMap.put(rtn1, earliestCollisionTime);
+                    }
                 }
 
                 Float data = timeSpentInCollisionRatio;
@@ -385,6 +395,26 @@ public class Measurement
         else
             this.isvltn2_RTNviolationPercentHistogram.put(data, count + 1);
         /////////////////////////////////////////////////////////////////
+
+
+        for(Routine rtn1 : allRtnList)
+        {
+            float timeSpentInCollisionRatio = 0.0f;
+
+            if(victimRtnAndEarliestCollisionTimeMap.containsKey(rtn1))
+            {// this routine has violation!
+                float earliestCollisionTime = victimRtnAndEarliestCollisionTimeMap.get(rtn1);
+                int spanStartTimeInclusive = rtn1.routineStartTime();
+                int spanEndTimeExclusive = rtn1.routineEndTime();
+                float expectedConsistencySpanRtn1 = spanEndTimeExclusive - spanStartTimeInclusive;
+                float collisionTime = spanEndTimeExclusive - earliestCollisionTime;
+
+                timeSpentInCollisionRatio = (collisionTime / expectedConsistencySpanRtn1) * 100.0f;
+            }
+
+            data = timeSpentInCollisionRatio;
+            this.isvltn5_routineLvlIsolationViolationTimePrcntHistogram.merge(data, 1, (a, b) -> a + b);
+        }
     }
 
     public Measurement(final LockTable lockTable)
@@ -400,6 +430,7 @@ public class Measurement
         assert(!isvltn1_perRtnCollisionCountHistogram.isEmpty());
         assert(!isvltn2_RTNviolationPercentHistogram.isEmpty());
         assert(!isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.isEmpty());
+        assert(!isvltn5_routineLvlIsolationViolationTimePrcntHistogram.isEmpty());
         assert(!orderingMismatchPrcntHistogram.isEmpty());
         assert(!orderingMismatchPrcntBUBBLEHistogram.isEmpty());
         assert(!parallelismHistogram.isEmpty());
