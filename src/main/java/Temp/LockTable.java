@@ -82,8 +82,8 @@ public class LockTable
     @Override
     public String toString()
     {
-        String str = "";
-
+        String str = "------------------------------------------------------\n";
+        str += "CONSISTENCY: " + this.consistencyType + "\n";
         //for(Map.Entry<DEV_ID, List<Routine>> entry : this.lockTable.entrySet())
         for(DEV_ID devID : DEV_ID.values())
         {// print the rows alphabetically
@@ -98,6 +98,7 @@ public class LockTable
                 str += rtn.lockStartTime(devID) + rtn.lockDuration(devID) + ") ";
             }
         }
+        str += "\n------------------------------------------------------\n";
 
         return str;
     }
@@ -116,7 +117,7 @@ public class LockTable
         }
     }
 
-    private int lazy_ReleaseEarliestCommandLock(Map<DEV_ID, LazySchedulingHelper> lockTableHelper, int simulationStartTime)
+    private int lazy_ReleaseEarliestCommandLock(Map<DEV_ID, LazySchedulingHelper> lockTableHelper, int simulationStartTime, List<Routine> _waitingList)
     {
         int earliestLockReleaseTime = Integer.MAX_VALUE;
         DEV_ID earliestReleaseDevID = null;
@@ -134,11 +135,29 @@ public class LockTable
         }
 
         if(earliestReleaseDevID != null)
-        {
+        { // search for another waiting routine that was registered before earliestLockReleaseTime
+            // and can acquire all locks before current command ends
+            for(Routine waitingRtn : _waitingList)
+            {
+                if(waitingRtn.registrationTime < earliestLockReleaseTime)
+                {
+                    if(lazy_canAcquireAllLocks( lockTableHelper , waitingRtn))
+                    {
+                        //canAnotherRoutineAcquireAllLocksBeforeThisCommandEnds = true;
+                        int anotherRoutineCanStartAtTime = waitingRtn.registrationTime;
+                        return anotherRoutineCanStartAtTime;
+                    }
+                }
+                else
+                    break;
+            }
+
+
+            // No other routine will start before this command, hence release this lock
             lockTableHelper.get(earliestReleaseDevID).isLocked = false; // release lock
         }
 
-        return (earliestLockReleaseTime == Integer.MAX_VALUE) ? simulationStartTime : earliestLockReleaseTime;
+        return (earliestReleaseDevID == null) ? simulationStartTime : earliestLockReleaseTime;
     }
 
     private boolean isAllLockReleased(Map<DEV_ID, LazySchedulingHelper> lockTableHelper)
@@ -189,7 +208,7 @@ public class LockTable
 
         while(!waitingList.isEmpty())
         {
-            int lockReleaseTime = lazy_ReleaseEarliestCommandLock(lockTableHelper, _simulationStartTime);
+            int lockReleaseTime = lazy_ReleaseEarliestCommandLock(lockTableHelper, _simulationStartTime, waitingList);
             boolean isAllLockReleased = this.isAllLockReleased(lockTableHelper);
             List<Routine> scheduledRtnList = new ArrayList<>();
 

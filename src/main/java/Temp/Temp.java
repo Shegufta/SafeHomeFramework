@@ -23,42 +23,43 @@ public class Temp
     public static final boolean IS_RUNNIGN_BENCHMARK = true; // Careful... if it is TRUE, all other parameters will be in don't care mode!
 
     public static final int MAX_DATAPOINT_COLLECTON_SIZE = 5000;
+    private static final int totalSampleCount = 1000;//7500;//10000; // 100000;
 
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
 
-    private static double shrinkFactor = 0.25; // works only if "isSentAllRtnSameTime == false"; the timeline will vary upto N times
-    private static final boolean isSentAllRtnSameTime = false;
+    private static double shrinkFactor = 1.0; // shrink the total time... this parameter controls the concurrency
+
     private static int maxConcurrentRtn = 100; //in current version totalConcurrentRtn = maxConcurrentRtn;
 
-    private static int cmndPerRtn = 2; // will work if isVaryCommandCount = false;
-    private static boolean isVaryCommandCount = true;
-    private static int minCommandCount = 1; // will work if isVaryCommandCount = true;
-    private static int maxCommandCount = 3; // will work if isVaryCommandCount = true;
+    private static int minCmdCntPerRtn = 1;
+    private static int maxCmdCntPerRtn = 3;
 
     private static float zipF = 0.01f;
+
+    private static float longRrtnPcntg = 0.1f;
+    private static final boolean atleastOneLongRunning = false;
+    private static int minLngRnCmdTimSpn = 2000;
+    private static int maxLngRnCmdTimSpn = minLngRnCmdTimSpn * 2;
+
+    private static final int minShrtCmdTimeSpn = 10;
+    private static final int maxShrtCmdTimeSpn = minShrtCmdTimeSpn * 6;
 
     private static float devFailureRatio = 0.0f;
     private static final boolean atleastOneDevFail = false;
     private static float mustCmdPercentage = 1.0f;
 
-    private static float longRrtnPcntg = 0.1f;
-    private static final boolean atleastOneLongRunning = false;
-    private static int longRnCmdTimeSpn = 2000;
-    private static final boolean isLongCmdDurationVary = true;
-    private static final float longCmdDurationVaryMultiplier = 2.0f; // will vary upto N times
-
-    private static final int shortCmdDuration = 10;
-    private static final boolean isShortCmdDurationVary = true;
-    private static final float shortCmdDurationVaryMultiplier = 6; // will vary upto N times
-
-    private static final int totalSampleCount = 1000;//7500;//10000; // 100000;
     private static final boolean isPrint = false;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
     private static Map<DEV_ID, ZipfProbBoundary> devID_ProbBoundaryMap = new HashMap<>();
 
     private static final int SIMULATION_START_TIME = 0;
+
+    private static final int RANDOM_SEED = -1;
+    private static final int MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = 5;
+
+    private static final String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
 
     private static void initiateSyntheticDevices()
     {
@@ -86,7 +87,7 @@ public class Temp
 
         if(IS_RUNNIGN_BENCHMARK)
         {
-            benchmarkingTool = new Benchmark();
+            benchmarkingTool = new Benchmark(RANDOM_SEED, MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING);
             benchmarkingTool.initiateDevices(devIDlist);
         }
         else
@@ -94,10 +95,9 @@ public class Temp
             initiateSyntheticDevices();
         }
 
-
         //////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////---CHECKING-DIRECTORY-///////////////////////////////
-        String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
+
         File dataStorageDir = new File(dataStorageDirectory);
 
         if(!dataStorageDir.exists())
@@ -116,11 +116,7 @@ public class Temp
         Float changingParameterValue = -1.0f;
 
         ///////////////////////////
-        float lastGeneratedZipfeanFor = Float.MAX_VALUE;
-//        String zipFianStr = prepareZipfian(); // we dont need to uncomment this line anymore. it has been taken care of inside the for loop
-//        System.out.println(zipFianStr);
-//        logStr += zipFianStr;
-        ///////////////////////////
+        float lastGeneratedZipfeanFor = Float.MAX_VALUE; // NOTE: declare zipfean here... DO NOT declare it inside the for loop!
 
         List<Float> variableList = new ArrayList<>();
 
@@ -146,24 +142,12 @@ public class Temp
 
             if(!IS_RUNNIGN_BENCHMARK)
             {
-                if(isVaryCommandCount)
-                {
-                    if(0 == changingParameterName.compareTo("cmndPerRtn"))
-                    {
-                        System.out.println("\n\nERROR: if command Count varies by uniform distribution, it can not be varied inside the for loop\n");
-                        System.exit(1);
-                    }
-                }
-
                 if(lastGeneratedZipfeanFor != zipF)
                 {
                     lastGeneratedZipfeanFor = zipF;
-                    //dont need to comment-on/off for variable zipfean.If zipfean varies, it will automatically log it and prepare the zipfean for each run.
-                    ///////////////////////////
                     String zipFianStr = prepareZipfian();
                     System.out.println(zipFianStr);
                     logStr += zipFianStr;
-                    ///////////////////////////
                 }
 
                 System.out.println("--------------------------------");
@@ -174,34 +158,17 @@ public class Temp
                 System.out.println("totalConcurrentRtn = " + maxConcurrentRtn);
                 logStr += "totalConcurrentRtn = " + maxConcurrentRtn + "\n";
 
-                System.out.println("isVaryCommandCount = " + isVaryCommandCount);
-                logStr += "isVaryCommandCount = " + isVaryCommandCount + "\n";
+                System.out.println("minCmdCntPerRtn = " + minCmdCntPerRtn);
+                logStr += "minCmdCntPerRtn = " + minCmdCntPerRtn + "\n";
 
-                System.out.println("cmndPerRtn = " + cmndPerRtn);
-                logStr += "cmndPerRtn = " + cmndPerRtn + "\n";
+                System.out.println("maxCmdCntPerRtn = " + maxCmdCntPerRtn);
+                logStr += "maxCmdCntPerRtn = " + maxCmdCntPerRtn + "\n";
 
-                System.out.println("minCommandCount = " + minCommandCount + " #will work if isVaryCommandCount = true;");
-                logStr += "minCommandCount = " + minCommandCount + " #will work if isVaryCommandCount = true;\n";
-                System.out.println("cmndPerRtn = " + cmndPerRtn + " #will work if isVaryCommandCount = true;");
-                logStr += "maxCommandCount = " + maxCommandCount + " #will work if isVaryCommandCount = true;\n";
-
-
-                System.out.println("isSentAllRtnSameTime = " + isSentAllRtnSameTime);
-                logStr += "isSentAllRtnSameTime = " + isSentAllRtnSameTime + "\n";
-                System.out.println("shrinkFactor = " + shrinkFactor + " (works only if isSentAllRtnSameTime == false)");
-                logStr += "shrinkFactor = " + shrinkFactor + " (works only if isSentAllRtnSameTime == false)\n";
-
+                System.out.println("shrinkFactor = " + shrinkFactor );
+                logStr += "shrinkFactor = " + shrinkFactor + "\n";
 
                 System.out.println("zipF = " + zipF);
                 logStr += "zipF = " + zipF + "\n";
-
-                System.out.println("devFailureRatio = " + devFailureRatio);
-                logStr += "devFailureRatio = " + devFailureRatio + "\n";
-                System.out.println("atleastOneDevFail = " + atleastOneDevFail);
-                logStr += "atleastOneDevFail = " + atleastOneDevFail + "\n";
-
-                System.out.println("mustCmdPercentage = " + mustCmdPercentage);
-                logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n";
 
                 System.out.println("IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED);
                 logStr += "IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED + "\n";
@@ -209,20 +176,16 @@ public class Temp
                 System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED);
                 logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n";
 
+                System.out.println("minShrtCmdTimeSpn = " + minShrtCmdTimeSpn);
+                logStr += "minShrtCmdTimeSpn = " + minShrtCmdTimeSpn + "\n";
+                System.out.println("maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn);
+                logStr += "maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + "\n";
 
-                System.out.println("shortCmdDuration = " + shortCmdDuration);
-                logStr += "shortCmdDuration = " + shortCmdDuration + "\n";
-                System.out.println("isShortCmdDurationVary = " + isShortCmdDurationVary);
-                logStr += "isShortCmdDurationVary = " + isShortCmdDurationVary + "\n";
-                System.out.println("shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier);
-                logStr += "shortCmdDurationVaryMultiplier = " + shortCmdDurationVaryMultiplier + "\n";
+                System.out.println("minLngRnCmdTimSpn = " + minLngRnCmdTimSpn);
+                logStr += "minLngRnCmdTimSpn = " + minLngRnCmdTimSpn + "\n";
+                System.out.println("maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn);
+                logStr += "maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + "\n";
 
-                System.out.println("longRnCmdTimeSpn = " + longRnCmdTimeSpn);
-                logStr += "longRnCmdTimeSpn = " + longRnCmdTimeSpn + "\n";
-                System.out.println("isLongCmdDurationVary = " + isLongCmdDurationVary);
-                logStr += "isLongCmdDurationVary = " + isLongCmdDurationVary + "\n";
-                System.out.println("longCmdDurationVaryMultiplier = " + longCmdDurationVaryMultiplier);
-                logStr += "longCmdDurationVaryMultiplier = " + longCmdDurationVaryMultiplier + "\n";
                 System.out.println("longRrtnPcntg = " + longRrtnPcntg);
                 logStr += "longRrtnPcntg = " + longRrtnPcntg + "\n";
                 System.out.println("atleastOneLongRunning = " + atleastOneLongRunning);
@@ -233,6 +196,20 @@ public class Temp
 
                 System.out.println("totalSampleCount = " + totalSampleCount);
                 logStr += "totalSampleCount = " + totalSampleCount + "\n";
+
+                System.out.println("devFailureRatio = " + devFailureRatio);
+                logStr += "devFailureRatio = " + devFailureRatio + "\n";
+                System.out.println("atleastOneDevFail = " + atleastOneDevFail);
+                logStr += "atleastOneDevFail = " + atleastOneDevFail + "\n";
+
+                System.out.println("mustCmdPercentage = " + mustCmdPercentage);
+                logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n";
+
+                System.out.println("RANDOM_SEED = " + RANDOM_SEED);
+                logStr += "RANDOM_SEED = " + RANDOM_SEED + "\n";
+
+                System.out.println("MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING);
+                logStr += "MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING + "\n";
 
                 System.out.println("--------------------------------");
                 logStr += "--------------------------------\n";
@@ -249,25 +226,27 @@ public class Temp
 
                 if(I == totalSampleCount - 1)
                 {
-                    System.out.println("currently Running for, " + changingParameterName + " = " +  changingParameterValue  + " Progress = " + " 100%");
+                    if(IS_RUNNIGN_BENCHMARK)
+                        System.out.println("currently Running BENCHMARK...... Progress = 100%");
+                    else
+                        System.out.println("currently Running for, " + changingParameterName + " = " +  changingParameterValue  + " Progress = " + " 100%");
                 }
                 else if(totalSampleCount % stepSize == 0)
                 {
-                    System.out.println("currently Running for, " + changingParameterName + " = " +  changingParameterValue  + " Progress = " + (int) (100.0 * ((float)I / (float)totalSampleCount)) + "%");
+                    if(IS_RUNNIGN_BENCHMARK)
+                        System.out.println("currently Running BENCHMARK...... Progress = " + (int) (100.0 * ((float)I / (float)totalSampleCount)) + "%");
+                    else
+                        System.out.println("currently Running for, " + changingParameterName + " = " +  changingParameterValue  + " Progress = " + (int) (100.0 * ((float)I / (float)totalSampleCount)) + "%");
                 }
-
 
                 if(IS_RUNNIGN_BENCHMARK)
                 {
-                    routineSet = benchmarkingTool.GetOneWorkload(5, -1);
-                    int size = routineSet.size();
+                    routineSet = benchmarkingTool.GetOneWorkload();
                 }
                 else
                 {
-                    routineSet = generateAutomatedRtn(-1);
+                    routineSet = generateAutomatedRtn(RANDOM_SEED);
                 }
-
-
 
                 FailureResult failureResult;
                 ExpResults expResult;
@@ -803,7 +782,7 @@ public class Temp
 
         String epoch = System.currentTimeMillis() + "";
         String parentDirPath = dataStorageDirectory + File.separator + epoch + "_VARY_"+ changingParameterName;
-        parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + cmndPerRtn;
+        parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + minCmdCntPerRtn + "-" + maxCmdCntPerRtn;
 
         File parentDir = new File(parentDirPath);
         if(!parentDir.exists())
@@ -833,8 +812,6 @@ public class Temp
 
 
     }
-
-
 
     private static DEV_ID getZipfDistDevID(float randDouble)
     {
@@ -931,6 +908,17 @@ public class Temp
 
     private static List<Routine> generateAutomatedRtn(int nonNegativeSeed)
     {
+        if(maxCmdCntPerRtn < minCmdCntPerRtn ||
+                maxLngRnCmdTimSpn < minLngRnCmdTimSpn ||
+                maxShrtCmdTimeSpn < minShrtCmdTimeSpn
+        )
+        {
+            System.out.println("\n ERROR: maxCmdCntPerRtn = " + maxCmdCntPerRtn + ", minCmdCntPerRtn = " + minCmdCntPerRtn);
+            System.out.println("\n ERROR: maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + ", minLngRnCmdTimSpn = " + minLngRnCmdTimSpn);
+            System.out.println("\n ERROR: maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + ", minShrtCmdTimeSpn = " + minShrtCmdTimeSpn + "\n Terminating.....");
+            System.exit(1);
+        }
+
         List<Routine> routineList = new ArrayList<>();
         Random rand;
 
@@ -957,13 +945,10 @@ public class Temp
                 isLongRunning = true; // at least one routine will be long running;
             }
 
-            int totalCommandInThisRtn = cmndPerRtn;
 
-            if(isVaryCommandCount)
-            {
-                int difference = 1 + maxCommandCount - minCommandCount;
-                totalCommandInThisRtn = minCommandCount + rand.nextInt(difference);
-            }
+            int difference = 1 + maxCmdCntPerRtn - minCmdCntPerRtn;
+            int totalCommandInThisRtn = minCmdCntPerRtn + rand.nextInt(difference);
+
 
             if(devIDlist.size() < totalCommandInThisRtn )
             {
@@ -978,20 +963,6 @@ public class Temp
             {
                 DEV_ID devID;
 
-                /*
-                //SBA: this method is not working well. instead, always choose the long running from the zipf
-                if(isLongRunning)
-                {// for long running, we will select the device from Uniform distribution
-                    devID = getZipfDistDevID(rand.nextDouble());
-                    //DEV_ID zipfDistDev = getZipfDistDevID(rand.nextDouble());
-                }
-                else
-                {
-                    // for sort running, we will follow the zipf distribution
-                    devID = devIDlist.get( rand.nextInt(devIDlist.size()) );
-                    //DEV_ID randDev = devIDlist.get( rand.nextInt(devIDlist.size()) );
-                }
-                */
                 devID = getZipfDistDevID(rand.nextFloat());
 
                 if(devIDDurationMap.containsKey(devID))
@@ -1002,28 +973,13 @@ public class Temp
                 int middleCommandIndex = totalCommandInThisRtn / 2;
                 if(isLongRunning && ( currentDurationMapSize == middleCommandIndex) )
                 { // select the  middle command as long running command
-
-                    if(isLongCmdDurationVary)
-                    {
-                        int durationUpperBoundExclusive = (int)Math.ceil(longRnCmdTimeSpn *longCmdDurationVaryMultiplier);
-                        duration = longRnCmdTimeSpn + rand.nextInt(durationUpperBoundExclusive) ;
-                    }
-                    else
-                    {
-                        duration = longRnCmdTimeSpn;
-                    }
+                    difference = 1 + maxLngRnCmdTimSpn - minLngRnCmdTimSpn;
+                    duration = minLngRnCmdTimSpn + rand.nextInt(difference);
                 }
                 else
                 {
-                    if(isShortCmdDurationVary)
-                    {
-                        int durationUpperBoundExclusive = (int)Math.ceil(shortCmdDuration*shortCmdDurationVaryMultiplier);
-                        duration = shortCmdDuration + rand.nextInt(durationUpperBoundExclusive);
-                    }
-                    else
-                    {
-                        duration = shortCmdDuration;
-                    }
+                    difference = 1 + maxShrtCmdTimeSpn - minShrtCmdTimeSpn;
+                    duration = minShrtCmdTimeSpn + rand.nextInt(difference);
                 }
 
                 devIDDurationMap.put(devID, duration);
@@ -1040,7 +996,6 @@ public class Temp
                 nextDbl = (nextDbl == 1.0f) ? nextDbl - 0.001f : nextDbl;
                 boolean isMust = (nextDbl < mustCmdPercentage);
                 Command cmd = new Command(devID, devIDDurationMap.get(devID), isMust);
-                //System.out.println("@ " + devID.name() + " => " + devIDDurationMap.get(devID));
                 rtn.addCommand(cmd);
             }
             routineList.add(rtn);
@@ -1048,7 +1003,7 @@ public class Temp
 
         Collections.shuffle(routineList, rand);
 
-        if(isSentAllRtnSameTime)
+        if(shrinkFactor == 0.0)
         {
             for(int index = 0 ; index < routineList.size() ; ++index)
             {
@@ -1091,76 +1046,6 @@ public class Temp
         return routineList;
     }
 
-    private static List<Routine> generateFixedPatternRtn(int nonNegativeSeed)
-    {
-        List<Routine> routineList = new ArrayList<>();
-        Random rand;
-
-        if(0 <= nonNegativeSeed)
-        {
-            rand = new Random(nonNegativeSeed);
-        }
-        else
-        {
-            rand = new Random();
-        }
-
-        int totalConcurrentRtn = maxConcurrentRtn;
-        int longRunningRoutineID = totalConcurrentRtn/2; // select the middle routine as long running routine
-
-        for(int RoutineCount = 0 ; RoutineCount < totalConcurrentRtn ; ++RoutineCount)
-        {
-            int totalCommandInThisRtn = cmndPerRtn;
-            int middleCommandIndex = totalCommandInThisRtn / 2;
-
-            if(devIDlist.size() < totalCommandInThisRtn )
-            {
-                System.out.println("\n ERROR: ID 0alaXpo :  totalCommandInThisRtn = " + totalCommandInThisRtn + " > devIDlist.size() = " + devIDlist.size());
-                System.exit(1);
-            }
-
-            Map<DEV_ID, Integer> devIDDurationMap = new HashMap<>();
-
-            List<DEV_ID> devList = new ArrayList<>();
-
-            while(devIDDurationMap.size() < totalCommandInThisRtn)
-            {
-                DEV_ID randDev = devIDlist.get( rand.nextInt(devIDlist.size()) );
-
-                if(devIDDurationMap.containsKey(randDev))
-                    continue;
-
-                int duration = shortCmdDuration;
-
-                int currentDurationMapSize = devIDDurationMap.size();
-                if((RoutineCount == longRunningRoutineID) && ( currentDurationMapSize == middleCommandIndex) )
-                { // select the middle routine's middle command as long running command
-                    duration = longRnCmdTimeSpn;
-                }
-
-                //System.out.println(randDev.name() + " " + duration);
-
-                devIDDurationMap.put(randDev, duration);
-                devList.add(randDev);
-            }
-            //System.out.println("===");
-
-            Routine rtn = new Routine();
-
-            for(DEV_ID devID : devList)
-            {
-                assert(devIDDurationMap.containsKey(devID));
-
-                boolean isMust = true;
-                Command cmd = new Command(devID, devIDDurationMap.get(devID), isMust);
-                rtn.addCommand(cmd);
-            }
-
-            routineList.add(rtn);
-        }
-
-        return routineList;
-    }
 
     private static String printInitialRoutineList(List<Routine> routineList)
     {

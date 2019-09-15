@@ -46,7 +46,25 @@ public class Benchmark {
     }
   }
 
-  public Benchmark() throws Exception {
+  private Random rand;
+  private int min_concurrency_level;
+
+  public Benchmark(int rand_seed, int _min_concurrency_level) throws Exception {
+
+    if(min_concurrency_level > 5)
+    {
+      System.out.println("\n ERROR: ID 0asdk3 : min_concurrency_level = " + min_concurrency_level + "\n\n.....Terminating...\n");
+      System.exit(1);
+    }
+
+    this.min_concurrency_level = _min_concurrency_level;
+
+    if(rand_seed < 0)
+      this.rand = new Random();
+    else
+      this.rand = new Random(rand_seed);
+
+
     routine_list = GetRoutineSetFromJson(routinePath);
     System.out.printf("routine list len: %d\n", routine_list.size());
     matrix = GetRoutineMatrix(matrixPath);
@@ -56,34 +74,21 @@ public class Benchmark {
 
   @SuppressWarnings("unchecked")
   public static void main(String[] args) throws Exception {
-    Benchmark benchmark = new Benchmark();
+    Benchmark benchmark = new Benchmark(-1, 4);
     for (int i = 0; i < 100; ++i) {
-      List<Routine> work_load = benchmark.GetOneWorkload(2, -1);
+      List<Routine> work_load = benchmark.GetOneWorkload();
       System.out.println(String.join(",", work_load.toString()));
     }
   }
 
-  public List<Routine> GetOneWorkload(int min_concurrency_level, int rand_seed) throws Exception {
-
-    if(min_concurrency_level > 5)
-    {
-      System.out.println("\n ERROR: ID 0asdk3 : min_concurrency_level = " + min_concurrency_level + "\n\n.....Terminating...\n");
-      System.exit(1);
-    }
-
-    Random rand;
-
-    if(rand_seed == -1)
-      rand = new Random();
-    else
-      rand = new Random(rand_seed);
+  public List<Routine> GetOneWorkload() throws Exception {
 
     List<Routine> workload = new ArrayList<>();
 
     do {
       workload.clear();
       Set<Integer> chosen_ids = new HashSet<>();
-      int seed_routine = rand.nextInt(total_num_routines);
+      int seed_routine = this.rand.nextInt(total_num_routines);
       chosen_ids.add(seed_routine);
       workload.add(routine_list.get(seed_routine));
       Queue<Integer> unseeded_ids = new LinkedList<>();
@@ -92,7 +97,7 @@ public class Benchmark {
         seed_routine = unseeded_ids.poll();
         for (int i = 0; i < total_num_routines; ++i) {
         // System.out.printf("chosen ids %s, seed_routine: %d, i: %d\n", chosen_ids.toString(), seed_routine, i);
-          if (!chosen_ids.contains(i) && Math.random() < matrix[seed_routine][i]) {
+          if (!chosen_ids.contains(i) && this.rand.nextDouble()< matrix[seed_routine][i]) {
             workload.add(routine_list.get(i));
             chosen_ids.add(i);
             unseeded_ids.add(i);
@@ -111,17 +116,17 @@ public class Benchmark {
 
     for (int i = 1; i < workload.size(); ++i) {
       Routine lst_rtn = workload.get(i-1);
-      workload.get(i).registrationTime = lst_rtn.registrationTime + rand.nextInt((int) lst_rtn.backToBackCmdExecutionWithoutGap);
+      workload.get(i).registrationTime = lst_rtn.registrationTime + this.rand.nextInt((int) lst_rtn.backToBackCmdExecutionWithoutGap);
       workload.get(i).ID = routine_id++;
     }
 
     return workload;
   }
 
-  private static List<Routine> GetRoutineSetFromJson(String path) {
+  private List<Routine> GetRoutineSetFromJson(String path) {
     List<Routine> routine_list = new ArrayList<>();
     JSONParser parser = new JSONParser();
-    Random rand = new Random();
+
     try {
       JSONArray routine_set = (JSONArray) parser.parse(new FileReader(path));
 
@@ -136,7 +141,7 @@ public class Benchmark {
           String[] cmd_info = iterator.next().split(":");
           int duration = 0;
           if (cmd_info.length < 3) {
-            duration = rand.nextInt(5) + 1;
+            duration = this.rand.nextInt(5) + 1;
           } else {
             duration = Integer.parseInt(cmd_info[2]);
           }

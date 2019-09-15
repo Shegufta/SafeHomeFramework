@@ -271,7 +271,10 @@ public class Routine implements Comparator<Routine>
         str += "{ Routine ID:" + this.ID;
         str += "; abbr: " + this.abbr;
         str += "; delay:" + this.getStartDelay();
-        str += "; stretchRatio:" + this.getStretchRatio() + " || ";
+        str += "; registrationTime: " + this.registrationTime;
+        str += "; backTobackExc: " + this.backToBackCmdExecutionWithoutGap;
+        str += "; expectedEndWithoutAnyGap: " + (int)(this.registrationTime + this.backToBackCmdExecutionWithoutGap);
+        str += "; stretchRatio: " + this.getStretchRatio() + " || ";
 
         for(Command cmd : this.commandList)
         {
