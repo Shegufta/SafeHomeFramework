@@ -234,6 +234,22 @@ public class LockTable
             else if(consistencyType == CONSISTENCY_TYPE.LAZY_FCFS)
             { // stop checking after first routine from the waiting list
                 Routine firstWaitingRoutine = waitingList.get(0); // get the first routine
+
+                if(!isAllLockReleased)
+                {
+                    for(Routine earlyComerNonConflictingRtn : waitingList)
+                    {
+                        if(lockReleaseTime < earlyComerNonConflictingRtn.registrationTime)
+                            break;
+
+                        if(lazy_canAcquireAllLocks( lockTableHelper , earlyComerNonConflictingRtn))
+                        {
+                            firstWaitingRoutine = earlyComerNonConflictingRtn;
+                        }
+
+                    }
+                }
+
                 if(lazy_canAcquireAllLocks( lockTableHelper , firstWaitingRoutine))
                 {
                     int maxTime = Math.max(lockReleaseTime, firstWaitingRoutine.registrationTime);
@@ -243,6 +259,7 @@ public class LockTable
 
                     scheduledRtnList.add(firstWaitingRoutine);
                 }
+
             }
             else if(consistencyType == CONSISTENCY_TYPE.LAZY_PRIORITY)
             {

@@ -123,7 +123,7 @@ public class MeasurementCollector
     }
 
     private int maxDataPoint;
-    Map<Float, Map<CONSISTENCY_TYPE, Map<MEASUREMENT_TYPE, DataHolder>>> variableMeasurementMap;
+    Map<Double, Map<CONSISTENCY_TYPE, Map<MEASUREMENT_TYPE, DataHolder>>> variableMeasurementMap;
 
     public MeasurementCollector(int _maxDataPoint)
     {
@@ -131,7 +131,7 @@ public class MeasurementCollector
         this.variableMeasurementMap = new HashMap<>();
     }
 
-    private void initiate(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
+    private void initiate(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
     {
         if(!this.variableMeasurementMap.containsKey(variable))
             this.variableMeasurementMap.put(variable, new HashMap<>() );
@@ -143,7 +143,7 @@ public class MeasurementCollector
             this.variableMeasurementMap.get(variable).get(consistencyType).put(measurementType, new DataHolder());
     }
 
-    public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, float measurementData, boolean skipZeroValue)
+    public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, double measurementData, boolean skipZeroValue)
     {
         initiate(variable, consistencyType, measurementType);
 
@@ -151,25 +151,25 @@ public class MeasurementCollector
             return;
 
         List<Float> tempList = new ArrayList<>();
-        tempList.add(measurementData);
+        tempList.add((float)measurementData);
 
         this.collectData(variable, consistencyType, measurementType, tempList);
     }
 
 
-    public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, List<Float> measurementData)
+    public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, List<Float> measurementData)
     {
         initiate(variable, consistencyType, measurementType);
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(measurementData);
     }
 
-    public void collectData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, Map<Float, Integer> histogram)
+    public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, Map<Float, Integer> histogram)
     {
         initiate(variable, consistencyType, measurementType);
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(histogram);
     }
 
-    private void sortAndTrimAndAverageAndFinalizeLargeData(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
+    private void sortAndTrimAndAverageAndFinalizeLargeData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
     {
         System.out.println("\tFinalizing for variable = " + variable + "; consistencyType = " + consistencyType + "; measurementType = " + measurementType);
         if(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isHistogramMode)
@@ -316,7 +316,7 @@ public class MeasurementCollector
     }
 
 
-    public float finalizePrepareStatsAndGetAvg(float variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
+    public float finalizePrepareStatsAndGetAvg(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType)
     {
         if(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isListFinalized)
             return this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).getAverage();
@@ -355,7 +355,7 @@ public class MeasurementCollector
         CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
 
 
-        for(float variable : variableMeasurementMap.keySet())
+        for(double variable : variableMeasurementMap.keySet())
         {
             String subDirPartialName = changingParameterName + variable;
             String subDirPath = parentDirPath + File.separator + subDirPartialName;
@@ -454,7 +454,7 @@ public class MeasurementCollector
     }
 
     private void arrangeListsForPrinting(
-            final float variable,
+            final double variable,
             final MEASUREMENT_TYPE currentMeasurement,
             final List<CONSISTENCY_TYPE> currentMeasurementAvailableConsistencyList,
             final String subDirPath,

@@ -121,7 +121,7 @@ public class FailureAnalyzer
         }
     }
 
-    private List<DEV_ID> prepareFailedDevList(float failedDevPercent, boolean atleastOneFailure, Random rand)
+    private List<DEV_ID> prepareFailedDevList(double failedDevPercent, boolean atleastOneFailure, Random rand)
     {
         List<DEV_ID> failedDevList = new ArrayList<>();
 
@@ -252,7 +252,7 @@ public class FailureAnalyzer
         return failureResult;
     }
 
-    public FailureResult simulateFailure(float failedDevPercent, boolean atleastOneFailure)
+    public FailureResult simulateFailure(double failedDevPercent, boolean atleastOneFailure)
     {
         Random rand = new Random();
 
