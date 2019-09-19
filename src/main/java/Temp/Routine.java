@@ -160,7 +160,11 @@ public class Routine implements Comparator<Routine>
 
         assert(0.0 < endToEndLatency);
 
-        return (overhead/endToEndLatency)*100.0f;
+        if(overhead == 0.0f)
+            return 0.0f;
+        else
+            return (endToEndLatency/overhead)*100.0f;
+        //return (overhead/endToEndLatency)*100.0f;
     }
 
     public float getStartDelay()

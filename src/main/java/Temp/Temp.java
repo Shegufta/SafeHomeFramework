@@ -22,7 +22,7 @@ public class Temp
 {
     public static final boolean IS_RUNNIGN_BENCHMARK = false; // Careful... if it is TRUE, all other parameters will be in don't care mode!
 
-    private static final int totalSampleCount = 500;//7500;//10000; // 100000;
+    private static final int totalSampleCount = 1000;//7500;//10000; // 100000;
 
     public static final boolean IS_PRE_LEASE_ALLOWED = true;
     public static final boolean IS_POST_LEASE_ALLOWED = true;
@@ -121,23 +121,34 @@ public class Temp
 
         List<Double> variableList = new ArrayList<>();
 
-        variableList.add(0.01);
+
 //        variableList.add(0.1);
-//        //variableList.add(0.2);
+//        variableList.add(0.2);
 //        variableList.add(0.3);
-//        //variableList.add(0.4);
-//        //variableList.add(0.5);
+//        variableList.add(0.4);
+//        variableList.add(0.5);
 //        variableList.add(0.6);
-//        //variableList.add(0.7);
+//        variableList.add(0.7);
 //        variableList.add(0.8);
-//        //variableList.add(0.9);
-//        variableList.add(1.0);
+//        variableList.add(0.9);
+        variableList.add(0.0);
+        variableList.add(0.05);
+        variableList.add(0.1);
+        variableList.add(0.15);
+        variableList.add(0.2);
+        variableList.add(0.25);
+        variableList.add(0.3);
+        variableList.add(0.4);
+        variableList.add(0.5);
+        //variableList.add(10.0);
+
 
         String changingParameterName = null;
         for(double variable : variableList)
         {
-            zipF = variable;
-            changingParameterName = "zipF";
+            shrinkFactor = variable;
+            //minCmdCntPerRtn = maxCmdCntPerRtn;
+            changingParameterName = "shrinkFactor";
 
 
 
