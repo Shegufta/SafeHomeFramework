@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
 
+import static Temp.SysParamSngltn.IS_RUNNING_BENCHMARK;
+
 /**
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
@@ -20,67 +22,60 @@ import java.util.*;
 
 public class Temp
 {
-    public static final boolean IS_RUNNIGN_BENCHMARK = false; // Careful... if it is TRUE, all other parameters will be in don't care mode!
+    public static final boolean IS_RUNNIGN_BENCHMARK = SysParamSngltn.getInstance().IS_RUNNING_BENCHMARK; //false; // Careful... if it is TRUE, all other parameters will be in don't care mode!
+    private static final int totalSampleCount = SysParamSngltn.getInstance().totalSampleCount; //1000;//7500;//10000; // 100000;
 
-    private static final int totalSampleCount = 1000;//7500;//10000; // 100000;
+    private static double shrinkFactor = SysParamSngltn.getInstance().shrinkFactor; // 0.25; // shrink the total time... this parameter controls the concurrency
+    private static double minCmdCntPerRtn = SysParamSngltn.getInstance().minCmdCntPerRtn; //  1;
+    private static double maxCmdCntPerRtn = SysParamSngltn.getInstance().maxCmdCntPerRtn; //  3;
 
-    public static final boolean IS_PRE_LEASE_ALLOWED = true;
-    public static final boolean IS_POST_LEASE_ALLOWED = true;
+    private static double zipF = SysParamSngltn.getInstance().zipF; //  0.01;
+    public static int devRegisteredOutOf65Dev = SysParamSngltn.getInstance().devRegisteredOutOf65Dev;
+    private static int maxConcurrentRtn = SysParamSngltn.getInstance().maxConcurrentRtn; //  100; //in current version totalConcurrentRtn = maxConcurrentRtn;
 
-    private static double shrinkFactor = 0.25; // shrink the total time... this parameter controls the concurrency
+    private static double longRrtnPcntg = SysParamSngltn.getInstance().longRrtnPcntg; //  0.1;
+    private static final boolean isAtleastOneLongRunning = SysParamSngltn.getInstance().isAtleastOneLongRunning; //  false;
+    private static double minLngRnCmdTimSpn = SysParamSngltn.getInstance().minLngRnCmdTimSpn; //  2000;
+    private static double maxLngRnCmdTimSpn = SysParamSngltn.getInstance().maxLngRnCmdTimSpn; //  minLngRnCmdTimSpn * 2;
 
-    private static int minCmdCntPerRtn = 1;
-    private static int maxCmdCntPerRtn = 3;
+    private static final double minShrtCmdTimeSpn = SysParamSngltn.getInstance().minShrtCmdTimeSpn; //  10;
+    private static final double maxShrtCmdTimeSpn = SysParamSngltn.getInstance().maxShrtCmdTimeSpn; //  minShrtCmdTimeSpn * 6;
 
-    private static double zipF = 0.01;
+    private static double devFailureRatio = SysParamSngltn.getInstance().devFailureRatio; //  0.0;
+    private static final boolean atleastOneDevFail = SysParamSngltn.getInstance().atleastOneDevFail; //  false;
+    private static double mustCmdPercentage = SysParamSngltn.getInstance().mustCmdPercentage; //  1.0;
 
-    private static int maxConcurrentRtn = 100; //in current version totalConcurrentRtn = maxConcurrentRtn;
+    public static final boolean IS_PRE_LEASE_ALLOWED = SysParamSngltn.getInstance().IS_PRE_LEASE_ALLOWED; // true;
+    public static final boolean IS_POST_LEASE_ALLOWED = SysParamSngltn.getInstance().IS_POST_LEASE_ALLOWED; // true;
 
-    private static double longRrtnPcntg = 0.1;
-    private static final boolean atleastOneLongRunning = false;
-    private static int minLngRnCmdTimSpn = 2000;
-    private static int maxLngRnCmdTimSpn = minLngRnCmdTimSpn * 2;
+    private static final int SIMULATION_START_TIME = SysParamSngltn.getInstance().SIMULATION_START_TIME; //  0;
+    public static final int MAX_DATAPOINT_COLLECTON_SIZE = SysParamSngltn.getInstance().MAX_DATAPOINT_COLLECTON_SIZE; //  5000;
+    private static final int RANDOM_SEED = SysParamSngltn.getInstance().RANDOM_SEED; //  -1;
+    private static final int MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = SysParamSngltn.getInstance().MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING; //  5;
 
-    private static final int minShrtCmdTimeSpn = 10;
-    private static final int maxShrtCmdTimeSpn = minShrtCmdTimeSpn * 6;
-
-    private static double devFailureRatio = 0.0;
-    private static final boolean atleastOneDevFail = false;
-    private static double mustCmdPercentage = 1.0;
-
-    private static final boolean isPrint = false;
+    private static final String dataStorageDirectory = SysParamSngltn.getInstance().dataStorageDirectory; //  "C:\\Users\\shegufta\\Desktop\\smartHomeData";
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
     private static Map<DEV_ID, ZipfProbBoundary> devID_ProbBoundaryMap = new HashMap<>();
 
-    private static final int SIMULATION_START_TIME = 0;
-    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 5000;
-    private static final int RANDOM_SEED = -1;
-    private static final int MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = 5;
-
-    private static final String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
-
     ///////////////////////////////////////////////////////////////////////////////////
-    //public static final boolean isRun
     ///////////////////////////////////////////////////////////////////////////////////
 
     private static void initiateSyntheticDevices()
     {
-        devIDlist.add(DEV_ID.A);
-        devIDlist.add(DEV_ID.B);
-        devIDlist.add(DEV_ID.C);
-        devIDlist.add(DEV_ID.D);
-        devIDlist.add(DEV_ID.E);
-        devIDlist.add(DEV_ID.F);
-        devIDlist.add(DEV_ID.G);
-        devIDlist.add(DEV_ID.H);
-        devIDlist.add(DEV_ID.I);
-//        devIDlist.add(DEV_ID.J);
-//        devIDlist.add(DEV_ID.K);
-//        devIDlist.add(DEV_ID.L);
-//        devIDlist.add(DEV_ID.M);
-//        devIDlist.add(DEV_ID.N);
-//        devIDlist.add(DEV_ID.O);
+        int count = devRegisteredOutOf65Dev;
+        int totalAvailable = DEV_ID.values().length;
+
+        count = Math.min(count, totalAvailable);
+
+        for(DEV_ID devID : DEV_ID.values())
+        {
+            count--;
+            devIDlist.add(devID);
+
+            if(count <= 0)
+                break;
+        }
     }
 
 
@@ -131,12 +126,12 @@ public class Temp
 //        variableList.add(0.7);
 //        variableList.add(0.8);
 //        variableList.add(0.9);
-        variableList.add(0.0);
-        variableList.add(0.05);
-        variableList.add(0.1);
-        variableList.add(0.15);
-        variableList.add(0.2);
-        variableList.add(0.25);
+//        variableList.add(0.0);
+//        variableList.add(0.05);
+//        variableList.add(0.1);
+//        variableList.add(0.15);
+//        variableList.add(0.2);
+//        variableList.add(0.25);
         variableList.add(0.3);
         variableList.add(0.4);
         variableList.add(0.5);
@@ -167,69 +162,140 @@ public class Temp
                     logStr += zipFianStr;
                 }
 
-                System.out.println("--------------------------------");
-                logStr += "--------------------------------\n";
-                System.out.println("Total Device Count: = " + devIDlist.size());
-                logStr += "Total Device Count: = " + devIDlist.size() + "\n";
+                System.out.println("###################################");
+                logStr += "###################################\n";
 
-                System.out.println("totalConcurrentRtn = " + maxConcurrentRtn);
-                logStr += "totalConcurrentRtn = " + maxConcurrentRtn + "\n";
+                System.out.println("IS_RUNNING_BENCHMARK = " + IS_RUNNING_BENCHMARK);
+                logStr += "IS_RUNNING_BENCHMARK = " + IS_RUNNING_BENCHMARK + "\n";
+                System.out.println("totalSampleCount = " + totalSampleCount + "\n");
+                logStr += "totalSampleCount = " + totalSampleCount + "\n\n";
 
+
+                System.out.println("shrinkFactor = " + shrinkFactor);
+                logStr += "shrinkFactor = " + shrinkFactor + "\n";
                 System.out.println("minCmdCntPerRtn = " + minCmdCntPerRtn);
                 logStr += "minCmdCntPerRtn = " + minCmdCntPerRtn + "\n";
+                System.out.println("maxCmdCntPerRtn = " + maxCmdCntPerRtn + "\n");
+                logStr += "maxCmdCntPerRtn = " + maxCmdCntPerRtn + "\n\n";
 
-                System.out.println("maxCmdCntPerRtn = " + maxCmdCntPerRtn);
-                logStr += "maxCmdCntPerRtn = " + maxCmdCntPerRtn + "\n";
-
-                System.out.println("shrinkFactor = " + shrinkFactor );
-                logStr += "shrinkFactor = " + shrinkFactor + "\n";
 
                 System.out.println("zipF = " + zipF);
                 logStr += "zipF = " + zipF + "\n";
+                System.out.println("devRegisteredOutOf65Dev = " + devRegisteredOutOf65Dev);
+                logStr += "devRegisteredOutOf65Dev = " + devRegisteredOutOf65Dev + "\n";
+                System.out.println("maxConcurrentRtn = " + maxConcurrentRtn + "\n");
+                logStr += "maxConcurrentRtn = " + maxConcurrentRtn + "\n\n";
 
-                System.out.println("IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED);
-                logStr += "IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED + "\n";
-
-                System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED);
-                logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n";
-
-                System.out.println("minShrtCmdTimeSpn = " + minShrtCmdTimeSpn);
-                logStr += "minShrtCmdTimeSpn = " + minShrtCmdTimeSpn + "\n";
-                System.out.println("maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn);
-                logStr += "maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + "\n";
-
-                System.out.println("minLngRnCmdTimSpn = " + minLngRnCmdTimSpn);
-                logStr += "minLngRnCmdTimSpn = " + minLngRnCmdTimSpn + "\n";
-                System.out.println("maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn);
-                logStr += "maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + "\n";
 
                 System.out.println("longRrtnPcntg = " + longRrtnPcntg);
                 logStr += "longRrtnPcntg = " + longRrtnPcntg + "\n";
-                System.out.println("atleastOneLongRunning = " + atleastOneLongRunning);
-                logStr += "atleastOneLongRunning = " + atleastOneLongRunning + "\n";
+                System.out.println("isAtleastOneLongRunning = " + isAtleastOneLongRunning);
+                logStr += "isAtleastOneLongRunning = " + isAtleastOneLongRunning + "\n";
+                System.out.println("minLngRnCmdTimSpn = " + minLngRnCmdTimSpn);
+                logStr += "minLngRnCmdTimSpn = " + minLngRnCmdTimSpn + "\n";
+                System.out.println("maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + "\n");
+                logStr += "maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + "\n\n";
 
-                System.out.println("SIMULATION_START_TIME = " + SIMULATION_START_TIME);
-                logStr += "SIMULATION_START_TIME = " + SIMULATION_START_TIME + "\n";
+                System.out.println("minShrtCmdTimeSpn = " + minShrtCmdTimeSpn);
+                logStr += "minShrtCmdTimeSpn = " + minShrtCmdTimeSpn + "\n";
+                System.out.println("maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + "\n");
+                logStr += "maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + "\n\n";
 
-                System.out.println("totalSampleCount = " + totalSampleCount);
-                logStr += "totalSampleCount = " + totalSampleCount + "\n";
 
                 System.out.println("devFailureRatio = " + devFailureRatio);
                 logStr += "devFailureRatio = " + devFailureRatio + "\n";
                 System.out.println("atleastOneDevFail = " + atleastOneDevFail);
                 logStr += "atleastOneDevFail = " + atleastOneDevFail + "\n";
+                System.out.println("mustCmdPercentage = " + mustCmdPercentage + "\n");
+                logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n\n";
 
-                System.out.println("mustCmdPercentage = " + mustCmdPercentage);
-                logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n";
 
+                System.out.println("IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED);
+                logStr += "IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED + "\n";
+                System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n");
+                logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n\n";
+
+                System.out.println("SIMULATION_START_TIME = " + SIMULATION_START_TIME);
+                logStr += "SIMULATION_START_TIME = " + SIMULATION_START_TIME + "\n";
+                System.out.println("MAX_DATAPOINT_COLLECTON_SIZE = " + MAX_DATAPOINT_COLLECTON_SIZE);
+                logStr += "MAX_DATAPOINT_COLLECTON_SIZE = " + MAX_DATAPOINT_COLLECTON_SIZE + "\n";
                 System.out.println("RANDOM_SEED = " + RANDOM_SEED);
                 logStr += "RANDOM_SEED = " + RANDOM_SEED + "\n";
+                System.out.println("MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING + "\n");
+                logStr += "MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING + "\n\n";
 
-                System.out.println("MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING);
-                logStr += "MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING + "\n";
+                System.out.println("dataStorageDirectory = " + dataStorageDirectory + "\n");
+                logStr += "dataStorageDirectory = " + dataStorageDirectory + "\n\n";
 
-                System.out.println("--------------------------------");
-                logStr += "--------------------------------\n";
+                System.out.println("###################################");
+                logStr += "###################################\n";
+
+
+//
+//                System.out.println("Total Device Count: = " + devIDlist.size());
+//                logStr += "Total Device Count: = " + devIDlist.size() + "\n";
+//
+//                System.out.println("Total Device Count: = " + devIDlist.size());
+//                logStr += "Total Device Count: = " + devIDlist.size() + "\n";
+//
+//                System.out.println("totalConcurrentRtn = " + maxConcurrentRtn);
+//                logStr += "totalConcurrentRtn = " + maxConcurrentRtn + "\n";
+//
+//                System.out.println("minCmdCntPerRtn = " + minCmdCntPerRtn);
+//                logStr += "minCmdCntPerRtn = " + minCmdCntPerRtn + "\n";
+//
+//                System.out.println("maxCmdCntPerRtn = " + maxCmdCntPerRtn);
+//                logStr += "maxCmdCntPerRtn = " + maxCmdCntPerRtn + "\n";
+//
+//                System.out.println("shrinkFactor = " + shrinkFactor );
+//                logStr += "shrinkFactor = " + shrinkFactor + "\n";
+//
+//                System.out.println("zipF = " + zipF);
+//                logStr += "zipF = " + zipF + "\n";
+//
+//                System.out.println("IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED);
+//                logStr += "IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED + "\n";
+//
+//                System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED);
+//                logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n";
+//
+//                System.out.println("minShrtCmdTimeSpn = " + minShrtCmdTimeSpn);
+//                logStr += "minShrtCmdTimeSpn = " + minShrtCmdTimeSpn + "\n";
+//                System.out.println("maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn);
+//                logStr += "maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + "\n";
+//
+//                System.out.println("minLngRnCmdTimSpn = " + minLngRnCmdTimSpn);
+//                logStr += "minLngRnCmdTimSpn = " + minLngRnCmdTimSpn + "\n";
+//                System.out.println("maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn);
+//                logStr += "maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + "\n";
+//
+//                System.out.println("longRrtnPcntg = " + longRrtnPcntg);
+//                logStr += "longRrtnPcntg = " + longRrtnPcntg + "\n";
+//                System.out.println("isAtleastOneLongRunning = " + isAtleastOneLongRunning);
+//                logStr += "isAtleastOneLongRunning = " + isAtleastOneLongRunning + "\n";
+//
+//                System.out.println("SIMULATION_START_TIME = " + SIMULATION_START_TIME);
+//                logStr += "SIMULATION_START_TIME = " + SIMULATION_START_TIME + "\n";
+//
+//                System.out.println("totalSampleCount = " + totalSampleCount);
+//                logStr += "totalSampleCount = " + totalSampleCount + "\n";
+//
+//                System.out.println("devFailureRatio = " + devFailureRatio);
+//                logStr += "devFailureRatio = " + devFailureRatio + "\n";
+//                System.out.println("atleastOneDevFail = " + atleastOneDevFail);
+//                logStr += "atleastOneDevFail = " + atleastOneDevFail + "\n";
+//
+//                System.out.println("mustCmdPercentage = " + mustCmdPercentage);
+//                logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n";
+//
+//                System.out.println("RANDOM_SEED = " + RANDOM_SEED);
+//                logStr += "RANDOM_SEED = " + RANDOM_SEED + "\n";
+//
+//                System.out.println("MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING);
+//                logStr += "MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING + "\n";
+
+//                System.out.println("###################################");
+//                logStr += "###################################\n";
             }
 
             int resolution = 10;
@@ -967,14 +1033,14 @@ public class Temp
             if(isLongRunning)
                 longRunningRoutineCount++;
 
-            if(atleastOneLongRunning && (RoutineCount == totalConcurrentRtn - 1) && longRunningRoutineCount == 0)
+            if(isAtleastOneLongRunning && (RoutineCount == totalConcurrentRtn - 1) && longRunningRoutineCount == 0)
             {
                 isLongRunning = true; // at least one routine will be long running;
             }
 
 
-            int difference = 1 + maxCmdCntPerRtn - minCmdCntPerRtn;
-            int totalCommandInThisRtn = minCmdCntPerRtn + rand.nextInt(difference);
+            int difference = 1 + (int)maxCmdCntPerRtn - (int)minCmdCntPerRtn;
+            int totalCommandInThisRtn = (int)minCmdCntPerRtn + rand.nextInt(difference);
 
 
             if(devIDlist.size() < totalCommandInThisRtn )
@@ -1000,13 +1066,13 @@ public class Temp
                 int middleCommandIndex = totalCommandInThisRtn / 2;
                 if(isLongRunning && ( currentDurationMapSize == middleCommandIndex) )
                 { // select the  middle command as long running command
-                    difference = 1 + maxLngRnCmdTimSpn - minLngRnCmdTimSpn;
-                    duration = minLngRnCmdTimSpn + rand.nextInt(difference);
+                    difference = 1 + (int)maxLngRnCmdTimSpn - (int)minLngRnCmdTimSpn;
+                    duration = (int)minLngRnCmdTimSpn + rand.nextInt(difference);
                 }
                 else
                 {
-                    difference = 1 + maxShrtCmdTimeSpn - minShrtCmdTimeSpn;
-                    duration = minShrtCmdTimeSpn + rand.nextInt(difference);
+                    difference = 1 + (int)maxShrtCmdTimeSpn - (int)minShrtCmdTimeSpn;
+                    duration = (int)minShrtCmdTimeSpn + rand.nextInt(difference);
                 }
 
                 devIDDurationMap.put(devID, duration);
@@ -1110,8 +1176,6 @@ public class Temp
 
         for(Routine routine : perExpRtnList)
         {
-            if(isPrint) System.out.println(routine);
-
             float data;
             Integer count;
 
