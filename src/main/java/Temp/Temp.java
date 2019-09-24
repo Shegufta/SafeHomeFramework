@@ -25,6 +25,19 @@ public class Temp
     public static final boolean IS_RUNNIGN_BENCHMARK = SysParamSngltn.getInstance().IS_RUNNING_BENCHMARK; //false; // Careful... if it is TRUE, all other parameters will be in don't care mode!
     private static final int totalSampleCount = SysParamSngltn.getInstance().totalSampleCount; //1000;//7500;//10000; // 100000;
 
+    public static final boolean isVaryShrinkFactor = SysParamSngltn.getInstance().isVaryShrinkFactor;
+    public static final boolean isVaryCommandCntPerRtn = SysParamSngltn.getInstance().isVaryCommandCntPerRtn;
+    public static final boolean isVaryZipfAlpha = SysParamSngltn.getInstance().isVaryZipfAlpha;
+    public static final boolean isVaryLongRunningPercent = SysParamSngltn.getInstance().isVaryLongRunningPercent;
+    public static final boolean isVaryLongRunningDuration = SysParamSngltn.getInstance().isVaryLongRunningDuration;
+    public static final boolean isVaryShortRunningDuration = SysParamSngltn.getInstance().isVaryShortRunningDuration;
+
+    public static final String commaSeprtdVarListString = SysParamSngltn.getInstance().commaSeprtdVarListString;
+    public static final List<Double> variableList = SysParamSngltn.getInstance().variableList;
+
+    public static final String commaSeprtdCorrespondingUpperBoundListString =  SysParamSngltn.getInstance().commaSeprtdCorrespondingUpperBoundListString;
+    public static final List<Double> variableCorrespndinMaxValList = SysParamSngltn.getInstance().variableCorrespndinMaxValList;
+
     private static double shrinkFactor = SysParamSngltn.getInstance().shrinkFactor; // 0.25; // shrink the total time... this parameter controls the concurrency
     private static double minCmdCntPerRtn = SysParamSngltn.getInstance().minCmdCntPerRtn; //  1;
     private static double maxCmdCntPerRtn = SysParamSngltn.getInstance().maxCmdCntPerRtn; //  3;
@@ -38,8 +51,8 @@ public class Temp
     private static double minLngRnCmdTimSpn = SysParamSngltn.getInstance().minLngRnCmdTimSpn; //  2000;
     private static double maxLngRnCmdTimSpn = SysParamSngltn.getInstance().maxLngRnCmdTimSpn; //  minLngRnCmdTimSpn * 2;
 
-    private static final double minShrtCmdTimeSpn = SysParamSngltn.getInstance().minShrtCmdTimeSpn; //  10;
-    private static final double maxShrtCmdTimeSpn = SysParamSngltn.getInstance().maxShrtCmdTimeSpn; //  minShrtCmdTimeSpn * 6;
+    private static double minShrtCmdTimeSpn = SysParamSngltn.getInstance().minShrtCmdTimeSpn; //  10;
+    private static double maxShrtCmdTimeSpn = SysParamSngltn.getInstance().maxShrtCmdTimeSpn; //  minShrtCmdTimeSpn * 6;
 
     private static double devFailureRatio = SysParamSngltn.getInstance().devFailureRatio; //  0.0;
     private static final boolean atleastOneDevFail = SysParamSngltn.getInstance().atleastOneDevFail; //  false;
@@ -62,11 +75,6 @@ public class Temp
     public static Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
     public static List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING_LIST = new ArrayList<>();
     ///////////////////////////////////////////////////////////////////////////////////
-
-    public Temp()
-    {
-
-    }
 
 
     private static void initiateSyntheticDevices()
@@ -98,6 +106,26 @@ public class Temp
         logStr += "IS_RUNNING_BENCHMARK = " + IS_RUNNING_BENCHMARK + "\n";
         System.out.println("totalSampleCount = " + totalSampleCount + "\n");
         logStr += "totalSampleCount = " + totalSampleCount + "\n\n";
+
+
+        System.out.println("isVaryShrinkFactor = " + isVaryShrinkFactor);
+        logStr += "isVaryShrinkFactor = " + isVaryShrinkFactor + "\n";
+        System.out.println("isVaryCommandCntPerRtn = " + isVaryCommandCntPerRtn);
+        logStr += "isVaryCommandCntPerRtn = " + isVaryCommandCntPerRtn + "\n";
+        System.out.println("isVaryZipfAlpha = " + isVaryZipfAlpha);
+        logStr += "isVaryZipfAlpha = " + isVaryZipfAlpha + "\n";
+        System.out.println("isVaryLongRunningPercent = " + isVaryLongRunningPercent);
+        logStr += "isVaryLongRunningPercent = " + isVaryLongRunningPercent + "\n";
+        System.out.println("isVaryLongRunningDuration = " + isVaryLongRunningDuration);
+        logStr += "isVaryLongRunningDuration = " + isVaryLongRunningDuration + "\n";
+        System.out.println("isVaryShortRunningDuration = " + isVaryShortRunningDuration + "\n");
+        logStr += "isVaryShortRunningDuration = " + isVaryShortRunningDuration + "\n\n";
+
+
+        System.out.println("commaSeprtdVarListString = " + commaSeprtdVarListString);
+        logStr += "commaSeprtdVarListString = " + commaSeprtdVarListString + "\n";
+        System.out.println("commaSeprtdCorrespondingUpperBoundListString = " + commaSeprtdCorrespondingUpperBoundListString + "\n");
+        logStr += "commaSeprtdCorrespondingUpperBoundListString = " + commaSeprtdCorrespondingUpperBoundListString + "\n\n";
 
 
         System.out.println("shrinkFactor = " + shrinkFactor);
@@ -196,7 +224,7 @@ public class Temp
         //Map<Double, List<Float>> globalDataCollector = new HashMap<>();
         Map<Double, Map<MEASUREMENT_TYPE, Map<CONSISTENCY_TYPE, Double>>> globalDataCollector = new LinkedHashMap<>();
 
-        List<Double> variableTrakcer = new ArrayList<>();
+        //List<Double> variableTrakcer = new ArrayList<>();
         Double changingParameterValue = -1.0;
         double lastGeneratedZipfeanFor = Double.MAX_VALUE; // NOTE: declare zipfean here... DO NOT declare it inside the for loop!
 
@@ -230,44 +258,57 @@ public class Temp
         measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
-        List<Double> variableList = new ArrayList<>();
-
-
-//        variableList.add(0.1);
-//        variableList.add(0.2);
-//        variableList.add(0.3);
-//        variableList.add(0.4);
-//        variableList.add(0.5);
-//        variableList.add(0.6);
-//        variableList.add(0.7);
-//        variableList.add(0.8);
-//        variableList.add(0.9);
-//        variableList.add(0.0);
-//        variableList.add(0.05);
-//        variableList.add(0.1);
-//        variableList.add(0.15);
-//        variableList.add(0.2);
-//        variableList.add(0.25);
-        variableList.add(0.5);
-        variableList.add(0.7);
-        variableList.add(0.9);
-        variableList.add(1.0);
-        //variableList.add(10.0);
-
-
 
         String changingParameterName = null;
-        for(double variable : variableList)
+        for( int varIdx = 0 ; varIdx < variableList.size() ; varIdx++)
         {
-            shrinkFactor = variable;
-            //minCmdCntPerRtn = maxCmdCntPerRtn;
-            changingParameterName = "shrinkFactor";
+            changingParameterValue = variableList.get(varIdx);
 
+            if(isVaryShrinkFactor)
+            {
+                shrinkFactor = changingParameterValue;
+                changingParameterName = "shrinkFactor";
+            }
+            else if(isVaryZipfAlpha)
+            {
+                zipF = changingParameterValue;
+                changingParameterName = "zipF";
+            }
+            else if(isVaryLongRunningPercent)
+            {
+                longRrtnPcntg = changingParameterValue;
+                changingParameterName = "longRrtnPcntg";
+            }
+            else if(isVaryCommandCntPerRtn)
+            {
+                double maxVal = variableCorrespndinMaxValList.get(varIdx);
 
-            changingParameterValue = variable;
+                minCmdCntPerRtn = changingParameterValue;
+                maxCmdCntPerRtn = maxVal;
+                changingParameterName = "minCmdCntPerRtn";
+            }
+            else if(isVaryLongRunningDuration)
+            {
+                double maxVal = variableCorrespndinMaxValList.get(varIdx);
 
-            variableTrakcer.add(changingParameterValue); // add the variable name
-            //List<Float> resultCollector = new ArrayList<>();
+                minLngRnCmdTimSpn = changingParameterValue;
+                maxLngRnCmdTimSpn = maxVal;
+                changingParameterName = "minLngRnCmdTimSpn";
+            }
+            else if(isVaryShortRunningDuration)
+            {
+                double maxVal = variableCorrespndinMaxValList.get(varIdx);
+
+                minShrtCmdTimeSpn = changingParameterValue;
+                maxShrtCmdTimeSpn = maxVal;
+                changingParameterName = "minShrtCmdTimeSpn";
+            }
+            else
+            {
+                System.out.println("Error: unknown selection.... Terminating...");
+                System.exit(1);
+            }
+            
 
             if(!IS_RUNNIGN_BENCHMARK)
             {
@@ -280,143 +321,6 @@ public class Temp
                 }
 
                 logStr += preparePrintableParameters();
-
-                /*
-                System.out.println("###################################");
-                logStr += "###################################\n";
-
-                System.out.println("IS_RUNNING_BENCHMARK = " + IS_RUNNING_BENCHMARK);
-                logStr += "IS_RUNNING_BENCHMARK = " + IS_RUNNING_BENCHMARK + "\n";
-                System.out.println("totalSampleCount = " + totalSampleCount + "\n");
-                logStr += "totalSampleCount = " + totalSampleCount + "\n\n";
-
-
-                System.out.println("shrinkFactor = " + shrinkFactor);
-                logStr += "shrinkFactor = " + shrinkFactor + "\n";
-                System.out.println("minCmdCntPerRtn = " + minCmdCntPerRtn);
-                logStr += "minCmdCntPerRtn = " + minCmdCntPerRtn + "\n";
-                System.out.println("maxCmdCntPerRtn = " + maxCmdCntPerRtn + "\n");
-                logStr += "maxCmdCntPerRtn = " + maxCmdCntPerRtn + "\n\n";
-
-
-                System.out.println("zipF = " + zipF);
-                logStr += "zipF = " + zipF + "\n";
-                System.out.println("devRegisteredOutOf65Dev = " + devRegisteredOutOf65Dev);
-                logStr += "devRegisteredOutOf65Dev = " + devRegisteredOutOf65Dev + "\n";
-                System.out.println("maxConcurrentRtn = " + maxConcurrentRtn + "\n");
-                logStr += "maxConcurrentRtn = " + maxConcurrentRtn + "\n\n";
-
-
-                System.out.println("longRrtnPcntg = " + longRrtnPcntg);
-                logStr += "longRrtnPcntg = " + longRrtnPcntg + "\n";
-                System.out.println("isAtleastOneLongRunning = " + isAtleastOneLongRunning);
-                logStr += "isAtleastOneLongRunning = " + isAtleastOneLongRunning + "\n";
-                System.out.println("minLngRnCmdTimSpn = " + minLngRnCmdTimSpn);
-                logStr += "minLngRnCmdTimSpn = " + minLngRnCmdTimSpn + "\n";
-                System.out.println("maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + "\n");
-                logStr += "maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + "\n\n";
-
-                System.out.println("minShrtCmdTimeSpn = " + minShrtCmdTimeSpn);
-                logStr += "minShrtCmdTimeSpn = " + minShrtCmdTimeSpn + "\n";
-                System.out.println("maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + "\n");
-                logStr += "maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + "\n\n";
-
-
-                System.out.println("devFailureRatio = " + devFailureRatio);
-                logStr += "devFailureRatio = " + devFailureRatio + "\n";
-                System.out.println("atleastOneDevFail = " + atleastOneDevFail);
-                logStr += "atleastOneDevFail = " + atleastOneDevFail + "\n";
-                System.out.println("mustCmdPercentage = " + mustCmdPercentage + "\n");
-                logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n\n";
-
-
-                System.out.println("IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED);
-                logStr += "IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED + "\n";
-                System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n");
-                logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n\n";
-
-                System.out.println("SIMULATION_START_TIME = " + SIMULATION_START_TIME);
-                logStr += "SIMULATION_START_TIME = " + SIMULATION_START_TIME + "\n";
-                System.out.println("MAX_DATAPOINT_COLLECTON_SIZE = " + MAX_DATAPOINT_COLLECTON_SIZE);
-                logStr += "MAX_DATAPOINT_COLLECTON_SIZE = " + MAX_DATAPOINT_COLLECTON_SIZE + "\n";
-                System.out.println("RANDOM_SEED = " + RANDOM_SEED);
-                logStr += "RANDOM_SEED = " + RANDOM_SEED + "\n";
-                System.out.println("MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING + "\n");
-                logStr += "MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING + "\n\n";
-
-                System.out.println("dataStorageDirectory = " + dataStorageDirectory + "\n");
-                logStr += "dataStorageDirectory = " + dataStorageDirectory + "\n\n";
-
-                System.out.println("###################################");
-                logStr += "###################################\n";
-                */
-
-
-//
-//                System.out.println("Total Device Count: = " + devIDlist.size());
-//                logStr += "Total Device Count: = " + devIDlist.size() + "\n";
-//
-//                System.out.println("Total Device Count: = " + devIDlist.size());
-//                logStr += "Total Device Count: = " + devIDlist.size() + "\n";
-//
-//                System.out.println("totalConcurrentRtn = " + maxConcurrentRtn);
-//                logStr += "totalConcurrentRtn = " + maxConcurrentRtn + "\n";
-//
-//                System.out.println("minCmdCntPerRtn = " + minCmdCntPerRtn);
-//                logStr += "minCmdCntPerRtn = " + minCmdCntPerRtn + "\n";
-//
-//                System.out.println("maxCmdCntPerRtn = " + maxCmdCntPerRtn);
-//                logStr += "maxCmdCntPerRtn = " + maxCmdCntPerRtn + "\n";
-//
-//                System.out.println("shrinkFactor = " + shrinkFactor );
-//                logStr += "shrinkFactor = " + shrinkFactor + "\n";
-//
-//                System.out.println("zipF = " + zipF);
-//                logStr += "zipF = " + zipF + "\n";
-//
-//                System.out.println("IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED);
-//                logStr += "IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED + "\n";
-//
-//                System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED);
-//                logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n";
-//
-//                System.out.println("minShrtCmdTimeSpn = " + minShrtCmdTimeSpn);
-//                logStr += "minShrtCmdTimeSpn = " + minShrtCmdTimeSpn + "\n";
-//                System.out.println("maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn);
-//                logStr += "maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + "\n";
-//
-//                System.out.println("minLngRnCmdTimSpn = " + minLngRnCmdTimSpn);
-//                logStr += "minLngRnCmdTimSpn = " + minLngRnCmdTimSpn + "\n";
-//                System.out.println("maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn);
-//                logStr += "maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + "\n";
-//
-//                System.out.println("longRrtnPcntg = " + longRrtnPcntg);
-//                logStr += "longRrtnPcntg = " + longRrtnPcntg + "\n";
-//                System.out.println("isAtleastOneLongRunning = " + isAtleastOneLongRunning);
-//                logStr += "isAtleastOneLongRunning = " + isAtleastOneLongRunning + "\n";
-//
-//                System.out.println("SIMULATION_START_TIME = " + SIMULATION_START_TIME);
-//                logStr += "SIMULATION_START_TIME = " + SIMULATION_START_TIME + "\n";
-//
-//                System.out.println("totalSampleCount = " + totalSampleCount);
-//                logStr += "totalSampleCount = " + totalSampleCount + "\n";
-//
-//                System.out.println("devFailureRatio = " + devFailureRatio);
-//                logStr += "devFailureRatio = " + devFailureRatio + "\n";
-//                System.out.println("atleastOneDevFail = " + atleastOneDevFail);
-//                logStr += "atleastOneDevFail = " + atleastOneDevFail + "\n";
-//
-//                System.out.println("mustCmdPercentage = " + mustCmdPercentage);
-//                logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n";
-//
-//                System.out.println("RANDOM_SEED = " + RANDOM_SEED);
-//                logStr += "RANDOM_SEED = " + RANDOM_SEED + "\n";
-//
-//                System.out.println("MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING);
-//                logStr += "MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING + "\n";
-
-//                System.out.println("###################################");
-//                logStr += "###################################\n";
             }
 
             int resolution = 10;
@@ -452,18 +356,7 @@ public class Temp
                     routineSet = generateAutomatedRtn(RANDOM_SEED);
                 }
 
-                /*
-                FailureResult failureResult;
-                ExpResults expResult;
-                float abtRatio;
-                float recoverCmdRatio;
-                */
 
-
-
-
-
-                //for(MEASUREMENT_TYPE measurementType : measurementList)
                 for(CONSISTENCY_TYPE consistency_type :  Temp.CONSISTENCY_ORDERING_LIST)
                 {
                     ExpResults expResult = runExperiment(devIDlist, consistency_type, routineSet, SIMULATION_START_TIME);
@@ -514,384 +407,7 @@ public class Temp
                                 MEASUREMENT_TYPE.STRETCH_RATIO,
                                 expResult.stretchRatioHistogram);
                     }
-
                 }
-
-
-
-
-
-
-
-///////////////////////////////////////-------STRONG------////////////////////////////////////////////////////////////
-                /*
-                expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.STRONG, routineSet, SIMULATION_START_TIME);
-
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.latencyOverheadHistogram);
-
-                failureResult = expResult.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
-                abtRatio = failureResult.getAbtRtnVsTotalRtnRatio(maxConcurrentRtn);
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ABORT_RATE,
-                        abtRatio, true);
-
-                recoverCmdRatio = failureResult.getRecoveryCmdSentRatio();
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.RECOVERY_CMD,
-                        recoverCmdRatio, true);
-
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelismHistogram);
-
-                ///////
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
-                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
-                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
-                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
-                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
-                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
-                ///////
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderingMismatchPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
-                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPrcntHistogram);
-
-                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
-                */
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////-------RELAXED STRONG-----/////////////////////////////////////////////////////////
-
-                /*
-                expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.RELAXED_STRONG, routineSet, SIMULATION_START_TIME);
-
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.latencyOverheadHistogram);
-
-                failureResult = expResult.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
-                abtRatio = failureResult.getAbtRtnVsTotalRtnRatio(maxConcurrentRtn);
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ABORT_RATE,
-                        abtRatio, true);
-
-                recoverCmdRatio = failureResult.getRecoveryCmdSentRatio();
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.RECOVERY_CMD,
-                        recoverCmdRatio, true);
-
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelismHistogram);
-
-                ///////
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
-                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
-                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
-                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
-                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
-                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
-                ///////
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderingMismatchPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
-                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPrcntHistogram);
-
-                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
-                */
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////-------WEAK-----/////////////////////////////////////////////////////////
-                /*
-                expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.WEAK, routineSet, SIMULATION_START_TIME);
-
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.latencyOverheadHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelismHistogram);
-
-                ///////
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
-                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
-                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
-                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
-                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
-                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
-                ///////
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderingMismatchPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
-                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPrcntHistogram);
-
-
-
-                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
-                */
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////-------EVENTUAL-----/////////////////////////////////////////////////////////
-
-                /*
-                expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.EVENTUAL, routineSet, SIMULATION_START_TIME);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.latencyOverheadHistogram);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.STRETCH_RATIO, expResult.stretchRatioHistogram);
-
-                failureResult = expResult.failureAnalyzer.simulateFailure(devFailureRatio, atleastOneDevFail);
-                abtRatio = failureResult.getAbtRtnVsTotalRtnRatio(maxConcurrentRtn);
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ABORT_RATE,
-                        abtRatio, true);
-
-                recoverCmdRatio = failureResult.getRecoveryCmdSentRatio();
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.RECOVERY_CMD,
-                        recoverCmdRatio, true);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelismHistogram);
-
-                ///////
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
-                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
-                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
-                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
-                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
-                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
-                ///////
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderingMismatchPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
-                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPrcntHistogram);
-
-                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
-                */
-///////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-//////////////////////////////////////////-------LAZY-----/////////////////////////////////////////////////////////
-
-                expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.LAZY, routineSet, SIMULATION_START_TIME);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.latencyOverheadHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelismHistogram);
-
-                ///////
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
-                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
-                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
-                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
-                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
-                ///////
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderingMismatchPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPrcntHistogram);
-
-                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
-
- */
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////-------LAZY-FCFS-----/////////////////////////////////////////////////////////
-/*
-                expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.LAZY_FCFS, routineSet, SIMULATION_START_TIME);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.latencyOverheadHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelismHistogram);
-
-                ///////
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
-                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
-                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
-                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
-                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
-                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
-                ///////
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderingMismatchPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
-                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPrcntHistogram);
-
-                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
-*/
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////-------LAZY-PRIORITY-----/////////////////////////////////////////////////////////
-
-                /*
-                expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.LAZY_PRIORITY, routineSet, SIMULATION_START_TIME);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
-                measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.latencyOverheadHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.PARALLEL,
-                        expResult.measurement.parallelismHistogram);
-
-                ///////
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
-                        expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
-                        expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
-                        expResult.measurement.isvltn3_CMDviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
-                        expResult.measurement.isvltn2_RTNviolationPercentHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
-                        expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
-                ///////
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ORDDER_MISMATCH,
-                        expResult.measurement.orderingMismatchPrcntHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
-                        expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
-
-                measurementCollector.collectData(changingParameterValue,
-                        CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                        expResult.measurement.devUtilizationPrcntHistogram);
-
-                expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
-                */
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
             }
 
             logStr += "\n=========================================================================\n";
@@ -921,111 +437,6 @@ public class Temp
                     }
                 }
             }
-
-
-/*
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.WAIT_TIME));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.WAIT_TIME));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.WAIT_TIME));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.WAIT_TIME));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.WAIT_TIME));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.WAIT_TIME));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.WAIT_TIME));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.LATENCY_OVERHEAD));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.STRETCH_RATIO));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ABORT_RATE));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ABORT_RATE));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ABORT_RATE));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.RECOVERY_CMD));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.RECOVERY_CMD));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.RECOVERY_CMD));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.PARALLEL));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.PARALLEL));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.PARALLEL));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.PARALLEL));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.PARALLEL));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.PARALLEL));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.PARALLEL));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDDER_MISMATCH));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ORDDER_MISMATCH));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDDER_MISMATCH));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDDER_MISMATCH));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ORDDER_MISMATCH));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ORDDER_MISMATCH));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.DEVICE_UTILIZATION));
-            ////////////////////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN));
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT));
-            /////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
-//            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
-            resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT));
-            /////////////////////////////////////////////////////////////
-
-            globalDataCollector.put(changingParameterValue, resultCollector);
-            */
         }
 
 
@@ -1076,68 +487,6 @@ public class Temp
         globalResult += "--------------------------------\n";
 
 
-
-/*
-        String globalResult = "\n--------------------------------\n";
-        globalResult += "Summary-Start\t\n";
-        //String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tLzyAvg\tLzySD\tEvnAvg\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
-        String header = "G0:Var";
-
-
-        header += "\tG1:GSV_WaitTm\tG1:PSV_WaitTm\tG1:WV_WaitTm\tG1:EV_WaitTm\tG1:LzFCFS_WaitTm\tG1:LzPRIOTY_WaitTm";
-        header += "\tG2:GSV_LtncyOvrhdPcnt\tG2:PSV_LtncyOvrhdPcnt\tG2:WV_LtncyOvrhdPcnt\tG2:EV_LtncyOvrhdPcnt\tG2:LzFCFS_LtncyOvrhdPcnt\tG2:LzPRIOTY_LtncyOvrhdPcnt";
-        header += "\tG3:EV_Stretch";
-
-        header += "\tG4:GSV_Abort\tG4:PSV_Abort\tG4:EV_Abort";
-        header += "\tG5:GSV_RcvryCmdRatio\tG5:PSV_RcvryCmdRatio\tG5:EV_RcvryCmdRatio";
-
-        header += "\tG6:GSV_Parrl\tG6:PSV_Parrl\tG6:WV_Parrl\tG6:EV_Parrl\tG6:LzFCFS_Parrl\tG6:LzPRIOTY_Parrl";
-        header += "\tG7:GSV_OdrMismtch\tG7:PSV_OdrMismtch\tG7:WV_OdrMismtch\tG7:EV_OdrMismtch\tG7:LzFCFS_OdrMismtch\tG7:LzPRIOTY_OdrMismtch";
-        header += "\tG71:GSV_OdrMismtchBBL\tG71:PSV_OdrMismtchBBL\tG71:WV_OdrMismtchBBL\tG71:EV_OdrMismtchBBL\tG71:LzFCFS_OdrMismtchBBL\tG71:LzPRIOTY_OdrMismtchBBL";
-        header += "\tG8:GSV_DevUtlz\tG8:PSV_DevUtlz\tG8:WV_DevUtlz\tG8:EV_DevUtlz\tG8:LzFCFS_DevUtlz\tG8:LzPRIOTY_DevUtlz";
-
-        header += "\tG9:GSV_Isvltn1PerRtnCollision\tG9:PSV_Isvltn1PerRtnCollision\tG9:WV_Isvltn1PerRtnCollision\tG9:EV_Isvltn1PerRtnCollision\tG9:LzFCFS_Isvltn1PerRtnCollision\tG9:LzPRIOTY_Isvltn1PerRtnCollision";
-        header += "\tG10:GSV_Isvltn2ViolatedRtnPrcnt\tG10:PSV_Isvltn2ViolatedRtnPrcnt\tG10:WV_Isvltn2ViolatedRtnPrcnt\tG10:EV_Isvltn2ViolatedRtnPrcnt\tG10:LzFCFS_Isvltn2ViolatedRtnPrcnt\tG10:LzPRIOTY_Isvltn2ViolatedRtnPrcnt";
-        header += "\tG11:GSV_Isvltn3ViolatedCmdPrcnt\tG11:PSV_Isvltn3ViolatedCmdPrcnt\tG11:WV_Isvltn3ViolatedCmdPrcnt\tG11:EV_Isvltn3ViolatedCmdPrcnt\tG11:LzFCFS_Isvltn3ViolatedCmdPrcnt\tG11:LzPRIOTY_Isvltn3ViolatedCmdPrcnt";
-        header += "\tG12:GSV_Isvltn4CmdTimePcnt\tG12:PSV_Isvltn4CmdTimePcnt\tG12:WV_Isvltn4CmdTimePcnt\tG12:EV_Isvltn4CmdTimePcnt\tG12:LzFCFS_Isvltn4CmdTimePcnt\tG12:LzPRIOTY_Isvltn4CmdTimePcnt";
-        header += "\tG13:GSV_Isvltn5RtnTimePcnt\tG13:PSV_Isvltn5RtnTimePcnt\tG13:WV_Isvltn5RtnTimePcnt\tG13:EV_Isvltn5RtnTimePcnt\tG13:LzFCFS_Isvltn5RtnTimePcnt\tG13:LzPRIOTY_Isvltn5RtnTimePcnt";
-        */
-
-        /*
-        header += "\tG1:GSV_WaitTm\tG1:PSV_WaitTm\tG1:WV_WaitTm\tG1:EV_WaitTm\tG1:LV_WaitTm\tG1:FCFSV_WaitTm\tG1:LzPRIOTY_WaitTm";
-        header += "\tG2:GSV_LtncyOvrhdPcnt\tG2:PSV_LtncyOvrhdPcnt\tG2:WV_LtncyOvrhdPcnt\tG2:EV_LtncyOvrhdPcnt\tG2:LV_LtncyOvrhdPcnt\tG2:FCFSV_LtncyOvrhdPcnt\tG2:LzPRIOTY_LtncyOvrhdPcnt";
-        header += "\tG3:EV_Stretch";
-
-        header += "\tG4:GSV_Abort\tG4:PSV_Abort\tG4:EV_Abort";
-        header += "\tG5:GSV_RcvryCmdRatio\tG5:PSV_RcvryCmdRatio\tG5:EV_RcvryCmdRatio";
-
-        header += "\tG6:GSV_Parrl\tG6:PSV_Parrl\tG6:WV_Parrl\tG6:EV_Parrl\tG6:LV_Parrl\tG6:FCFSV_Parrl\tG6:LzPRIOTY_Parrl";
-        header += "\tG7:GSV_OdrMismtch\tG7:PSV_OdrMismtch\tG7:WV_OdrMismtch\tG7:EV_OdrMismtch\tG7:LV_OdrMismtch\tG7:FCFSV_OdrMismtch\tG7:LzPRIOTY_OdrMismtch";
-        header += "\tG8:GSV_DevUtlz\tG8:PSV_DevUtlz\tG8:WV_DevUtlz\tG8:EV_DevUtlz\tG8:LV_DevUtlz\tG8:FCFSV_DevUtlz\tG8:LzPRIOTY_DevUtlz";
-
-        header += "\tG9:GSV_IsvltnPerRtnCollision\tG9:PSV_IsvltnPerRtnCollision\tG9:WV_IsvltnPerRtnCollision\tG9:EV_IsvltnPerRtnCollision\tG9:LV_IsvltnPerRtnCollision\tG9:FCFSV_IsvltnPerRtnCollision\tG9:LzPRIOTY_IsvltnPerRtnCollision";
-        header += "\tG10:GSV_IsvltnViolatedRtnPrcnt\tG10:PSV_IsvltnViolatedRtnPrcnt\tG10:WV_IsvltnViolatedRtnPrcnt\tG10:EV_IsvltnViolatedRtnPrcnt\tG10:LV_IsvltnViolatedRtnPrcnt\tG10:FCFSV_IsvltnViolatedRtnPrcnt\tG10:LzPRIOTY_IsvltnViolatedRtnPrcnt";
-        header += "\tG11:GSV_IsvltnViolatedCmdPrcnt\tG11:PSV_IsvltnViolatedCmdPrcnt\tG11:WV_IsvltnViolatedCmdPrcnt\tG11:EV_IsvltnViolatedCmdPrcnt\tG11:LV_IsvltnViolatedCmdPrcnt\tG11:FCFSV_IsvltnViolatedCmdPrcnt\tG11:LzPRIOTY_IsvltnViolatedCmdPrcnt";
-        header += "\tG12:GSV_IsvltnCmdToCommitVioltnTimePcnt\tG12:PSV_IsvltnCmdToCommitVioltnTimePcnt\tG12:WV_IsvltnCmdToCommitVioltnTimePcnt\tG12:EV_IsvltnCmdToCommitVioltnTimePcnt\tG12:LV_IsvltnCmdToCommitVioltnTimePcnt\tG12:FCFSV_IsvltnCmdToCommitVioltnTimePcnt\tG12:LzPRIOTY_IsvltnCmdToCommitVioltnTimePcnt";
-*/
-        /*
-        header += "\t"; // NOTE: this tab is required for the python separator
-        globalResult += header + "\n";
-        for(double variable : variableTrakcer)
-        {
-            globalResult += variable + "\t";
-
-            for(float stats : globalDataCollector.get(variable))
-            {
-                String formattedNumber = String.format("%.3f", stats);
-                globalResult += stats + "\t";
-            }
-
-            globalResult += "\n";
-        }
-        globalResult += "Summary-End\t\n";
-        globalResult += "--------------------------------\n";
-*/
         logStr += globalResult;
 
 

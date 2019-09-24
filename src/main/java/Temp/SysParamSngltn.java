@@ -38,10 +38,36 @@ public class SysParamSngltn
     private final String KEY_RANDOM_SEED = "RANDOM_SEED";
     private final String KEY_MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = "MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING";
     private final String KEY_DATA_STORAE_DIRECTORY = "dataStorageDirectory";
+
+    private final String KEY_IS_VARY_SHRINK_FACTOR = "isVaryShrinkFactor";
+    private final String KEY_IS_VARY_COMMAND_CNT_PER_RTN = "isVaryCommandCntPerRtn";
+    private final String KEY_IS_VARY_ZIPF_ALPHA = "isVaryZipfAlpha";
+    private final String KEY_IS_VARY_LONG_RUNNING_PERCENT = "isVaryLongRunningPercent";
+    private final String KEY_IS_VARY_LONG_RUNNING_DURATION = "isVaryLongRunningDuration";
+    private final String KEY_IS_VARY_SHORT_RUNNING_DURATION = "isVaryShortRunningDuration";
+
+    private final String KEY_COMMA_SEPRTD_VAR_LIST_STRING = "commaSeprtdVarListString";
+    private final String KEY_COMMA_SEPRTD_CORRESPNDIN_UPPR_BND_LIST_STR = "commaSeprtdCorrespondingUpperBoundListString";
+
+
+
+
     ///////////////////////////////////////////////////////////////////////////////
     public static boolean IS_RUNNING_BENCHMARK;// = false; // Careful... if it is TRUE, all other parameters will be in don't care mode!
 
     public static int totalSampleCount;// = 1000;//7500;//10000; // 100000;
+
+    public static boolean isVaryShrinkFactor;
+    public static boolean isVaryCommandCntPerRtn;
+    public static boolean isVaryZipfAlpha;
+    public static boolean isVaryLongRunningPercent;
+    public static boolean isVaryLongRunningDuration;
+    public static boolean isVaryShortRunningDuration;
+
+    public static String commaSeprtdVarListString;
+    public static String commaSeprtdCorrespondingUpperBoundListString;
+    public static List<Double> variableList;
+    public static List<Double> variableCorrespndinMaxValList;
 
     public static boolean IS_PRE_LEASE_ALLOWED;// = true;
     public static boolean IS_POST_LEASE_ALLOWED;// = true;
@@ -91,6 +117,69 @@ public class SysParamSngltn
         return SysParamSngltn.singleton;
     }
 
+    private List<Double> parseCommaSpearatedStr(String commaSeperatedStr)
+    {
+        List<Double> variableList = new ArrayList<>();
+        StringTokenizer strTok = new StringTokenizer(commaSeperatedStr, ",");
+        while(strTok.hasMoreTokens())
+        {
+            String token = strTok.nextToken().trim();
+
+            try
+            {
+                double value = Double.valueOf(token);
+                variableList.add(value);
+            }
+            catch(Exception ex)
+            {
+                System.out.println("\n\n Cannot parse conf file: invalid input - " + commaSeperatedStr);
+                System.out.println("TERMINATING....\n");
+                System.exit(1);
+            }
+        }
+
+        if(variableList.isEmpty())
+        {
+            System.out.println("\n\n Cannot parse conf file: invalid input - " + commaSeperatedStr);
+            System.out.println("Variable List EMPTY...");
+            System.out.println("TERMINATING....\n");
+            System.exit(1);
+        }
+
+        return variableList;
+    }
+
+    private void validateLists(List<Double> varList, List<Double> correspondingMaxValList)
+    {
+        if(isVaryCommandCntPerRtn || isVaryLongRunningDuration || isVaryShortRunningDuration)
+        {
+            String errorStr = "\n in config file: Mismatch in list commaSeprtdVarListString and list " +
+                    "commaSeprtdCorrespondingUpperBoundListString for either" +
+                    "isVaryCommandCntPerRtn or isVaryLongRunningDuration or isVaryShortRunningDuration";
+
+            if(varList.size() != correspondingMaxValList.size())
+            {
+                System.out.println(errorStr + "\n size mismatch of the two routines");
+                System.out.println("Terminating....");
+                System.exit(1);
+            }
+            else
+            {
+                for(int I = 0 ; I < varList.size() ; ++I)
+                {
+                    if( correspondingMaxValList.get(I) < varList.get(I))
+                    {
+                        System.out.println(errorStr + "\n max-value is smaller than the variable value!");
+                        System.out.println("\tvar value in commaSeprtdVarListString = " + varList.get(I));
+                        System.out.println("\tcorresponding Max Val in commaSeprtdCorrespondingUpperBoundListString = " + correspondingMaxValList.get(I));
+                        System.out.println("Terminating....");
+                        System.exit(1);
+                    }
+                }
+            }
+        }
+    }
+
     private SysParamSngltn()
     {
         Properties properties = new Properties();
@@ -101,6 +190,46 @@ public class SysParamSngltn
 
             IS_RUNNING_BENCHMARK = Boolean.valueOf(properties.getProperty(KEY_IS_RUNNING_BENCHMARK));
             totalSampleCount = Integer.valueOf(properties.getProperty(KEY_TOTAL_SAMPLE_COUNT));
+
+
+
+            int count = 0;
+            isVaryCommandCntPerRtn = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_COMMAND_CNT_PER_RTN));
+            if(isVaryCommandCntPerRtn) count++;
+
+            isVaryShrinkFactor = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_SHRINK_FACTOR));
+            if(isVaryShrinkFactor) count++;
+
+            isVaryZipfAlpha = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_ZIPF_ALPHA));
+            if(isVaryZipfAlpha) count++;
+
+            isVaryLongRunningPercent = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_LONG_RUNNING_PERCENT));
+            if(isVaryLongRunningPercent) count++;
+
+            isVaryLongRunningDuration = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_LONG_RUNNING_DURATION));
+            if(isVaryLongRunningDuration) count++;
+
+            isVaryLongRunningDuration = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_LONG_RUNNING_DURATION));
+            if(isVaryLongRunningDuration) count++;
+
+            isVaryShortRunningDuration = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_SHORT_RUNNING_DURATION));
+            if(isVaryShortRunningDuration) count++;
+
+            if(count != 1)
+            {
+                System.out.println("exact one parameters among isVary... should set as true...");
+                System.out.println("currently total " + count + " of these commands are true...");
+                System.out.println("TERMINATING....");
+                System.exit(1);
+            }
+
+            commaSeprtdVarListString = properties.getProperty(KEY_COMMA_SEPRTD_VAR_LIST_STRING);
+            variableList = parseCommaSpearatedStr(commaSeprtdVarListString);
+
+            commaSeprtdCorrespondingUpperBoundListString = properties.getProperty(KEY_COMMA_SEPRTD_VAR_LIST_STRING);
+            variableCorrespndinMaxValList = parseCommaSpearatedStr(commaSeprtdCorrespondingUpperBoundListString);
+
+            validateLists(variableList, variableCorrespndinMaxValList);
 
             shrinkFactor = Double.valueOf(properties.getProperty(KEY_SHRINK_FACTOR));
             minCmdCntPerRtn = Double.valueOf(properties.getProperty(KEY_MIN_CMD_CNT_PER_RTN));
