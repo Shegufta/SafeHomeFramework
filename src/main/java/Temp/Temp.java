@@ -59,7 +59,15 @@ public class Temp
     private static Map<DEV_ID, ZipfProbBoundary> devID_ProbBoundaryMap = new HashMap<>();
 
     ///////////////////////////////////////////////////////////////////////////////////
+    public static Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
+    public static List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING_LIST = new ArrayList<>();
     ///////////////////////////////////////////////////////////////////////////////////
+
+    public Temp()
+    {
+
+    }
+
 
     private static void initiateSyntheticDevices()
     {
@@ -109,11 +117,55 @@ public class Temp
 
 
         MeasurementCollector measurementCollector = new MeasurementCollector(MAX_DATAPOINT_COLLECTON_SIZE);
-        Map<Double, List<Float>> globalDataCollector = new HashMap<>();
+
+        //Map<Double, List<Float>> globalDataCollector = new HashMap<>();
+        Map<Double, Map<MEASUREMENT_TYPE, Map<CONSISTENCY_TYPE, Double>>> globalDataCollector = new LinkedHashMap<>();
+
         List<Double> variableTrakcer = new ArrayList<>();
         Double changingParameterValue = -1.0;
         double lastGeneratedZipfeanFor = Double.MAX_VALUE; // NOTE: declare zipfean here... DO NOT declare it inside the for loop!
 
+        ////////////////////////////////////////////////////////////////////////////////
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.STRONG, "GSV");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.RELAXED_STRONG, "PSV");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.EVENTUAL, "EV");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.WEAK, "WV");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY, "LV");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_FCFS, "LAZY_FCFS");
+        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
+
+        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG);
+        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
+        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
+        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.WEAK);
+//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY);
+        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
+        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
+        ////////////////////////////////////////////////////////////////////////////////
+        List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
+        measurementList.add(MEASUREMENT_TYPE.WAIT_TIME);
+        measurementList.add(MEASUREMENT_TYPE.LATENCY_OVERHEAD);
+        measurementList.add(MEASUREMENT_TYPE.STRETCH_RATIO);
+//            measurementList.add(MEASUREMENT_TYPE.ABORT_RATE);
+//            measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD);
+        measurementList.add(MEASUREMENT_TYPE.PARALLEL);
+        measurementList.add(MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE);
+        measurementList.add(MEASUREMENT_TYPE.DEVICE_UTILIZATION);
+        measurementList.add(MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT);
+        measurementList.add(MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT);
+        measurementList.add(MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN);
+        measurementList.add(MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT);
+        measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
+
+//        List<CONSISTENCY_TYPE> consistencyList = new ArrayList<>();
+//        consistencyList.add(CONSISTENCY_TYPE.STRONG);
+//        consistencyList.add(CONSISTENCY_TYPE.RELAXED_STRONG);
+//        consistencyList.add(CONSISTENCY_TYPE.WEAK);
+//        consistencyList.add(CONSISTENCY_TYPE.EVENTUAL);
+//        consistencyList.add(CONSISTENCY_TYPE.LAZY_FCFS);
+//        consistencyList.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
+        ////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
         List<Double> variableList = new ArrayList<>();
 
 
@@ -132,9 +184,10 @@ public class Temp
 //        variableList.add(0.15);
 //        variableList.add(0.2);
 //        variableList.add(0.25);
-        variableList.add(0.3);
-        variableList.add(0.4);
         variableList.add(0.5);
+        variableList.add(0.7);
+        variableList.add(0.9);
+        variableList.add(1.0);
         //variableList.add(10.0);
 
 
@@ -150,7 +203,7 @@ public class Temp
             changingParameterValue = variable;
 
             variableTrakcer.add(changingParameterValue); // add the variable name
-            List<Float> resultCollector = new ArrayList<>();
+            //List<Float> resultCollector = new ArrayList<>();
 
             if(!IS_RUNNIGN_BENCHMARK)
             {
@@ -331,12 +384,79 @@ public class Temp
                     routineSet = generateAutomatedRtn(RANDOM_SEED);
                 }
 
+                /*
                 FailureResult failureResult;
                 ExpResults expResult;
                 float abtRatio;
                 float recoverCmdRatio;
+                */
+
+
+
+
+
+                //for(MEASUREMENT_TYPE measurementType : measurementList)
+                for(CONSISTENCY_TYPE consistency_type :  Temp.CONSISTENCY_ORDERING_LIST)
+                {
+                    ExpResults expResult = runExperiment(devIDlist, consistency_type, routineSet, SIMULATION_START_TIME);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.WAIT_TIME,
+                            expResult.waitTimeHistogram);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.LATENCY_OVERHEAD,
+                            expResult.latencyOverheadHistogram);
+
+                    measurementCollector.collectData(changingParameterValue,consistency_type,
+                            MEASUREMENT_TYPE.PARALLEL,
+                            expResult.measurement.parallelismHistogram);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
+                            expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
+                            expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
+                            expResult.measurement.isvltn3_CMDviolationPercentHistogram);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
+                            expResult.measurement.isvltn2_RTNviolationPercentHistogram);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
+                            expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
+                            expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.DEVICE_UTILIZATION,
+                            expResult.measurement.devUtilizationPrcntHistogram);
+
+                    if(consistency_type == CONSISTENCY_TYPE.EVENTUAL)
+                    {
+                        measurementCollector.collectData(changingParameterValue, consistency_type,
+                                MEASUREMENT_TYPE.STRETCH_RATIO,
+                                expResult.stretchRatioHistogram);
+                    }
+
+                }
+
+
+
+
+
+
 
 ///////////////////////////////////////-------STRONG------////////////////////////////////////////////////////////////
+                /*
                 expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.STRONG, routineSet, SIMULATION_START_TIME);
 
                 measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
@@ -393,9 +513,11 @@ public class Temp
                         expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
+                */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////-------RELAXED STRONG-----/////////////////////////////////////////////////////////
 
+                /*
                 expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.RELAXED_STRONG, routineSet, SIMULATION_START_TIME);
 
                 measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
@@ -452,8 +574,10 @@ public class Temp
                         expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
+                */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////-------WEAK-----/////////////////////////////////////////////////////////
+                /*
                 expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.WEAK, routineSet, SIMULATION_START_TIME);
 
                 measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
@@ -500,9 +624,11 @@ public class Temp
 
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
+                */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////-------EVENTUAL-----/////////////////////////////////////////////////////////
 
+                /*
                 expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.EVENTUAL, routineSet, SIMULATION_START_TIME);
                 measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
                 measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.latencyOverheadHistogram);
@@ -558,6 +684,7 @@ public class Temp
                         expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
+                */
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 //////////////////////////////////////////-------LAZY-----/////////////////////////////////////////////////////////
@@ -601,7 +728,7 @@ public class Temp
  */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////-------LAZY-FCFS-----/////////////////////////////////////////////////////////
-
+/*
                 expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.LAZY_FCFS, routineSet, SIMULATION_START_TIME);
                 measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
                 measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_FCFS, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.latencyOverheadHistogram);
@@ -645,11 +772,12 @@ public class Temp
                         expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
-
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////-------LAZY-PRIORITY-----/////////////////////////////////////////////////////////
 
+                /*
                 expResult = runExperiment(devIDlist, CONSISTENCY_TYPE.LAZY_PRIORITY, routineSet, SIMULATION_START_TIME);
                 measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.WAIT_TIME, expResult.waitTimeHistogram);
                 measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.LAZY_PRIORITY, MEASUREMENT_TYPE.LATENCY_OVERHEAD, expResult.latencyOverheadHistogram);
@@ -693,6 +821,7 @@ public class Temp
                         expResult.measurement.devUtilizationPrcntHistogram);
 
                 expResult = null; // ensures that the code below will not accidentally use it without reinitializing it
+                */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             }
@@ -700,7 +829,33 @@ public class Temp
             logStr += "\n=========================================================================\n";
 
 
+            if(!globalDataCollector.containsKey(changingParameterValue))
+                globalDataCollector.put(changingParameterValue, new LinkedHashMap<>());
 
+            for(MEASUREMENT_TYPE measurementType : measurementList)
+            {
+                if(!globalDataCollector.get(changingParameterValue).containsKey(measurementType))
+                    globalDataCollector.get(changingParameterValue).put(measurementType, new LinkedHashMap<>());
+
+                if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO)
+                {
+                    double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, measurementType);
+                    avg = (double)((int)(avg * 1000.0))/1000.0;
+                    globalDataCollector.get(changingParameterValue).get(measurementType).put(CONSISTENCY_TYPE.EVENTUAL, avg);
+                }
+                else
+                {
+                    for(CONSISTENCY_TYPE consistency_type :  Temp.CONSISTENCY_ORDERING_LIST)
+                    {
+                        double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, consistency_type, measurementType);
+                        avg = (double)((int)(avg * 1000.0))/1000.0;
+                        globalDataCollector.get(changingParameterValue).get(measurementType).put(consistency_type, avg);
+                    }
+                }
+            }
+
+
+/*
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.STRONG, MEASUREMENT_TYPE.WAIT_TIME));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.RELAXED_STRONG, MEASUREMENT_TYPE.WAIT_TIME));
             resultCollector.add(measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, MEASUREMENT_TYPE.WAIT_TIME));
@@ -802,10 +957,59 @@ public class Temp
             /////////////////////////////////////////////////////////////
 
             globalDataCollector.put(changingParameterValue, resultCollector);
-
-
+            */
         }
 
+
+        String globalResult = "\n--------------------------------\n";
+        globalResult += "Summary-Start\t\n";
+
+        Map<MEASUREMENT_TYPE, String> perMeasurementAvgMap = new LinkedHashMap<>();
+
+        for(MEASUREMENT_TYPE measurementType : measurementList )
+        {
+            globalResult += "================================\n";
+            globalResult += "MEASURING: " + measurementType.name() + "\n";
+
+            String perMeasurementInfo = "";
+
+            boolean isHeaderPrinted = false;
+            for(double variable : variableList)
+            {
+                if(!isHeaderPrinted)
+                {
+                    perMeasurementInfo += changingParameterName + "\t";
+                    for(CONSISTENCY_TYPE consistency_type : globalDataCollector.get(variable).get(measurementType).keySet())
+                    {
+                        perMeasurementInfo += CONSISTENCY_HEADER.get(consistency_type) + "\t";
+                    }
+                    perMeasurementInfo += "\n";
+
+                    isHeaderPrinted = true;
+                }
+
+                perMeasurementInfo += variable + "\t";
+
+                for(CONSISTENCY_TYPE consistency_type : globalDataCollector.get(changingParameterValue).get(measurementType).keySet())
+                {
+                    double avg = globalDataCollector.get(variable).get(measurementType).get(consistency_type);
+                    perMeasurementInfo += avg + "\t";
+                }
+
+                perMeasurementInfo += "\n";
+            }
+            globalResult += perMeasurementInfo;
+            globalResult += "================================\n";
+
+            perMeasurementAvgMap.put(measurementType, perMeasurementInfo);
+        }
+
+        globalResult += "Summary-End\t\n";
+        globalResult += "--------------------------------\n";
+
+
+
+/*
         String globalResult = "\n--------------------------------\n";
         globalResult += "Summary-Start\t\n";
         //String header = "Variable\tStgAvg\tStgSD\tR.StgAvg\tR.StgSD\tLzyAvg\tLzySD\tEvnAvg\tEvnSD\tEvnStretchRatioAvg\tEvnStretchRatioSD";
@@ -829,7 +1033,9 @@ public class Temp
         header += "\tG11:GSV_Isvltn3ViolatedCmdPrcnt\tG11:PSV_Isvltn3ViolatedCmdPrcnt\tG11:WV_Isvltn3ViolatedCmdPrcnt\tG11:EV_Isvltn3ViolatedCmdPrcnt\tG11:LzFCFS_Isvltn3ViolatedCmdPrcnt\tG11:LzPRIOTY_Isvltn3ViolatedCmdPrcnt";
         header += "\tG12:GSV_Isvltn4CmdTimePcnt\tG12:PSV_Isvltn4CmdTimePcnt\tG12:WV_Isvltn4CmdTimePcnt\tG12:EV_Isvltn4CmdTimePcnt\tG12:LzFCFS_Isvltn4CmdTimePcnt\tG12:LzPRIOTY_Isvltn4CmdTimePcnt";
         header += "\tG13:GSV_Isvltn5RtnTimePcnt\tG13:PSV_Isvltn5RtnTimePcnt\tG13:WV_Isvltn5RtnTimePcnt\tG13:EV_Isvltn5RtnTimePcnt\tG13:LzFCFS_Isvltn5RtnTimePcnt\tG13:LzPRIOTY_Isvltn5RtnTimePcnt";
-/*
+        */
+
+        /*
         header += "\tG1:GSV_WaitTm\tG1:PSV_WaitTm\tG1:WV_WaitTm\tG1:EV_WaitTm\tG1:LV_WaitTm\tG1:FCFSV_WaitTm\tG1:LzPRIOTY_WaitTm";
         header += "\tG2:GSV_LtncyOvrhdPcnt\tG2:PSV_LtncyOvrhdPcnt\tG2:WV_LtncyOvrhdPcnt\tG2:EV_LtncyOvrhdPcnt\tG2:LV_LtncyOvrhdPcnt\tG2:FCFSV_LtncyOvrhdPcnt\tG2:LzPRIOTY_LtncyOvrhdPcnt";
         header += "\tG3:EV_Stretch";
@@ -846,6 +1052,7 @@ public class Temp
         header += "\tG11:GSV_IsvltnViolatedCmdPrcnt\tG11:PSV_IsvltnViolatedCmdPrcnt\tG11:WV_IsvltnViolatedCmdPrcnt\tG11:EV_IsvltnViolatedCmdPrcnt\tG11:LV_IsvltnViolatedCmdPrcnt\tG11:FCFSV_IsvltnViolatedCmdPrcnt\tG11:LzPRIOTY_IsvltnViolatedCmdPrcnt";
         header += "\tG12:GSV_IsvltnCmdToCommitVioltnTimePcnt\tG12:PSV_IsvltnCmdToCommitVioltnTimePcnt\tG12:WV_IsvltnCmdToCommitVioltnTimePcnt\tG12:EV_IsvltnCmdToCommitVioltnTimePcnt\tG12:LV_IsvltnCmdToCommitVioltnTimePcnt\tG12:FCFSV_IsvltnCmdToCommitVioltnTimePcnt\tG12:LzPRIOTY_IsvltnCmdToCommitVioltnTimePcnt";
 */
+        /*
         header += "\t"; // NOTE: this tab is required for the python separator
         globalResult += header + "\n";
         for(double variable : variableTrakcer)
@@ -862,7 +1069,7 @@ public class Temp
         }
         globalResult += "Summary-End\t\n";
         globalResult += "--------------------------------\n";
-
+*/
         logStr += globalResult;
 
 
@@ -882,18 +1089,36 @@ public class Temp
         {
             parentDir.mkdir();
         }
+
+        String avgMeasurementDirectoryPath = parentDirPath + File.separator + "avg";
+        File avgDir = new File(avgMeasurementDirectoryPath);
+        if(!avgDir.exists())
+        {
+            avgDir.mkdir();
+        }
+
         ////////////////////////////////////////////////////////////////
 
         try
         {
-            String fileName = "VARY_" + changingParameterName + ".dat";
-            String filePath = parentDirPath + "\\" + fileName;
+            //String fileName = "VARY_" + changingParameterName + ".dat";
+            String fileName = "Overall" + changingParameterName + ".txt";
+            String filePath = parentDirPath + File.separator + fileName;
 
             Writer fileWriter = new FileWriter(filePath);
             fileWriter.write(logStr);
             fileWriter.close();
 
-        } catch (IOException e)
+            for(Map.Entry<MEASUREMENT_TYPE, String> entry : perMeasurementAvgMap.entrySet())
+            {
+                String measurementFilePath = avgMeasurementDirectoryPath + File.separator + entry.getKey().name() + ".dat";
+
+                fileWriter = new FileWriter(measurementFilePath);
+                fileWriter.write(entry.getValue());
+                fileWriter.close();
+            }
+        }
+        catch (IOException e)
         {
             System.out.println(e.toString());
             e.printStackTrace();
@@ -1151,8 +1376,6 @@ public class Temp
         return logStr;
     }
 
-
-
     public static ExpResults runExperiment(List<DEV_ID> _devIDlist, CONSISTENCY_TYPE _consistencyType, final List<Routine> _originalRtnList, int _simulationStartTime)
     {
         LockTable lockTable = new LockTable(_devIDlist, _consistencyType);
@@ -1215,7 +1438,4 @@ public class Temp
 
         return expResults;
     }
-
-
-
 }
