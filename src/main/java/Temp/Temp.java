@@ -87,6 +87,81 @@ public class Temp
     }
 
 
+    private static String preparePrintableParameters()
+    {
+        String logStr = "";
+
+        System.out.println("###################################");
+        logStr += "###################################\n";
+
+        System.out.println("IS_RUNNING_BENCHMARK = " + IS_RUNNING_BENCHMARK);
+        logStr += "IS_RUNNING_BENCHMARK = " + IS_RUNNING_BENCHMARK + "\n";
+        System.out.println("totalSampleCount = " + totalSampleCount + "\n");
+        logStr += "totalSampleCount = " + totalSampleCount + "\n\n";
+
+
+        System.out.println("shrinkFactor = " + shrinkFactor);
+        logStr += "shrinkFactor = " + shrinkFactor + "\n";
+        System.out.println("minCmdCntPerRtn = " + minCmdCntPerRtn);
+        logStr += "minCmdCntPerRtn = " + minCmdCntPerRtn + "\n";
+        System.out.println("maxCmdCntPerRtn = " + maxCmdCntPerRtn + "\n");
+        logStr += "maxCmdCntPerRtn = " + maxCmdCntPerRtn + "\n\n";
+
+
+        System.out.println("zipF = " + zipF);
+        logStr += "zipF = " + zipF + "\n";
+        System.out.println("devRegisteredOutOf65Dev = " + devRegisteredOutOf65Dev);
+        logStr += "devRegisteredOutOf65Dev = " + devRegisteredOutOf65Dev + "\n";
+        System.out.println("maxConcurrentRtn = " + maxConcurrentRtn + "\n");
+        logStr += "maxConcurrentRtn = " + maxConcurrentRtn + "\n\n";
+
+
+        System.out.println("longRrtnPcntg = " + longRrtnPcntg);
+        logStr += "longRrtnPcntg = " + longRrtnPcntg + "\n";
+        System.out.println("isAtleastOneLongRunning = " + isAtleastOneLongRunning);
+        logStr += "isAtleastOneLongRunning = " + isAtleastOneLongRunning + "\n";
+        System.out.println("minLngRnCmdTimSpn = " + minLngRnCmdTimSpn);
+        logStr += "minLngRnCmdTimSpn = " + minLngRnCmdTimSpn + "\n";
+        System.out.println("maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + "\n");
+        logStr += "maxLngRnCmdTimSpn = " + maxLngRnCmdTimSpn + "\n\n";
+
+        System.out.println("minShrtCmdTimeSpn = " + minShrtCmdTimeSpn);
+        logStr += "minShrtCmdTimeSpn = " + minShrtCmdTimeSpn + "\n";
+        System.out.println("maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + "\n");
+        logStr += "maxShrtCmdTimeSpn = " + maxShrtCmdTimeSpn + "\n\n";
+
+
+        System.out.println("devFailureRatio = " + devFailureRatio);
+        logStr += "devFailureRatio = " + devFailureRatio + "\n";
+        System.out.println("atleastOneDevFail = " + atleastOneDevFail);
+        logStr += "atleastOneDevFail = " + atleastOneDevFail + "\n";
+        System.out.println("mustCmdPercentage = " + mustCmdPercentage + "\n");
+        logStr += "mustCmdPercentage = " + mustCmdPercentage + "\n\n";
+
+
+        System.out.println("IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED);
+        logStr += "IS_PRE_LEASE_ALLOWED = " + IS_PRE_LEASE_ALLOWED + "\n";
+        System.out.println("IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n");
+        logStr += "IS_POST_LEASE_ALLOWED = " + IS_POST_LEASE_ALLOWED + "\n\n";
+
+        System.out.println("SIMULATION_START_TIME = " + SIMULATION_START_TIME);
+        logStr += "SIMULATION_START_TIME = " + SIMULATION_START_TIME + "\n";
+        System.out.println("MAX_DATAPOINT_COLLECTON_SIZE = " + MAX_DATAPOINT_COLLECTON_SIZE);
+        logStr += "MAX_DATAPOINT_COLLECTON_SIZE = " + MAX_DATAPOINT_COLLECTON_SIZE + "\n";
+        System.out.println("RANDOM_SEED = " + RANDOM_SEED);
+        logStr += "RANDOM_SEED = " + RANDOM_SEED + "\n";
+        System.out.println("MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING + "\n");
+        logStr += "MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = " + MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING + "\n\n";
+
+        System.out.println("dataStorageDirectory = " + dataStorageDirectory + "\n");
+        logStr += "dataStorageDirectory = " + dataStorageDirectory + "\n\n";
+
+        System.out.println("###################################");
+        logStr += "###################################\n";
+
+        return logStr;
+    }
+
     public static void main (String[] args) throws Exception
     {
         Benchmark benchmarkingTool = null;
@@ -138,7 +213,6 @@ public class Temp
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.WEAK);
-//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
         ////////////////////////////////////////////////////////////////////////////////
@@ -146,8 +220,6 @@ public class Temp
         measurementList.add(MEASUREMENT_TYPE.WAIT_TIME);
         measurementList.add(MEASUREMENT_TYPE.LATENCY_OVERHEAD);
         measurementList.add(MEASUREMENT_TYPE.STRETCH_RATIO);
-//            measurementList.add(MEASUREMENT_TYPE.ABORT_RATE);
-//            measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD);
         measurementList.add(MEASUREMENT_TYPE.PARALLEL);
         measurementList.add(MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE);
         measurementList.add(MEASUREMENT_TYPE.DEVICE_UTILIZATION);
@@ -156,14 +228,6 @@ public class Temp
         measurementList.add(MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN);
         measurementList.add(MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT);
         measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
-
-//        List<CONSISTENCY_TYPE> consistencyList = new ArrayList<>();
-//        consistencyList.add(CONSISTENCY_TYPE.STRONG);
-//        consistencyList.add(CONSISTENCY_TYPE.RELAXED_STRONG);
-//        consistencyList.add(CONSISTENCY_TYPE.WEAK);
-//        consistencyList.add(CONSISTENCY_TYPE.EVENTUAL);
-//        consistencyList.add(CONSISTENCY_TYPE.LAZY_FCFS);
-//        consistencyList.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
         List<Double> variableList = new ArrayList<>();
@@ -191,13 +255,13 @@ public class Temp
         //variableList.add(10.0);
 
 
+
         String changingParameterName = null;
         for(double variable : variableList)
         {
             shrinkFactor = variable;
             //minCmdCntPerRtn = maxCmdCntPerRtn;
             changingParameterName = "shrinkFactor";
-
 
 
             changingParameterValue = variable;
@@ -215,6 +279,9 @@ public class Temp
                     logStr += zipFianStr;
                 }
 
+                logStr += preparePrintableParameters();
+
+                /*
                 System.out.println("###################################");
                 logStr += "###################################\n";
 
@@ -282,6 +349,7 @@ public class Temp
 
                 System.out.println("###################################");
                 logStr += "###################################\n";
+                */
 
 
 //
