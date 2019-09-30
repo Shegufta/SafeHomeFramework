@@ -15,6 +15,7 @@ public class ExpResults
 {
     public Map<Float, Integer> waitTimeHistogram;
     public Map<Float, Integer> latencyOverheadHistogram;
+    public Map<Float, Integer> e2eVsWaitTimeHistogram;
     public Map<Float, Integer> stretchRatioHistogram;
 
     public FailureAnalyzer failureAnalyzer = null;
@@ -26,6 +27,7 @@ public class ExpResults
 
         this.waitTimeHistogram = new HashMap<>();
         this.latencyOverheadHistogram = new HashMap<>();
+        this.e2eVsWaitTimeHistogram = new HashMap<>();
         this.stretchRatioHistogram = new HashMap<>();
     }
 }

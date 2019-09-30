@@ -115,6 +115,7 @@ public class Measurement
             }
         }
 
+        /*
         for(float frequency : histogram)
         {
             Integer count = parallelismHistogram.get(frequency);
@@ -124,6 +125,28 @@ public class Measurement
                 parallelismHistogram.put(frequency, 1);
             else
                 parallelismHistogram.put(frequency, count + 1);
+        }
+        */
+
+        float currentFreq = -1;
+
+        for(float frequency : histogram)
+        {
+            // New Approach: just record the change in frequency...
+            // e.g.  if the freq is 1 1 1 1 3 3 2 1 => then record 1,3,2,1...
+            // i.e. just the changing points
+            if(frequency != currentFreq)
+            {
+                currentFreq = frequency;
+
+                Integer count = parallelismHistogram.get(frequency);
+                // here the count is the data. we have to count how many time these "count" appear
+
+                if(count == null)
+                    parallelismHistogram.put(frequency, 1);
+                else
+                    parallelismHistogram.put(frequency, count + 1);
+            }
         }
     }
 

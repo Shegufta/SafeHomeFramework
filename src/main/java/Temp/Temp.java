@@ -247,14 +247,15 @@ public class Temp
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
         measurementList.add(MEASUREMENT_TYPE.WAIT_TIME);
         measurementList.add(MEASUREMENT_TYPE.LATENCY_OVERHEAD);
+        measurementList.add(MEASUREMENT_TYPE.E2E_VS_WAITTIME);
         measurementList.add(MEASUREMENT_TYPE.STRETCH_RATIO);
         measurementList.add(MEASUREMENT_TYPE.PARALLEL);
         measurementList.add(MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE);
         measurementList.add(MEASUREMENT_TYPE.DEVICE_UTILIZATION);
-        measurementList.add(MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT);
-        measurementList.add(MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT);
-        measurementList.add(MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN);
-        measurementList.add(MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT);
+//        measurementList.add(MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT);
+//        measurementList.add(MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT);
+//        measurementList.add(MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN);
+//        measurementList.add(MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT);
         measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
@@ -308,7 +309,7 @@ public class Temp
                 System.out.println("Error: unknown selection.... Terminating...");
                 System.exit(1);
             }
-            
+
 
             if(!IS_RUNNIGN_BENCHMARK)
             {
@@ -369,6 +370,10 @@ public class Temp
                             MEASUREMENT_TYPE.LATENCY_OVERHEAD,
                             expResult.latencyOverheadHistogram);
 
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.E2E_VS_WAITTIME,
+                            expResult.e2eVsWaitTimeHistogram);
+
                     measurementCollector.collectData(changingParameterValue,consistency_type,
                             MEASUREMENT_TYPE.PARALLEL,
                             expResult.measurement.parallelismHistogram);
@@ -377,21 +382,21 @@ public class Temp
                             MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
                             expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
 
-                    measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
-                            expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
-
-                    measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
-                            expResult.measurement.isvltn3_CMDviolationPercentHistogram);
-
-                    measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
-                            expResult.measurement.isvltn2_RTNviolationPercentHistogram);
-
-                    measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
-                            expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
+//                    measurementCollector.collectData(changingParameterValue, consistency_type,
+//                            MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
+//                            expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
+//
+//                    measurementCollector.collectData(changingParameterValue, consistency_type,
+//                            MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
+//                            expResult.measurement.isvltn3_CMDviolationPercentHistogram);
+//
+//                    measurementCollector.collectData(changingParameterValue, consistency_type,
+//                            MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
+//                            expResult.measurement.isvltn2_RTNviolationPercentHistogram);
+//
+//                    measurementCollector.collectData(changingParameterValue, consistency_type,
+//                            MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
+//                            expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
                             MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
@@ -837,6 +842,16 @@ public class Temp
                 expResults.latencyOverheadHistogram.put(data, 1);
             else
                 expResults.latencyOverheadHistogram.put(data, count + 1);
+            //////////////////////////////////////////////////
+            data = routine.getE2EvsWaittime();
+            count = expResults.e2eVsWaitTimeHistogram.get(data);
+
+            if(count == null)
+                expResults.e2eVsWaitTimeHistogram.put(data, 1);
+            else
+                expResults.e2eVsWaitTimeHistogram.put(data, count + 1);
+
+            //////////////////////////////////////////////////
             //////////////////////////////////////////////////
             //expResults.stretchRatioList.add(routine.getStretchRatio());
             data = routine.getStretchRatio();

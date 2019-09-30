@@ -153,18 +153,47 @@ public class Routine implements Comparator<Routine>
         return this.routineEndTime() - this.routineStartTime();
     }
 
-    public float getLatencyOverheadPrcnt()
+
+    public float getE2EvsWaittime()
     {
         float endToEndLatency = getEndToEndLatency();
-        float overhead = getStartDelay();
+        float waitTime = getStartDelay();
 
         assert(0.0 < endToEndLatency);
 
-        if(overhead == 0.0f)
+        if(waitTime == 0.0f)
             return 0.0f;
         else
-            return (endToEndLatency/overhead)*100.0f;
+            return (endToEndLatency/waitTime)*100.0f;
+    }
+
+    public float getLatencyOverheadPrcnt()
+    {
+        float endToEndLatency = getEndToEndLatency();
+
+        assert(backToBackCmdExecutionWithoutGap != 0.0f);
+
+        return (endToEndLatency / backToBackCmdExecutionWithoutGap) * 100.0f;
+
+
+        /*
+        float waitTime = getStartDelay();
+
+        assert(0.0 < endToEndLatency);
+
+        if(waitTime == 0.0f)
+            return 0.0f;
+        else
+            return (endToEndLatency/waitTime)*100.0f;
+
+        */
         //return (overhead/endToEndLatency)*100.0f;
+
+        /*
+        * TODO: wait/endtoend
+        *  2) latencyOverhead endtoend/minextime
+        * 3)TODO: fix dev utilization, + add new dev utilization
+        * */
     }
 
     public float getStartDelay()
