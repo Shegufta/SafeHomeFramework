@@ -208,9 +208,7 @@ public class SysParamSngltn
 
             isVaryLongRunningDuration = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_LONG_RUNNING_DURATION));
             if(isVaryLongRunningDuration) count++;
-
-            isVaryLongRunningDuration = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_LONG_RUNNING_DURATION));
-            if(isVaryLongRunningDuration) count++;
+            
 
             isVaryShortRunningDuration = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_SHORT_RUNNING_DURATION));
             if(isVaryShortRunningDuration) count++;
