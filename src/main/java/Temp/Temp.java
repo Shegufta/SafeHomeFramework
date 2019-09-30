@@ -260,9 +260,17 @@ public class Temp
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
 
+        boolean isBenchmarkingDoneForSinglePass = false;
+
         String changingParameterName = null;
-        for( int varIdx = 0 ; varIdx < variableList.size() ; varIdx++)
+        for( int varIdx = 0 ; varIdx < variableList.size() || IS_RUNNIGN_BENCHMARK ; varIdx++)
         {
+            if(IS_RUNNIGN_BENCHMARK && isBenchmarkingDoneForSinglePass)
+                break;
+
+            if(IS_RUNNIGN_BENCHMARK)
+                isBenchmarkingDoneForSinglePass = true;
+
             changingParameterValue = variableList.get(varIdx);
 
             if(isVaryShrinkFactor)

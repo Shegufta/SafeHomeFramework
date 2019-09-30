@@ -550,10 +550,21 @@ public class LockTable
 
         Set<Integer> preSet = new HashSet<>();
 
-        for(int idx = 0 ; idx < index ; ++idx)
+        if(EFFICIENT_PRE_POST_SET_CALCULATION)
         {
-            assert(idx < this.lockTable.get(devID).size());
-            preSet.add(this.lockTable.get(devID).get(idx).ID);
+            if(0 < index)
+            {
+                preSet.add(this.lockTable.get(devID).get(index - 1).ID);
+                preSet.addAll(this.lockTable.get(devID).get(index - 1).tempPerDevPreSet.get(devID));
+            }
+        }
+        else
+        {
+            for(int idx = 0 ; idx < index ; ++idx)
+            {
+                assert(idx < this.lockTable.get(devID).size());
+                preSet.add(this.lockTable.get(devID).get(idx).ID);
+            }
         }
 
         return preSet;
@@ -564,13 +575,26 @@ public class LockTable
 
         Set<Integer> postSet = new HashSet<>();
 
-        for(int idx = index ; idx < this.lockTable.get(devID).size() ; ++idx)
+        if(EFFICIENT_PRE_POST_SET_CALCULATION)
         {
-            postSet.add(this.lockTable.get(devID).get(idx).ID);
+            if(index < this.lockTable.get(devID).size() )
+            {
+                postSet.add(this.lockTable.get(devID).get(index).ID);
+                postSet.addAll(this.lockTable.get(devID).get(index).tempPerDevPostSet.get(devID));
+            }
+        }
+        else
+        {
+            for (int idx = index; idx < this.lockTable.get(devID).size(); ++idx)
+            {
+                postSet.add(this.lockTable.get(devID).get(idx).ID);
+            }
         }
 
         return postSet;
     }
+
+    public boolean EFFICIENT_PRE_POST_SET_CALCULATION = true;
 
     public boolean insertRecursively(Routine rtn, int commandIdx, int insertionStartTime, Set<Integer> _preSet, Set<Integer> _postSet)
     {
@@ -623,6 +647,26 @@ public class LockTable
 
                     rtn.commandList.get(commandIdx).startTime = startTime;
                     this.lockTable.get(devID).add(lockTableInsertionIndex, rtn); // insert in the list
+
+                    if(EFFICIENT_PRE_POST_SET_CALCULATION)
+                    {
+                        for (int idx = 0; idx < this.lockTable.get(devID).size(); ++idx)
+                        {
+                            int id = this.lockTable.get(devID).get(idx).ID;
+
+                            if(idx < lockTableInsertionIndex)
+                            {
+                                this.lockTable.get(devID).get(idx).tempPerDevPostSet.get(devID).add(rtn.ID);
+                                this.lockTable.get(devID).get(lockTableInsertionIndex).tempPerDevPreSet.get(devID).add(id);
+                            }
+                            else if(lockTableInsertionIndex < idx)
+                            {
+                                this.lockTable.get(devID).get(idx).tempPerDevPreSet.get(devID).add(rtn.ID);
+                                this.lockTable.get(devID).get(lockTableInsertionIndex).tempPerDevPostSet.get(devID).add(id);
+                            }
+                        }
+                    }
+
                     return true;
                 }
 

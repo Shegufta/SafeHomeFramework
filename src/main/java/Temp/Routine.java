@@ -21,6 +21,9 @@ public class Routine implements Comparator<Routine>
     final int ID_NOT_ASSIGNED_YET = -1;
     public float backToBackCmdExecutionWithoutGap;
 
+    public Map<DEV_ID, List<Integer>> tempPerDevPreSet; // used to calculate the recursive insertion method (EV)
+    public Map<DEV_ID, List<Integer>> tempPerDevPostSet; // used to calculate the recursive insertion method (EV)
+
     public Routine()
     {
         this.ID = ID_NOT_ASSIGNED_YET;
@@ -30,6 +33,9 @@ public class Routine implements Comparator<Routine>
         this.devIDCommandMap = new HashMap();
         this.indexCommandMap = new HashMap();
         this.commandIndexMap = new HashMap();
+
+        this.tempPerDevPreSet = new HashMap<>();
+        this.tempPerDevPostSet = new HashMap<>();
 
         this.backToBackCmdExecutionWithoutGap = 0.0f;
     }
@@ -58,9 +64,21 @@ public class Routine implements Comparator<Routine>
         return this.backToBackCmdExecutionWithoutGap;
     }
 
+    public void clearTempPrePostSet()
+    {// used to calculate the recursive insertion method (EV)
+        for(DEV_ID devID : this.devIDCommandMap.keySet())
+        {
+            tempPerDevPreSet.get(devID).clear();
+            tempPerDevPostSet.get(devID).clear();
+        }
+    }
+
     public void addCommand(Command cmd)
     {
         assert(!devIDCommandMap.containsKey(cmd.devID));
+
+        tempPerDevPreSet.put(cmd.devID, new ArrayList<>());// used to calculate the recursive insertion method (EV)
+        tempPerDevPostSet.put(cmd.devID, new ArrayList<>());// used to calculate the recursive insertion method (EV)
 
         devIdIsMustMap.put(cmd.devID, cmd.isMust);
 
