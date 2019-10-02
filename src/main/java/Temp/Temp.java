@@ -238,11 +238,11 @@ public class Temp
         CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
 
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.WEAK);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
+//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
+//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
+//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.WEAK);
+//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
+//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
         ////////////////////////////////////////////////////////////////////////////////
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
         measurementList.add(MEASUREMENT_TYPE.WAIT_TIME);
@@ -383,7 +383,7 @@ public class Temp
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
                             MEASUREMENT_TYPE.E2E_RTN_TIME,
-                            expResult.e2eVsWaitTimeHistogram);
+                            expResult.e2eTimeHistogram);
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
                             MEASUREMENT_TYPE.LATENCY_OVERHEAD,
@@ -449,11 +449,14 @@ public class Temp
                 if(!globalDataCollector.get(changingParameterValue).containsKey(measurementType))
                     globalDataCollector.get(changingParameterValue).put(measurementType, new LinkedHashMap<>());
 
-                if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO)
+                if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO )
                 {
-                    double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, measurementType);
-                    avg = (double)((int)(avg * 1000.0))/1000.0;
-                    globalDataCollector.get(changingParameterValue).get(measurementType).put(CONSISTENCY_TYPE.EVENTUAL, avg);
+                    if(Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
+                    {
+                        double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, measurementType);
+                        avg = (double)((int)(avg * 1000.0))/1000.0;
+                        globalDataCollector.get(changingParameterValue).get(measurementType).put(CONSISTENCY_TYPE.EVENTUAL, avg);
+                    }
                 }
                 else
                 {

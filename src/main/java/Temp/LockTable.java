@@ -478,6 +478,7 @@ public class LockTable
     {
         int registeredRtnMaxEndTime = _simulationStartTime;
 
+        /*
         for(Routine existingRtn : this.getAllRoutineSet())
         {
             int existingRtnEndTime = existingRtn.routineEndTime();
@@ -485,17 +486,18 @@ public class LockTable
             if(registeredRtnMaxEndTime < existingRtnEndTime)
                 registeredRtnMaxEndTime = existingRtnEndTime;
         }
+        */
 
-//        for(DEV_ID devId: this.lockTable.keySet())
-//        {
-//            for(Routine existingRtn : lockTable.get(devId))
-//            {
-//                int existingRtnEndTime = existingRtn.routineEndTime();
-//
-//                if(registeredRtnMaxEndTime < existingRtnEndTime)
-//                    registeredRtnMaxEndTime = existingRtnEndTime;
-//            }
-//        }
+        for(DEV_ID devId: this.lockTable.keySet())
+        {
+            for(Routine existingRtn : lockTable.get(devId))
+            {
+                int existingRtnEndTime = existingRtn.routineEndTime();
+
+                if(registeredRtnMaxEndTime < existingRtnEndTime)
+                    registeredRtnMaxEndTime = existingRtnEndTime;
+            }
+        }
 
         int routineStartTime = Math.max(registeredRtnMaxEndTime, rtn.registrationTime);
 
