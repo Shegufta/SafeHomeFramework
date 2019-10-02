@@ -478,16 +478,24 @@ public class LockTable
     {
         int registeredRtnMaxEndTime = _simulationStartTime;
 
-        for(DEV_ID devId: this.lockTable.keySet())
+        for(Routine existingRtn : this.getAllRoutineSet())
         {
-            for(Routine existingRtn : lockTable.get(devId))
-            {
-                int existingRtnEndTime = existingRtn.routineEndTime();
+            int existingRtnEndTime = existingRtn.routineEndTime();
 
-                if(registeredRtnMaxEndTime < existingRtnEndTime)
-                    registeredRtnMaxEndTime = existingRtnEndTime;
-            }
+            if(registeredRtnMaxEndTime < existingRtnEndTime)
+                registeredRtnMaxEndTime = existingRtnEndTime;
         }
+
+//        for(DEV_ID devId: this.lockTable.keySet())
+//        {
+//            for(Routine existingRtn : lockTable.get(devId))
+//            {
+//                int existingRtnEndTime = existingRtn.routineEndTime();
+//
+//                if(registeredRtnMaxEndTime < existingRtnEndTime)
+//                    registeredRtnMaxEndTime = existingRtnEndTime;
+//            }
+//        }
 
         int routineStartTime = Math.max(registeredRtnMaxEndTime, rtn.registrationTime);
 
@@ -501,9 +509,9 @@ public class LockTable
 
         for(DEV_ID devId: rtn.getAllDevIDSet())
         {
-            for(Routine existingRtn : lockTable.get(devId))
+            for(Routine existingRtnSharingSameDev : lockTable.get(devId))
             {
-                int existingRtnEndTime = existingRtn.routineEndTime();
+                int existingRtnEndTime = existingRtnSharingSameDev.routineEndTime();
 
                 if(overlappintRtnMaxEndTime < existingRtnEndTime)
                     overlappintRtnMaxEndTime = existingRtnEndTime;

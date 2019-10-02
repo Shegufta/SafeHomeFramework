@@ -246,10 +246,13 @@ public class Temp
         ////////////////////////////////////////////////////////////////////////////////
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
         measurementList.add(MEASUREMENT_TYPE.WAIT_TIME);
+        measurementList.add(MEASUREMENT_TYPE.BACK2BACK_RTN_CMD_EXCTN_TIME);
+        measurementList.add(MEASUREMENT_TYPE.E2E_RTN_TIME);
         measurementList.add(MEASUREMENT_TYPE.LATENCY_OVERHEAD);
         measurementList.add(MEASUREMENT_TYPE.E2E_VS_WAITTIME);
         measurementList.add(MEASUREMENT_TYPE.STRETCH_RATIO);
-        measurementList.add(MEASUREMENT_TYPE.PARALLEL);
+        measurementList.add(MEASUREMENT_TYPE.PARALLEL_DELTA);
+        measurementList.add(MEASUREMENT_TYPE.PARALLEL_RAW);
         measurementList.add(MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE);
         measurementList.add(MEASUREMENT_TYPE.DEVICE_UTILIZATION);
 //        measurementList.add(MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT);
@@ -375,6 +378,14 @@ public class Temp
                             expResult.waitTimeHistogram);
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.BACK2BACK_RTN_CMD_EXCTN_TIME,
+                            expResult.back2backRtnExectnTimeHistogram);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.E2E_RTN_TIME,
+                            expResult.e2eVsWaitTimeHistogram);
+
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
                             MEASUREMENT_TYPE.LATENCY_OVERHEAD,
                             expResult.latencyOverheadHistogram);
 
@@ -383,8 +394,12 @@ public class Temp
                             expResult.e2eVsWaitTimeHistogram);
 
                     measurementCollector.collectData(changingParameterValue,consistency_type,
-                            MEASUREMENT_TYPE.PARALLEL,
-                            expResult.measurement.parallelismHistogram);
+                            MEASUREMENT_TYPE.PARALLEL_DELTA,
+                            expResult.measurement.deltaParallelismHistogram);
+
+                    measurementCollector.collectData(changingParameterValue,consistency_type,
+                            MEASUREMENT_TYPE.PARALLEL_RAW,
+                            expResult.measurement.rawParallelismHistogram);
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
                             MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
@@ -842,6 +857,27 @@ public class Temp
             else
                 expResults.waitTimeHistogram.put(data, count + 1);
             //////////////////////////////////////////////////
+            //////////////////////////////////////////////////
+            data = routine.getEndToEndLatency();
+            count = expResults.e2eTimeHistogram.get(data);
+
+            if(count == null)
+                expResults.e2eTimeHistogram.put(data, 1);
+            else
+                expResults.e2eTimeHistogram.put(data, count + 1);
+
+            //////////////////////////////////////////////////
+            //////////////////////////////////////////////////
+            data = routine.backToBackCmdExecutionWithoutGap;
+            count = expResults.back2backRtnExectnTimeHistogram.get(data);
+
+            if(count == null)
+                expResults.back2backRtnExectnTimeHistogram.put(data, 1);
+            else
+                expResults.back2backRtnExectnTimeHistogram.put(data, count + 1);
+
+            //////////////////////////////////////////////////
+
             //expResults.latencyOverheadList.add(routine.getLatencyOverheadPrcnt());
             data = routine.getLatencyOverheadPrcnt();
             count = expResults.latencyOverheadHistogram.get(data);

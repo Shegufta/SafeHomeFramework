@@ -1,8 +1,6 @@
 package Temp;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,6 +12,8 @@ import java.util.Map;
 public class ExpResults
 {
     public Map<Float, Integer> waitTimeHistogram;
+    public Map<Float, Integer> e2eTimeHistogram;
+    public Map<Float, Integer> back2backRtnExectnTimeHistogram;
     public Map<Float, Integer> latencyOverheadHistogram;
     public Map<Float, Integer> e2eVsWaitTimeHistogram;
     public Map<Float, Integer> stretchRatioHistogram;
@@ -26,6 +26,8 @@ public class ExpResults
     {
 
         this.waitTimeHistogram = new HashMap<>();
+        this.e2eTimeHistogram = new HashMap<>();
+        this.back2backRtnExectnTimeHistogram = new HashMap<>();
         this.latencyOverheadHistogram = new HashMap<>();
         this.e2eVsWaitTimeHistogram = new HashMap<>();
         this.stretchRatioHistogram = new HashMap<>();

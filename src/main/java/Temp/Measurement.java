@@ -10,8 +10,9 @@ import java.util.*;
  */
 public class Measurement
 {
-    Map<Float, Integer> parallelismHistogram = new HashMap<>();
-    Map<Float, Integer> orderingMismatchPrcntHistogram = new HashMap<>();
+    Map<Float, Integer> deltaParallelismHistogram = new HashMap<>();
+    Map<Float, Integer> rawParallelismHistogram = new HashMap<>();
+    //Map<Float, Integer> orderingMismatchPrcntHistogram = new HashMap<>();
     Map<Float, Integer> orderingMismatchPrcntBUBBLEHistogram = new HashMap<>();
     Map<Float, Integer> devUtilizationPrcntHistogram = new HashMap<>();
 
@@ -25,6 +26,23 @@ public class Measurement
     Map<Float, Integer> isvltn5_routineLvlIsolationViolationTimePrcntHistogram = new HashMap<>();
     //ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT
     /////////////////////////////////////////////
+
+    private class RtnSpan
+    {
+        int startInclusive;
+        int endExclusive;
+        public RtnSpan(int _startInclusive, int _endExclusive)
+        {
+            this.startInclusive = _startInclusive;
+            this.endExclusive = _endExclusive;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "[" + this.startInclusive + ", " + this.endExclusive + ")";
+        }
+    }
 
     private void measureDeviceUtilization(final LockTable _lockTable)
     {
@@ -46,6 +64,49 @@ public class Measurement
                 if(entryCount == 0)
                     continue;
 
+                double deviceUsedTimeSpan = 0;
+
+                List<RtnSpan> spanList = new ArrayList<>();
+                for(Routine rtn : lineage)
+                {
+                    deviceUsedTimeSpan += rtn.getCommandByDevID(devID).duration;
+
+                    RtnSpan span = new RtnSpan(rtn.routineStartTime(), rtn.routineEndTime());
+                    spanList.add(span);
+                }
+
+                Collections.sort(spanList, new Comparator<RtnSpan>(){
+                    public int compare(RtnSpan span1, RtnSpan span2)
+                    {return span1.startInclusive - span2.startInclusive;}});
+
+
+                List<RtnSpan> mergedSpanList = new ArrayList<>();
+                RtnSpan currentSpan = spanList.get(0);
+                mergedSpanList.add(currentSpan);
+
+                for(RtnSpan newSpan : spanList)
+                {
+                    if(newSpan.startInclusive <= currentSpan.endExclusive)
+                    {
+                        currentSpan.endExclusive = Math.max(currentSpan.endExclusive, newSpan.endExclusive);
+                    }
+                    else
+                    {
+                        currentSpan = newSpan;
+                        mergedSpanList.add(currentSpan);
+                    }
+                }
+
+                double totalRoutineRunningTime = 0;
+
+                for(RtnSpan span : mergedSpanList)
+                {
+                    totalRoutineRunningTime += span.endExclusive - span.startInclusive;
+                }
+
+                double utilization = ( deviceUsedTimeSpan / totalRoutineRunningTime) * 100.0;
+
+                /*
                 float earliestAccessRequestTime = Float.MAX_VALUE;
                 for(Routine rtn : lineage)
                 {
@@ -67,6 +128,7 @@ public class Measurement
 
                 double utilization = ( cmdExecutionSpan / totalTimeSpan) * 100.0;
                 //devUtilizationPercentList.add( utilization );
+                */
 
                 Float data = (float)utilization;
                 Integer count = this.devUtilizationPrcntHistogram.get(data);
@@ -101,7 +163,7 @@ public class Measurement
 
         //this.parallelRtnCntList = new ArrayList<>(Collections.nCopies(totalTimeSpan, 0.0f));
 
-        int[] histogram = new int[totalTimeSpan];
+        short[] histogram = new short[totalTimeSpan];
 
         for(Routine rtn : _lockTable.getAllRoutineSet())
         {
@@ -115,22 +177,22 @@ public class Measurement
             }
         }
 
-        /*
+
         for(float frequency : histogram)
         {
-            Integer count = parallelismHistogram.get(frequency);
+            Integer count = rawParallelismHistogram.get(frequency);
             // here the count is the data. we have to count how many time these "count" appear
 
             if(count == null)
-                parallelismHistogram.put(frequency, 1);
+                rawParallelismHistogram.put(frequency, 1);
             else
-                parallelismHistogram.put(frequency, count + 1);
+                rawParallelismHistogram.put(frequency, count + 1);
         }
-        */
 
-        float currentFreq = -1;
 
-        for(float frequency : histogram)
+        short currentFreq = -1;
+
+        for(short frequency : histogram)
         {
             // New Approach: just record the change in frequency...
             // e.g.  if the freq is 1 1 1 1 3 3 2 1 => then record 1,3,2,1...
@@ -139,17 +201,19 @@ public class Measurement
             {
                 currentFreq = frequency;
 
-                Integer count = parallelismHistogram.get(frequency);
+                Integer count = deltaParallelismHistogram.get(frequency);
                 // here the count is the data. we have to count how many time these "count" appear
 
                 if(count == null)
-                    parallelismHistogram.put(frequency, 1);
+                    deltaParallelismHistogram.put((float)frequency, 1);
                 else
-                    parallelismHistogram.put(frequency, count + 1);
+                    deltaParallelismHistogram.put((float)frequency, count + 1);
             }
+
         }
     }
 
+    /*
     private void measureOrderingMismatch(final LockTable _lockTable)
     {
         if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
@@ -205,33 +269,8 @@ public class Measurement
                     this.orderingMismatchPrcntHistogram.put(data, count + 1);
             }
         }
-
-        /*
-        if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
-        {
-            orderMismatchPercent = -1.0f;
-            return;
-        }
-        final Map<DEV_ID, List<Routine>> lockTable = _lockTable.lockTable;
-        Map<Integer, Integer> routineOrderingViolation = new HashMap<>();
-        float totalCount = 0.0f;
-        float violationCount = 0.0f;
-
-        for(List<Routine> rtnList : lockTable.values())
-        {
-            for(int index =0 ; index < (rtnList.size() - 1) ; index++)
-            {
-                totalCount++;
-
-                if( rtnList.get(index + 1).ID < rtnList.get(index).ID)
-                    violationCount++;
-            }
-        }
-
-        orderMismatchPercent = (totalCount == 0.0f)? 0.0f : (violationCount/totalCount)*100.0f;
-        */
     }
-
+*/
 
     private void measureOrderingMismatchBubble(final LockTable _lockTable)
     {
@@ -443,7 +482,7 @@ public class Measurement
     public Measurement(final LockTable lockTable)
     {
         measureParallelization(lockTable);
-        measureOrderingMismatch(lockTable);
+        //measureOrderingMismatch(lockTable);
         measureOrderingMismatchBubble(lockTable);
         measureDeviceUtilization(lockTable);
         isolationViolation(lockTable);
@@ -454,9 +493,10 @@ public class Measurement
         assert(!isvltn2_RTNviolationPercentHistogram.isEmpty());
         assert(!isvltn4_cmdToCommitCollisionTimespanPrcntHistogram.isEmpty());
         assert(!isvltn5_routineLvlIsolationViolationTimePrcntHistogram.isEmpty());
-        assert(!orderingMismatchPrcntHistogram.isEmpty());
+        //assert(!orderingMismatchPrcntHistogram.isEmpty());
         assert(!orderingMismatchPrcntBUBBLEHistogram.isEmpty());
-        assert(!parallelismHistogram.isEmpty());
+        assert(!deltaParallelismHistogram.isEmpty());
+        assert(!rawParallelismHistogram.isEmpty());
         assert(!devUtilizationPrcntHistogram.isEmpty());
     }
 }

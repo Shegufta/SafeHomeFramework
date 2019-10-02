@@ -161,7 +161,7 @@ public class Routine implements Comparator<Routine>
         return this.commandList.get(0).startTime;
     }
 
-    private float getEndToEndLatency()
+    public float getEndToEndLatency()
     {
         return this.routineEndTime() - this.registrationTime;
     }
