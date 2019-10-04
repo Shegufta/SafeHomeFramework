@@ -25,8 +25,8 @@ public class MeasurementCollector
         List<Float> cdfFrequencyListInHisotgramMode = new ArrayList<>();
 
         public Boolean isListFinalized;
-        int globalItemCount;
-        float globalSum;
+        double globalItemCount;
+        double globalSum;
 
         public DataHolder()
         {
@@ -66,7 +66,7 @@ public class MeasurementCollector
 
         public float getAverage()
         {
-            return (globalItemCount == 0.0f)? 0.0f : this.globalSum/globalItemCount ;
+            return (float)((globalItemCount == 0.0)? 0.0 : this.globalSum/this.globalItemCount);
         }
 
         public int cdfListSize()
@@ -79,10 +79,11 @@ public class MeasurementCollector
             }
             else
             {
-                return this.globalItemCount;
+                return (int)this.globalItemCount;
             }
         }
 
+        /*
         public void addData(List<Float> measurementData)
         {
             this.isHistogramMode = false;
@@ -95,6 +96,7 @@ public class MeasurementCollector
                 this.globalItemCount++;
             }
         }
+        */
 
         public void addData(Map<Float,Integer> partialHistogram)
         {
@@ -109,7 +111,7 @@ public class MeasurementCollector
                 data = (float)((int)(data * HISTOGRAM_KEY_RESOLUTION))/ HISTOGRAM_KEY_RESOLUTION; /// convert 3.141592654 to 3.14100000
                 /// convert 3.14159 to 3.141... so now 3.14159 and 3.14161 both are 3.141... both will go to the same Map-bucket. This will save huge space
 
-                this.globalSum += data;
+                this.globalSum += (data * partialFrequency);
                 this.globalItemCount += partialFrequency;
 
                 Integer currentDataFrequency = globalHistogram.get(data);
@@ -143,6 +145,7 @@ public class MeasurementCollector
             this.variableMeasurementMap.get(variable).get(consistencyType).put(measurementType, new DataHolder());
     }
 
+    /*
     public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, double measurementData, boolean skipZeroValue)
     {
         initiate(variable, consistencyType, measurementType);
@@ -162,6 +165,7 @@ public class MeasurementCollector
         initiate(variable, consistencyType, measurementType);
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(measurementData);
     }
+    */
 
     public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, Map<Float, Integer> histogram)
     {
@@ -175,7 +179,7 @@ public class MeasurementCollector
         if(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isHistogramMode)
         {
 
-            int currentHistogramSize  = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount;
+            int currentHistogramSize  = (int)this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount;
             final int maxDataPointForHistogram = maxDataPoint;
 
             System.out.println("\t\tHistogram mode: currentHistogramSize = " + currentHistogramSize + " | maxDataPointForHistogram = " + maxDataPointForHistogram);
@@ -217,13 +221,19 @@ public class MeasurementCollector
                     }
                 }
 
-                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount = 0;
-                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum = 0.0f;
+                /*
+                * SBA:
+                * DO NOT RESET globalItemCount and globalSum... you already have the entire dataset..
+                * why not calculate the average based on that?
+                * It will give more accurate result!
+                * */
+
+                //this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount = 0; //SBA: DO NOT RESET
+                //this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum = 0.0f; //SBA: DO NOT RESET
                 this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.clear();
 
                 for(float data : tempDataArray)
                 {
-                    //float data = tempDataArray[index];//tempList.get(index);
                     Integer currentFrequency = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.get(data);
 
                     if(currentFrequency == null)
@@ -231,8 +241,8 @@ public class MeasurementCollector
                     else
                         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalHistogram.put(data, currentFrequency + 1);
 
-                    this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount++;
-                    this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum += data;
+                    //this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount++; //SBA: DO NOT RESET
+                    //this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum += data; //SBA: DO NOT RESET
                 }
             }
 
@@ -247,7 +257,7 @@ public class MeasurementCollector
             Collections.sort(sortedDataSequenceFromHistogram);
 
             int indexTracker = 1;
-            final float frequencyMultiplyer = 1.0f / this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount; // NOTE: this is total item count... not the CDF list size... that CDF list has not been initialized yet!
+            final float frequencyMultiplyer = (float)(1.0 / this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount); // NOTE: this is total item count... not the CDF list size... that CDF list has not been initialized yet!
 
             for(float sortedData : sortedDataSequenceFromHistogram)
             {
@@ -271,6 +281,9 @@ public class MeasurementCollector
         }
         else
         {
+            System.out.println("\n\n ERROR: Inside MeasurementCollector.java... The new approach should not execute this part of code... Terminating...");
+            System.exit(1);
+            /*
             System.out.println("\t\tList mode");
             int currentListSize = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
             System.out.println("\t\tHistogram mode: currentListSize = " + currentListSize + " | maxDataPoint = " + maxDataPoint);
@@ -310,6 +323,8 @@ public class MeasurementCollector
             }
 
             Collections.sort(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList);
+
+             */
         }
 
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isListFinalized = true;

@@ -64,6 +64,7 @@ public class Measurement
                 if(entryCount == 0)
                     continue;
 
+/*
                 double deviceUsedTimeSpan = 0;
 
                 List<RtnSpan> spanList = new ArrayList<>();
@@ -105,8 +106,9 @@ public class Measurement
                 }
 
                 double utilization = ( deviceUsedTimeSpan / totalRoutineRunningTime) * 100.0;
+*/
 
-                /*
+
                 float earliestAccessRequestTime = Float.MAX_VALUE;
                 for(Routine rtn : lineage)
                 {
@@ -128,7 +130,8 @@ public class Measurement
 
                 double utilization = ( cmdExecutionSpan / totalTimeSpan) * 100.0;
                 //devUtilizationPercentList.add( utilization );
-                */
+
+
 
                 Float data = (float)utilization;
                 Integer count = this.devUtilizationPrcntHistogram.get(data);

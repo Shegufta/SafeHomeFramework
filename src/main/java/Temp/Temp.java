@@ -241,8 +241,8 @@ public class Temp
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.WEAK);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
+//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
+//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
         ////////////////////////////////////////////////////////////////////////////////
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
         measurementList.add(MEASUREMENT_TYPE.WAIT_TIME);
@@ -478,6 +478,9 @@ public class Temp
 
         for(MEASUREMENT_TYPE measurementType : measurementList )
         {
+            if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO && !Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
+                continue;
+
             globalResult += "================================\n";
             globalResult += "MEASURING: " + measurementType.name() + "\n";
 
