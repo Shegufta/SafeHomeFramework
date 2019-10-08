@@ -241,8 +241,8 @@ public class Temp
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.WEAK);
-//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
-//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
+        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
+        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
         ////////////////////////////////////////////////////////////////////////////////
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
         measurementList.add(MEASUREMENT_TYPE.WAIT_TIME);
@@ -875,6 +875,7 @@ public class Temp
             //////////////////////////////////////////////////
             //////////////////////////////////////////////////
             data = routine.backToBackCmdExecutionWithoutGap;
+
             count = expResults.back2backRtnExectnTimeHistogram.get(data);
 
             if(count == null)
