@@ -26,6 +26,11 @@ public class Routine implements Comparator<Routine>
 
     public Routine()
     {
+        this.initialize();
+    }
+
+    private void initialize()
+    {
         this.ID = ID_NOT_ASSIGNED_YET;
         this.commandList = new ArrayList<>();
         this.devIdIsMustMap = new HashMap<>();
@@ -42,16 +47,8 @@ public class Routine implements Comparator<Routine>
 
     public Routine(String abbr)
     {
-        this.ID = ID_NOT_ASSIGNED_YET;
+        this.initialize();
         this.abbr = abbr;
-        this.commandList = new ArrayList<>();
-        this.devIdIsMustMap = new HashMap<>();
-        //this.deviceSet = new HashSet<>();
-        this.devIDCommandMap = new HashMap();
-        this.indexCommandMap = new HashMap();
-        this.commandIndexMap = new HashMap();
-
-        this.backToBackCmdExecutionWithoutGap = 0.0f;
     }
 
     public Set<DEV_ID> getAllDevIDSet()

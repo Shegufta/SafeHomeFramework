@@ -33,7 +33,7 @@ public class Temp
     public static final boolean isVaryShortRunningDuration = SysParamSngltn.getInstance().isVaryShortRunningDuration;
 
     public static final String commaSeprtdVarListString = SysParamSngltn.getInstance().commaSeprtdVarListString;
-    public static final List<Double> variableList = SysParamSngltn.getInstance().variableList;
+    public static List<Double> variableList = SysParamSngltn.getInstance().variableList;
 
     public static final String commaSeprtdCorrespondingUpperBoundListString =  SysParamSngltn.getInstance().commaSeprtdCorrespondingUpperBoundListString;
     public static final List<Double> variableCorrespndinMaxValList = SysParamSngltn.getInstance().variableCorrespndinMaxValList;
@@ -272,58 +272,63 @@ public class Temp
                 break;
 
             if(IS_RUNNIGN_BENCHMARK)
+            {
+                variableList = new ArrayList<>();
+                variableList.add(-123.0);
+
                 isBenchmarkingDoneForSinglePass = true;
-
-            changingParameterValue = variableList.get(varIdx);
-
-            if(isVaryShrinkFactor)
-            {
-                shrinkFactor = changingParameterValue;
-                changingParameterName = "shrinkFactor";
-            }
-            else if(isVaryZipfAlpha)
-            {
-                zipF = changingParameterValue;
-                changingParameterName = "zipF";
-            }
-            else if(isVaryLongRunningPercent)
-            {
-                longRrtnPcntg = changingParameterValue;
-                changingParameterName = "longRrtnPcntg";
-            }
-            else if(isVaryCommandCntPerRtn)
-            {
-                double maxVal = variableCorrespndinMaxValList.get(varIdx);
-
-                minCmdCntPerRtn = changingParameterValue;
-                maxCmdCntPerRtn = maxVal;
-                changingParameterName = "minCmdCntPerRtn";
-            }
-            else if(isVaryLongRunningDuration)
-            {
-                double maxVal = variableCorrespndinMaxValList.get(varIdx);
-
-                minLngRnCmdTimSpn = changingParameterValue;
-                maxLngRnCmdTimSpn = maxVal;
-                changingParameterName = "minLngRnCmdTimSpn";
-            }
-            else if(isVaryShortRunningDuration)
-            {
-                double maxVal = variableCorrespndinMaxValList.get(varIdx);
-
-                minShrtCmdTimeSpn = changingParameterValue;
-                maxShrtCmdTimeSpn = maxVal;
-                changingParameterName = "minShrtCmdTimeSpn";
+                changingParameterValue = variableList.get(0);
+                changingParameterName = "benchmarking";
             }
             else
             {
-                System.out.println("Error: unknown selection.... Terminating...");
-                System.exit(1);
-            }
+                changingParameterValue = variableList.get(varIdx);
 
+                if(isVaryShrinkFactor)
+                {
+                    shrinkFactor = changingParameterValue;
+                    changingParameterName = "shrinkFactor";
+                }
+                else if(isVaryZipfAlpha)
+                {
+                    zipF = changingParameterValue;
+                    changingParameterName = "zipF";
+                }
+                else if(isVaryLongRunningPercent)
+                {
+                    longRrtnPcntg = changingParameterValue;
+                    changingParameterName = "longRrtnPcntg";
+                }
+                else if(isVaryCommandCntPerRtn)
+                {
+                    double maxVal = variableCorrespndinMaxValList.get(varIdx);
 
-            if(!IS_RUNNIGN_BENCHMARK)
-            {
+                    minCmdCntPerRtn = changingParameterValue;
+                    maxCmdCntPerRtn = maxVal;
+                    changingParameterName = "minCmdCntPerRtn";
+                }
+                else if(isVaryLongRunningDuration)
+                {
+                    double maxVal = variableCorrespndinMaxValList.get(varIdx);
+
+                    minLngRnCmdTimSpn = changingParameterValue;
+                    maxLngRnCmdTimSpn = maxVal;
+                    changingParameterName = "minLngRnCmdTimSpn";
+                }
+                else if(isVaryShortRunningDuration)
+                {
+                    double maxVal = variableCorrespndinMaxValList.get(varIdx);
+
+                    minShrtCmdTimeSpn = changingParameterValue;
+                    maxShrtCmdTimeSpn = maxVal;
+                    changingParameterName = "minShrtCmdTimeSpn";
+                }
+                else
+                {
+                    System.out.println("Error: unknown selection.... Terminating...");
+                    System.exit(1);
+                }
+
                 if(lastGeneratedZipfeanFor != zipF)
                 {
                     lastGeneratedZipfeanFor = zipF;
