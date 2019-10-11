@@ -169,6 +169,9 @@ public class MeasurementCollector
 
     public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, Map<Float, Integer> histogram)
     {
+        if(histogram == null)
+            return;
+
         initiate(variable, consistencyType, measurementType);
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(histogram);
     }

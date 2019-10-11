@@ -10,20 +10,20 @@ import java.util.*;
  */
 public class Measurement
 {
-    Map<Float, Integer> deltaParallelismHistogram = new HashMap<>();
-    Map<Float, Integer> rawParallelismHistogram = new HashMap<>();
+    public Map<Float, Integer> deltaParallelismHistogram = new HashMap<>();
+    public Map<Float, Integer> rawParallelismHistogram = new HashMap<>();
     //Map<Float, Integer> orderingMismatchPrcntHistogram = new HashMap<>();
-    Map<Float, Integer> orderingMismatchPrcntBUBBLEHistogram = new HashMap<>();
-    Map<Float, Integer> devUtilizationPrcntHistogram = new HashMap<>();
+    public Map<Float, Integer> orderingMismatchPrcntBUBBLEHistogram = new HashMap<>();
+    public Map<Float, Integer> devUtilizationPrcntHistogram = new HashMap<>();
 
     //public List<Float> devUtilizationPercentList = new ArrayList<>();
     //public float orderMismatchPercent = 0.0f;
 
-    Map<Float, Integer> isvltn1_perRtnCollisionCountHistogram = new HashMap<>();
-    Map<Float, Integer> isvltn3_CMDviolationPercentHistogram = new HashMap<>(); // Command Violation Per Routine
-    Map<Float, Integer> isvltn2_RTNviolationPercentHistogram = new HashMap<>();
-    Map<Float, Integer> isvltn4_cmdToCommitCollisionTimespanPrcntHistogram = new HashMap<>();
-    Map<Float, Integer> isvltn5_routineLvlIsolationViolationTimePrcntHistogram = new HashMap<>();
+    public Map<Float, Integer> isvltn1_perRtnCollisionCountHistogram = new HashMap<>();
+    public Map<Float, Integer> isvltn3_CMDviolationPercentHistogram = new HashMap<>(); // Command Violation Per Routine
+    public Map<Float, Integer> isvltn2_RTNviolationPercentHistogram = new HashMap<>();
+    public Map<Float, Integer> isvltn4_cmdToCommitCollisionTimespanPrcntHistogram = new HashMap<>();
+    public Map<Float, Integer> isvltn5_routineLvlIsolationViolationTimePrcntHistogram = new HashMap<>();
     //ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT
     /////////////////////////////////////////////
 

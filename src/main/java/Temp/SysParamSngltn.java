@@ -33,6 +33,7 @@ public class SysParamSngltn
     private final String KEY_DEV_FAILURE_RATIO = "devFailureRatio";
     private final String KEY_ATLEAST_ONE_DEV_FAIL = "atleastOneDevFail";
     private final String KEY_MUST_CMD_PERCENTAGE = "mustCmdPercentage";
+    private final String FAILURE_ANALYZER_SAMPLE_COUNT = "FAILURE_ANALYZER_SAMPLE_COUNT";
     private final String KEY_SIMULATION_START_TIME = "SIMULATION_START_TIME";
     private final String KEY_MAX_DATAPOINT_COLLECTON_SIZE = "MAX_DATAPOINT_COLLECTON_SIZE";
     private final String KEY_RANDOM_SEED = "RANDOM_SEED";
@@ -93,6 +94,7 @@ public class SysParamSngltn
     public static double devFailureRatio;// = 0.0;
     public static boolean atleastOneDevFail;// = false;
     public static double mustCmdPercentage;// = 1.0;
+    public static int failureAnalyzerSampleCount;
 
 
     public static int SIMULATION_START_TIME;// = 0;
@@ -248,6 +250,7 @@ public class SysParamSngltn
             devFailureRatio = Double.valueOf(properties.getProperty(KEY_DEV_FAILURE_RATIO));
             atleastOneDevFail = Boolean.valueOf(properties.getProperty(KEY_ATLEAST_ONE_DEV_FAIL));
             mustCmdPercentage = Double.valueOf(properties.getProperty(KEY_MUST_CMD_PERCENTAGE));
+            failureAnalyzerSampleCount = Integer.valueOf(properties.getProperty(FAILURE_ANALYZER_SAMPLE_COUNT));
 
             IS_PRE_LEASE_ALLOWED = Boolean.valueOf(properties.getProperty(KEY_IS_PRE_LEASE_ALLOWED));
             IS_POST_LEASE_ALLOWED = Boolean.valueOf(properties.getProperty(KEY_IS_POST_LEASE_ALLOWED));

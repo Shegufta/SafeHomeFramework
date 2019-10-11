@@ -1,7 +1,7 @@
-package Temp;
-
+package FailureAnalyzerSimulator;
 
 import BenchmarkingTool.*;
+import Temp.*;
 import org.apache.commons.math3.distribution.ZipfDistribution;
 
 import java.io.File;
@@ -10,16 +10,16 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
 
-
 /**
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
- * @date 17-Jul-19
- * @time 10:32 AM
+ * @date 10-Oct-19
+ * @time 6:43 PM
  */
+
 // graph plotting tool command:  "python .\gen_all.py -d C:\Users\shegufta\Desktop\smartHomeData\1568337471715_VARY_maxConcurrentRtn_R_101_C_6"
 
-public class Temp
+public class SimulateFailure
 {
     public static final boolean IS_RUNNING_BENCHMARK = SysParamSngltn.getInstance().IS_RUNNING_BENCHMARK; //false; // Careful... if it is TRUE, all other parameters will be in don't care mode!
     private static final int totalSampleCount = SysParamSngltn.getInstance().totalSampleCount; //1000;//7500;//10000; // 100000;
@@ -242,26 +242,12 @@ public class Temp
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.WEAK);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
         ////////////////////////////////////////////////////////////////////////////////
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
-        measurementList.add(MEASUREMENT_TYPE.WAIT_TIME);
-        measurementList.add(MEASUREMENT_TYPE.BACK2BACK_RTN_CMD_EXCTN_TIME);
-        measurementList.add(MEASUREMENT_TYPE.E2E_RTN_TIME);
-        measurementList.add(MEASUREMENT_TYPE.LATENCY_OVERHEAD);
-        measurementList.add(MEASUREMENT_TYPE.E2E_VS_WAITTIME);
-        measurementList.add(MEASUREMENT_TYPE.STRETCH_RATIO);
-        measurementList.add(MEASUREMENT_TYPE.PARALLEL_DELTA);
-        measurementList.add(MEASUREMENT_TYPE.PARALLEL_RAW);
-        measurementList.add(MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE);
-        measurementList.add(MEASUREMENT_TYPE.DEVICE_UTILIZATION);
-//        measurementList.add(MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT);
-//        measurementList.add(MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT);
-//        measurementList.add(MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN);
-//        measurementList.add(MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT);
-        measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
+        measurementList.add(MEASUREMENT_TYPE.ABORT_RATE);
+        measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD);
+        measurementList.add(MEASUREMENT_TYPE.ON_THE_FLY_CMD);
+        //measurementList.add(MEASUREMENT_TYPE.EXECUTION_LATENCY_MS);
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
 
@@ -376,72 +362,26 @@ public class Temp
                 }
 
 
-                for(CONSISTENCY_TYPE consistency_type :  Temp.CONSISTENCY_ORDERING_LIST)
+                for(CONSISTENCY_TYPE consistency_type :  CONSISTENCY_ORDERING_LIST)
                 {
                     ExpResults expResult = runExperiment(devIDlist, consistency_type, routineSet, SIMULATION_START_TIME);
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.WAIT_TIME,
-                            expResult.waitTimeHistogram);
+                            MEASUREMENT_TYPE.ABORT_RATE,
+                            expResult.abortHistogram);
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.BACK2BACK_RTN_CMD_EXCTN_TIME,
-                            expResult.back2backRtnExectnTimeHistogram);
+                            MEASUREMENT_TYPE.RECOVERY_CMD,
+                            expResult.rollbackHistogram);
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.E2E_RTN_TIME,
-                            expResult.e2eTimeHistogram);
-
-                    measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.LATENCY_OVERHEAD,
-                            expResult.latencyOverheadHistogram);
-
-                    measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.E2E_VS_WAITTIME,
-                            expResult.e2eVsWaitTimeHistogram);
-
-                    measurementCollector.collectData(changingParameterValue,consistency_type,
-                            MEASUREMENT_TYPE.PARALLEL_DELTA,
-                            expResult.measurement.deltaParallelismHistogram);
-
-                    measurementCollector.collectData(changingParameterValue,consistency_type,
-                            MEASUREMENT_TYPE.PARALLEL_RAW,
-                            expResult.measurement.rawParallelismHistogram);
-
-                    measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT,
-                            expResult.measurement.isvltn5_routineLvlIsolationViolationTimePrcntHistogram);
+                            MEASUREMENT_TYPE.ON_THE_FLY_CMD,
+                            expResult.onTheFlyHistogram);
 
 //                    measurementCollector.collectData(changingParameterValue, consistency_type,
-//                            MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT,
-//                            expResult.measurement.isvltn4_cmdToCommitCollisionTimespanPrcntHistogram);
-//
-//                    measurementCollector.collectData(changingParameterValue, consistency_type,
-//                            MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN,
-//                            expResult.measurement.isvltn3_CMDviolationPercentHistogram);
-//
-//                    measurementCollector.collectData(changingParameterValue, consistency_type,
-//                            MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT,
-//                            expResult.measurement.isvltn2_RTNviolationPercentHistogram);
-//
-//                    measurementCollector.collectData(changingParameterValue, consistency_type,
-//                            MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT,
-//                            expResult.measurement.isvltn1_perRtnCollisionCountHistogram);
+//                            MEASUREMENT_TYPE.EXECUTION_LATENCY_MS,
+//                            expResult.executionLatencyHistogram);
 
-                    measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE,
-                            expResult.measurement.orderingMismatchPrcntBUBBLEHistogram);
-
-                    measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.DEVICE_UTILIZATION,
-                            expResult.measurement.devUtilizationPrcntHistogram);
-
-                    if(consistency_type == CONSISTENCY_TYPE.EVENTUAL)
-                    {
-                        measurementCollector.collectData(changingParameterValue, consistency_type,
-                                MEASUREMENT_TYPE.STRETCH_RATIO,
-                                expResult.stretchRatioHistogram);
-                    }
                 }
             }
 
@@ -458,7 +398,7 @@ public class Temp
 
                 if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO )
                 {
-                    if(Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
+                    if(CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
                     {
                         double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, measurementType);
                         avg = (double)((int)(avg * 1000.0))/1000.0;
@@ -467,7 +407,7 @@ public class Temp
                 }
                 else
                 {
-                    for(CONSISTENCY_TYPE consistency_type :  Temp.CONSISTENCY_ORDERING_LIST)
+                    for(CONSISTENCY_TYPE consistency_type :  CONSISTENCY_ORDERING_LIST)
                     {
                         double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, consistency_type, measurementType);
                         avg = (double)((int)(avg * 1000.0))/1000.0;
@@ -485,7 +425,7 @@ public class Temp
 
         for(MEASUREMENT_TYPE measurementType : measurementList )
         {
-            if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO && !Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
+            if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO && !CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
                 continue;
 
             globalResult += "================================\n";
@@ -679,7 +619,7 @@ public class Temp
 
     public static int getUniqueRtnID()
     {
-        return Temp.ROUTINE_ID++;
+        return ROUTINE_ID++;
     }
 
     private static List<Routine> generateAutomatedRtn(int nonNegativeSeed)
@@ -849,83 +789,16 @@ public class Temp
 
         ExpResults expResults = new ExpResults();
 
-//        if(_consistencyType != CONSISTENCY_TYPE.WEAK)
-//            expResults.failureAnalyzer = new FailureAnalyzer(lockTable.lockTable, _consistencyType);
+        FailureAnalyzer failurleAnalyzer = new FailureAnalyzer(lockTable.lockTable, _consistencyType);
 
-        expResults.measurement = new Measurement(lockTable);
-
-
-        for(Routine routine : perExpRtnList)
-        {
-            float data;
-            Integer count;
-
-            //////////////////////////////////////////////////
-            //expResults.waitTimeList.add(routine.getStartDelay());
-            data = routine.getStartDelay();
-            count = expResults.waitTimeHistogram.get(data);
-
-            if(count == null)
-                expResults.waitTimeHistogram.put(data, 1);
-            else
-                expResults.waitTimeHistogram.put(data, count + 1);
-            //////////////////////////////////////////////////
-            //////////////////////////////////////////////////
-            data = routine.getEndToEndLatency();
-            count = expResults.e2eTimeHistogram.get(data);
-
-            if(count == null)
-                expResults.e2eTimeHistogram.put(data, 1);
-            else
-                expResults.e2eTimeHistogram.put(data, count + 1);
-
-            //////////////////////////////////////////////////
-            //////////////////////////////////////////////////
-            data = routine.backToBackCmdExecutionWithoutGap;
-
-            count = expResults.back2backRtnExectnTimeHistogram.get(data);
-
-            if(count == null)
-                expResults.back2backRtnExectnTimeHistogram.put(data, 1);
-            else
-                expResults.back2backRtnExectnTimeHistogram.put(data, count + 1);
-
-            //////////////////////////////////////////////////
-
-            //expResults.latencyOverheadList.add(routine.getLatencyOverheadPrcnt());
-            data = routine.getLatencyOverheadPrcnt();
-            count = expResults.latencyOverheadHistogram.get(data);
-
-            if(count == null)
-                expResults.latencyOverheadHistogram.put(data, 1);
-            else
-                expResults.latencyOverheadHistogram.put(data, count + 1);
-            //////////////////////////////////////////////////
-            data = routine.getE2EvsWaittime();
-            count = expResults.e2eVsWaitTimeHistogram.get(data);
-
-            if(count == null)
-                expResults.e2eVsWaitTimeHistogram.put(data, 1);
-            else
-                expResults.e2eVsWaitTimeHistogram.put(data, count + 1);
-
-            //////////////////////////////////////////////////
-            //////////////////////////////////////////////////
-            //expResults.stretchRatioList.add(routine.getStretchRatio());
-            data = routine.getStretchRatio();
-            count = expResults.stretchRatioHistogram.get(data);
-
-            if(count == null)
-                expResults.stretchRatioHistogram.put(data, 1);
-            else
-                expResults.stretchRatioHistogram.put(data, count + 1);
-            //////////////////////////////////////////////////
-
-            assert(!expResults.waitTimeHistogram.isEmpty());
-            assert(!expResults.latencyOverheadHistogram.isEmpty());
-            assert(!expResults.stretchRatioHistogram.isEmpty());
-        }
+        failurleAnalyzer.simulateFailure(devFailureRatio,
+                atleastOneDevFail,
+                RANDOM_SEED,
+                failureAnalyzerSampleCount,
+                expResults
+                );
 
         return expResults;
     }
 }
+
