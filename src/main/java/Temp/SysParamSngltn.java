@@ -46,6 +46,8 @@ public class SysParamSngltn
     private final String KEY_IS_VARY_LONG_RUNNING_PERCENT = "isVaryLongRunningPercent";
     private final String KEY_IS_VARY_LONG_RUNNING_DURATION = "isVaryLongRunningDuration";
     private final String KEY_IS_VARY_SHORT_RUNNING_DURATION = "isVaryShortRunningDuration";
+    private final String KEY_IS_VARY_MUST_CMD_PERCENTAGE = "isVaryMustCmdPercentage";
+    private final String KEY_IS_VARY_DEV_FAILURE_RATIO = "isVaryDevFailureRatio";
 
     private final String KEY_COMMA_SEPRTD_VAR_LIST_STRING = "commaSeprtdVarListString";
     private final String KEY_COMMA_SEPRTD_CORRESPNDIN_UPPR_BND_LIST_STR = "commaSeprtdCorrespondingUpperBoundListString";
@@ -64,6 +66,8 @@ public class SysParamSngltn
     public static boolean isVaryLongRunningPercent;
     public static boolean isVaryLongRunningDuration;
     public static boolean isVaryShortRunningDuration;
+    public static boolean isVaryMustCmdPercentage;
+    public static boolean isVaryDevFailureRatio;
 
     public static String commaSeprtdVarListString;
     public static String commaSeprtdCorrespondingUpperBoundListString;
@@ -214,6 +218,12 @@ public class SysParamSngltn
 
             isVaryShortRunningDuration = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_SHORT_RUNNING_DURATION));
             if(isVaryShortRunningDuration) count++;
+
+            isVaryMustCmdPercentage = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_MUST_CMD_PERCENTAGE));
+            if(isVaryMustCmdPercentage) count++;
+
+            isVaryDevFailureRatio = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_DEV_FAILURE_RATIO));
+            if(isVaryDevFailureRatio) count++;
 
             if(count != 1)
             {

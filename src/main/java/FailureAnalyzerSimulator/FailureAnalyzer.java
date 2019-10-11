@@ -15,7 +15,7 @@ public class FailureAnalyzer
 {
     public Map<Float, Integer> abortHistogramGSVPSV = null;// = new HashMap<>();
     public Map<Float, Integer> rollbackHistogramGSVPSV = null;//  = new HashMap<>();
-    public Map<Float, Integer> onTheFlyHistogramGSVPSV = null;//  = new HashMap<>();
+    //public Map<Float, Integer> onTheFlyHistogramGSVPSV = null;//  = new HashMap<>();
 
     int minStartTime = Integer.MAX_VALUE;
     int maxEndTime = Integer.MIN_VALUE;
@@ -266,7 +266,7 @@ public class FailureAnalyzer
 
         //int rollbackCount = 0;
         int allRollbackCount = 0;
-        Set<FailureAnalysisMetadata> onTheFlySet = new HashSet<>();
+        //Set<FailureAnalysisMetadata> onTheFlySet = new HashSet<>();
         //int ontheFlyCount = onTheFlySet(cleanLockTableForFailureAnalysis, failureTime); // NOTE: Must call it before calling rebuildAllAffectedRoutineAlongWithCommands
         Map<Integer, List<FailureAnalysisMetadata>> affectedRoutineMap = rebuildAllAffectedRoutineAlongWithCommands(cleanLockTableForFailureAnalysis, failedDevSet);
 
@@ -289,7 +289,7 @@ public class FailureAnalyzer
                 }
 
                 //ontheFlyCount = onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime);
-                onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
+                //onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
 
                 int totalFailureRecoveryCommandSent = 0;
                 Set<DEV_ID> touchedDevSet = new HashSet<>();
@@ -370,7 +370,7 @@ public class FailureAnalyzer
                 {
                     allRollbackCount += successfulCommandSent;
                     //ontheFlyCount = onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime);
-                    onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
+                    //onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
                 }
                 else
                 {
@@ -379,7 +379,7 @@ public class FailureAnalyzer
                         allRollbackCount += totalCommandCount;
                         commandFailureDetectionTime = routineEndTime;
                         //ontheFlyCount = onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime);
-                        onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
+                        //onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
                         // for PSV: rollback the entire command list
                     }
                     else
@@ -400,7 +400,7 @@ public class FailureAnalyzer
 
                         }
                         //ontheFlyCount = onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime);
-                        onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
+                        //onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
                         allRollbackCount += totalCommandCount;
                     }
                 }
@@ -420,8 +420,8 @@ public class FailureAnalyzer
         data = (float) allRollbackCount;
         this.rollbackHistogramGSVPSV.merge(data, 1, (a, b) -> a + b);
 
-        data = (float) onTheFlySet.size();
-        this.onTheFlyHistogramGSVPSV.merge(data, 1, (a, b) -> a + b);
+        //data = (float) onTheFlySet.size();
+        //this.onTheFlyHistogramGSVPSV.merge(data, 1, (a, b) -> a + b);
 
 
         double totalRtnCntInOriginalSubmission = getTotalRoutineCount();
@@ -446,11 +446,11 @@ public class FailureAnalyzer
     {
         expResults.abortHistogram = new HashMap<>();
         expResults.rollbackHistogram = new HashMap<>();
-        expResults.onTheFlyHistogram = new HashMap<>();
+        //expResults.onTheFlyHistogram = new HashMap<>();
 
         this.abortHistogramGSVPSV = expResults.abortHistogram;
         this.rollbackHistogramGSVPSV = expResults.rollbackHistogram;
-        this.onTheFlyHistogramGSVPSV = expResults.onTheFlyHistogram;
+        //this.onTheFlyHistogramGSVPSV = expResults.onTheFlyHistogram;
 
         if(0 <= RANDOM_SEED)
             rand = new Random(RANDOM_SEED);
@@ -470,13 +470,13 @@ public class FailureAnalyzer
         if(this.rollbackHistogramGSVPSV.isEmpty())
             this.rollbackHistogramGSVPSV.merge(0.0f, 0, (a, b) -> a + b);
 
-        if(this.onTheFlyHistogramGSVPSV.isEmpty())
-            this.onTheFlyHistogramGSVPSV.merge(0.0f, 0, (a, b) -> a + b);
+        //if(this.onTheFlyHistogramGSVPSV.isEmpty())
+            //this.onTheFlyHistogramGSVPSV.merge(0.0f, 0, (a, b) -> a + b);
 
 
 
         assert(!this.abortHistogramGSVPSV.isEmpty());
         assert(!this.rollbackHistogramGSVPSV.isEmpty());
-        assert(!this.onTheFlyHistogramGSVPSV.isEmpty());
+        //assert(!this.onTheFlyHistogramGSVPSV.isEmpty());
     }
 }

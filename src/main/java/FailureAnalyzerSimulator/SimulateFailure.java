@@ -30,6 +30,8 @@ public class SimulateFailure
     public static final boolean isVaryLongRunningPercent = SysParamSngltn.getInstance().isVaryLongRunningPercent;
     public static final boolean isVaryLongRunningDuration = SysParamSngltn.getInstance().isVaryLongRunningDuration;
     public static final boolean isVaryShortRunningDuration = SysParamSngltn.getInstance().isVaryShortRunningDuration;
+    public static final boolean isVaryMustCmdPercentage = SysParamSngltn.getInstance().isVaryMustCmdPercentage;
+    public static final boolean isVaryDevFailureRatio = SysParamSngltn.getInstance().isVaryDevFailureRatio;
 
     public static final String commaSeprtdVarListString = SysParamSngltn.getInstance().commaSeprtdVarListString;
     public static List<Double> variableList = SysParamSngltn.getInstance().variableList;
@@ -118,8 +120,12 @@ public class SimulateFailure
         logStr += "isVaryLongRunningPercent = " + isVaryLongRunningPercent + "\n";
         System.out.println("isVaryLongRunningDuration = " + isVaryLongRunningDuration);
         logStr += "isVaryLongRunningDuration = " + isVaryLongRunningDuration + "\n";
-        System.out.println("isVaryShortRunningDuration = " + isVaryShortRunningDuration + "\n");
-        logStr += "isVaryShortRunningDuration = " + isVaryShortRunningDuration + "\n\n";
+        System.out.println("isVaryShortRunningDuration = " + isVaryShortRunningDuration);
+        logStr += "isVaryShortRunningDuration = " + isVaryShortRunningDuration + "\n";
+        System.out.println("isVaryMustCmdPercentage = " + isVaryMustCmdPercentage);
+        logStr += "isVaryMustCmdPercentage = " + isVaryMustCmdPercentage + "\n";
+        System.out.println("isVaryDevFailureRatio = " + isVaryDevFailureRatio + "\n");
+        logStr += "isVaryDevFailureRatio = " + isVaryDevFailureRatio + "\n\n";
 
 
         System.out.println("commaSeprtdVarListString = " + commaSeprtdVarListString);
@@ -246,7 +252,7 @@ public class SimulateFailure
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
         measurementList.add(MEASUREMENT_TYPE.ABORT_RATE);
         measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD);
-        measurementList.add(MEASUREMENT_TYPE.ON_THE_FLY_CMD);
+        //measurementList.add(MEASUREMENT_TYPE.ON_THE_FLY_CMD);
         //measurementList.add(MEASUREMENT_TYPE.EXECUTION_LATENCY_MS);
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
@@ -311,6 +317,16 @@ public class SimulateFailure
                     maxShrtCmdTimeSpn = maxVal;
                     changingParameterName = "minShrtCmdTimeSpn";
                 }
+                else if(isVaryMustCmdPercentage)
+                {
+                    mustCmdPercentage = changingParameterValue;
+                    changingParameterName = "mustPrcnt";
+                }
+                else if(isVaryDevFailureRatio)
+                {
+                    devFailureRatio = changingParameterValue;
+                    changingParameterName = "DevFailPrcnt";
+                }
                 else
                 {
                     System.out.println("Error: unknown selection.... Terminating...");
@@ -374,9 +390,9 @@ public class SimulateFailure
                             MEASUREMENT_TYPE.RECOVERY_CMD,
                             expResult.rollbackHistogram);
 
-                    measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.ON_THE_FLY_CMD,
-                            expResult.onTheFlyHistogram);
+//                    measurementCollector.collectData(changingParameterValue, consistency_type,
+//                            MEASUREMENT_TYPE.ON_THE_FLY_CMD,
+//                            expResult.onTheFlyHistogram);
 
 //                    measurementCollector.collectData(changingParameterValue, consistency_type,
 //                            MEASUREMENT_TYPE.EXECUTION_LATENCY_MS,

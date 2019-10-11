@@ -20,7 +20,7 @@ public class ExpResults
 
     public Map<Float, Integer> abortHistogram = null; // new these variables from inside FailureAnalyzer.simulateFailure();
     public Map<Float, Integer> rollbackHistogram = null; // new these variables from inside FailureAnalyzer.simulateFailure();
-    public Map<Float, Integer> onTheFlyHistogram = null; // new these variables from inside FailureAnalyzer.simulateFailure();
+    //public Map<Float, Integer> onTheFlyHistogram = null; // new these variables from inside FailureAnalyzer.simulateFailure();
     //public Map<Float, Integer> executionLatencyHistogram = null;
 
     //public FailureAnalyzer failureAnalyzer = null;
