@@ -265,6 +265,7 @@ public class SysParamSngltn
         catch(Exception ex)
         {
             System.out.println(ex.toString());
+            System.out.println(ex.getStackTrace());
             System.exit(1);
         }
     }
