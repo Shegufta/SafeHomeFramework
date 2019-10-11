@@ -75,6 +75,16 @@ public class Temp
     private static List<DEV_ID> devIDlist = new ArrayList<>();
     private static Map<DEV_ID, ZipfProbBoundary> devID_ProbBoundaryMap = new HashMap<>();
 
+//<<<<<<< Updated upstream
+//=======
+//    private static final int SIMULATION_START_TIME = 0;
+//    public static final int MAX_DATAPOINT_COLLECTON_SIZE = 5000;
+//    private static final int RANDOM_SEED = -1;
+//    private static final int MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = 5;
+//
+////    private static final String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
+//
+//>>>>>>> Stashed changes
     ///////////////////////////////////////////////////////////////////////////////////
     //private static Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
     private static List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING_LIST = new ArrayList<>();
@@ -220,6 +230,8 @@ public class Temp
         //////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////---CHECKING-DIRECTORY-///////////////////////////////
 
+//        String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
+        String dataStorageDirectory = "/Users/ruiyang/Developer/research/asid/expr/plot_generation/new_format";
         File dataStorageDir = new File(dataStorageDirectory);
 
         if(!dataStorageDir.exists())
@@ -326,7 +338,6 @@ public class Temp
                 else if(isVaryLongRunningDuration)
                 {
                     double maxVal = variableCorrespndinMaxValList.get(varIdx);
-
                     minLngRnCmdTimSpn = changingParameterValue;
                     maxLngRnCmdTimSpn = maxVal;
                     changingParameterName = "minLngRnCmdTimSpn";
@@ -393,6 +404,8 @@ public class Temp
                 if(IS_RUNNING_BENCHMARK)
                 {
                     routineSet = benchmarkingTool.GetOneWorkload();
+                    System.out.printf("Routines: %s \n", routineSet.toString());
+                    int size = routineSet.size();
                 }
                 else
                 {
@@ -933,6 +946,13 @@ public class Temp
 
 
         lockTable.register(perExpRtnList, _simulationStartTime);
+
+//        if(_consistencyType == CONSISTENCY_TYPE.EVENTUAL)
+//        {
+//            System.out.println(lockTable);
+//            System.out.println("Lock table printed... Terminating program....");
+//            System.exit(1);
+//        }
 
         ExpResults expResults = new ExpResults();
 

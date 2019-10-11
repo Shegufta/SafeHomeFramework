@@ -329,7 +329,7 @@ public class Routine implements Comparator<Routine>
             str += cmd;
         }
 
-        str += " }";
+        str += " }\n";
 
         return str;
     }

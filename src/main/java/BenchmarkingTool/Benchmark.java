@@ -19,10 +19,13 @@ import org.json.simple.parser.JSONParser;
 
 public class Benchmark {
 
+  private double SHT_CMD_RTN_MULTI = 10.0;
+
   private List<DEV_ID> localDevIdLIst = new ArrayList<>();
 
   private static int total_num_routines = 0;
   private static List<Routine> routine_list = new ArrayList<>();
+  private static List<Routine> sht_cmd_rtn_list = new ArrayList<>();
   private static double[][] matrix;
 
   private static final String prePath = "src" + File.separator + "main" + File.separator + "java" + File.separator + "BenchmarkingTool" + File.separator;
@@ -66,11 +69,13 @@ public class Benchmark {
 
 
     routine_list = GetRoutineSetFromJson(routinePath);
+    sht_cmd_rtn_list = GetShortCommandRoutineList();  // one per device;
     System.out.printf("routine list len: %d\n", routine_list.size());
     matrix = GetRoutineMatrix(matrixPath);
 
     this.initiateLOCALdevIdList();
   }
+
 
   @SuppressWarnings("unchecked")
   public static void main(String[] args) throws Exception {
@@ -84,7 +89,7 @@ public class Benchmark {
   public List<Routine> GetOneWorkload() throws Exception {
 
     List<Routine> workload = new ArrayList<>();
-
+    List<Routine> final_workload = new ArrayList<>();
     do {
       workload.clear();
       Set<Integer> chosen_ids = new HashSet<>();
@@ -106,21 +111,64 @@ public class Benchmark {
       }
     } while (workload.size() < min_concurrency_level);
 
-    int routine_id = 0;
     int registration_time = 0;
 
     assert(!workload.isEmpty());
 
     workload.get(0).registrationTime = registration_time;
-    workload.get(0).ID = routine_id++;
 
     for (int i = 1; i < workload.size(); ++i) {
-      Routine lst_rtn = workload.get(i-1);
+      Routine lst_rtn = workload.get(i - 1);
       workload.get(i).registrationTime = lst_rtn.registrationTime + this.rand.nextInt((int) lst_rtn.backToBackCmdExecutionWithoutGap);
-      workload.get(i).ID = routine_id++;
     }
 
-    return workload;
+    int routine_id = 0;
+    final_workload.add(workload.get(0));
+    final_workload.get(0).ID = routine_id++;
+
+    Set<Integer> chosen_sht_rtn_ids = new HashSet<>();
+    for (int i = 1; i < workload.size(); ++i) {
+      Routine lst_workload = workload.get(i - 1);
+      int interval = workload.get(i).registrationTime - lst_workload.registrationTime;
+      int last_time = lst_workload.registrationTime;
+      double sht_cmd_rtn_prob = interval * 1.0 / SHT_CMD_RTN_MULTI;
+      while (sht_cmd_rtn_prob > 0 && this.rand.nextDouble() < sht_cmd_rtn_prob) {
+        if (chosen_sht_rtn_ids.size() == sht_cmd_rtn_list.size()) {
+          break;
+        }
+        int id;
+        do {
+          id = this.rand.nextInt(sht_cmd_rtn_list.size());
+        } while (chosen_sht_rtn_ids.contains(id));
+        chosen_sht_rtn_ids.add(id);
+        final_workload.add(sht_cmd_rtn_list.get(id));
+        int bound = (workload.get(i).registrationTime - last_time);
+        final_workload.get(routine_id).registrationTime = bound > 0 ? last_time + this.rand.nextInt(bound) : last_time;
+        last_time = final_workload.get(routine_id).registrationTime;
+        final_workload.get(routine_id).ID = routine_id++;
+        sht_cmd_rtn_prob--;
+      }
+      final_workload.add(workload.get(i));
+      final_workload.get(routine_id).ID = routine_id++;
+    }
+    return final_workload;
+  }
+
+
+  private List<Routine> GetShortCommandRoutineList() {
+    List<Routine> routine_list = new ArrayList<>();
+    List<DEV_ID> dev_list = Arrays.asList(DEV_ID.values());
+    for (DEV_ID dev: dev_list) {
+      if (dev.compareTo(DEV_ID.Z) <= 0) {
+        continue;
+      }
+      int duration = this.rand.nextInt(5) + 1;
+      Command cmd = new Command(dev, duration, true);
+      Routine rtn = new Routine(dev.name());
+      rtn.addCommand(cmd);
+      routine_list.add(rtn);
+    }
+    return routine_list;
   }
 
   private List<Routine> GetRoutineSetFromJson(String path) {
@@ -166,7 +214,7 @@ public class Benchmark {
     while(scanner.hasNextDouble()) {
       for (int i = 0; i < total_num_routines; i++) {
         for (int j = 0; j < total_num_routines; j++) {
-          matrix[i][j] = scanner.nextDouble();
+          matrix[i][j] = Math.min(scanner.nextDouble() * 1.5, 1.0);
         }
       }
     }
