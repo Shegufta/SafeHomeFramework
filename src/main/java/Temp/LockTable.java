@@ -11,6 +11,7 @@ import java.util.*;
 public class LockTable
 {
     public Map<DEV_ID, List<Routine>> lockTable;
+    public Map<DEV_ID, List<Routine>> perDevRoutineListForWeakScheduling = null;
     List<Routine> weakSchedulingSpecialLockTable = null;
 
     //public int CURRENT_TIME;
@@ -369,6 +370,8 @@ public class LockTable
         //Collections.shuffle(rtnList); // shuffle the rtn list. in weak visibility, routine can be executed in any order.
 
         this.lockTable = null; // so that accidentally no one uses it while in WeakScheduling mode
+        this.perDevRoutineListForWeakScheduling = new HashMap<>();
+
         weakSchedulingSpecialLockTable = new ArrayList<>();
 
         for(int I = 0 ; I < rtnList.size() ; I++)
@@ -387,6 +390,16 @@ public class LockTable
             {
                 int prevCmdEndTime = weakSchedulingSpecialLockTable.get(I).commandList.get(cmdIdx-1).getCmdEndTime();
                 weakSchedulingSpecialLockTable.get(I).commandList.get(cmdIdx).startTime = prevCmdEndTime;
+            }
+
+            for(Command cmd : rtnList.get(I).commandList)
+            {
+                DEV_ID devID = cmd.devID;
+
+                if(!perDevRoutineListForWeakScheduling.containsKey(devID))
+                    perDevRoutineListForWeakScheduling.put(devID, new ArrayList<>());
+
+                perDevRoutineListForWeakScheduling.get(devID).add(rtnList.get(I));
             }
         }
     }

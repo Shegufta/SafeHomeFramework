@@ -46,102 +46,92 @@ public class Measurement
 
     private void measureDeviceUtilization(final LockTable _lockTable)
     {
+//        if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
+//        {
+//            this.devUtilizationPrcntHistogram.put(100.0f, 1);
+//            return;
+//        }
+//        else
+//        {
+        Map<DEV_ID, List<Routine>> lockTable;
+
         if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
         {
-            this.devUtilizationPrcntHistogram.put(100.0f, 1);
-            return;
+            lockTable = _lockTable.perDevRoutineListForWeakScheduling;
         }
         else
         {
-            final Map<DEV_ID, List<Routine>> lockTable = _lockTable.lockTable;
+            lockTable = _lockTable.lockTable;
+        }
 
-            for(Map.Entry<DEV_ID, List<Routine>> entry : lockTable.entrySet())
+        for(Map.Entry<DEV_ID, List<Routine>> entry : lockTable.entrySet())
+        {
+            DEV_ID devID = entry.getKey();
+            List<Routine> lineage = entry.getValue();
+            int entryCount = lineage.size();
+
+            if(entryCount == 0)
+                continue;
+
+            float earliestAccessRequestTime = Float.MAX_VALUE;
+            float lastAccessTime = Float.MIN_VALUE;
+            for(Routine rtn : lineage)
             {
-                DEV_ID devID = entry.getKey();
-                List<Routine> lineage = entry.getValue();
-                int entryCount = lineage.size();
+                if(rtn.registrationTime < earliestAccessRequestTime)
+                    earliestAccessRequestTime = rtn.registrationTime;
 
-                if(entryCount == 0)
-                    continue;
+                if(lastAccessTime < rtn.getCommandByDevID(devID).getCmdEndTime())
+                    lastAccessTime = rtn.getCommandByDevID(devID).getCmdEndTime();
+            }
 
-/*
-                double deviceUsedTimeSpan = 0;
+            //Command lastCmd = lineage.get(entryCount - 1).getCommandByDevID(devID);
+            //final double totalTimeSpan = lastCmd.getCmdEndTime() - earliestAccessRequestTime;
+            final double totalTimeSpan = lastAccessTime - earliestAccessRequestTime;
 
-                List<RtnSpan> spanList = new ArrayList<>();
+            double cmdExecutionSpan = 0.0f;
+
+            if(_lockTable.consistencyType == CONSISTENCY_TYPE.WEAK)
+            {// count overlapping device usages as a single use
+                //ONLY WV will have overlapping device access
+                Set<Integer> uniqueTimeTrackerForWV = new HashSet<>();
+
                 for(Routine rtn : lineage)
                 {
-                    deviceUsedTimeSpan += rtn.getCommandByDevID(devID).duration;
+                    Command cmd = rtn.getCommandByDevID(devID);
 
-                    RtnSpan span = new RtnSpan(rtn.routineStartTime(), rtn.routineEndTime());
-                    spanList.add(span);
-                }
-
-                Collections.sort(spanList, new Comparator<RtnSpan>(){
-                    public int compare(RtnSpan span1, RtnSpan span2)
-                    {return span1.startInclusive - span2.startInclusive;}});
-
-
-                List<RtnSpan> mergedSpanList = new ArrayList<>();
-                RtnSpan currentSpan = spanList.get(0);
-                mergedSpanList.add(currentSpan);
-
-                for(RtnSpan newSpan : spanList)
-                {
-                    if(newSpan.startInclusive <= currentSpan.endExclusive)
+                    for(int start = cmd.startTime ; start < cmd.getCmdEndTime() ; start++)
                     {
-                        currentSpan.endExclusive = Math.max(currentSpan.endExclusive, newSpan.endExclusive);
-                    }
-                    else
-                    {
-                        currentSpan = newSpan;
-                        mergedSpanList.add(currentSpan);
+                        uniqueTimeTrackerForWV.add(start);
                     }
                 }
 
-                double totalRoutineRunningTime = 0;
-
-                for(RtnSpan span : mergedSpanList)
-                {
-                    totalRoutineRunningTime += span.endExclusive - span.startInclusive;
-                }
-
-                double utilization = ( deviceUsedTimeSpan / totalRoutineRunningTime) * 100.0;
-*/
-
-
-                float earliestAccessRequestTime = Float.MAX_VALUE;
-                for(Routine rtn : lineage)
-                {
-                    if(rtn.registrationTime < earliestAccessRequestTime)
-                        earliestAccessRequestTime = rtn.registrationTime;
-                }
-
-                Command lastCmd = lineage.get(entryCount - 1).getCommandByDevID(devID);
-                final double totalTimeSpan = lastCmd.getCmdEndTime() - earliestAccessRequestTime;
-
-                double cmdExecutionSpan = 0.0f;
-
+                cmdExecutionSpan = uniqueTimeTrackerForWV.size();
+            }
+            else
+            {
                 for(Routine rtn : lineage)
                 {
                     Command cmd = rtn.getCommandByDevID(devID);
                     cmdExecutionSpan += cmd.getCmdEndTime() - cmd.startTime;
                 }
-
-
-                double utilization = ( cmdExecutionSpan / totalTimeSpan) * 100.0;
-                //devUtilizationPercentList.add( utilization );
-
-
-
-                Float data = (float)utilization;
-                Integer count = this.devUtilizationPrcntHistogram.get(data);
-
-                if(count == null)
-                    this.devUtilizationPrcntHistogram.put(data, 1);
-                else
-                    this.devUtilizationPrcntHistogram.put(data, count + 1);
             }
+
+
+
+            double utilization = ( cmdExecutionSpan / totalTimeSpan) * 100.0;
+            //devUtilizationPercentList.add( utilization );
+
+
+
+            Float data = (float)utilization;
+            Integer count = this.devUtilizationPrcntHistogram.get(data);
+
+            if(count == null)
+                this.devUtilizationPrcntHistogram.put(data, 1);
+            else
+                this.devUtilizationPrcntHistogram.put(data, count + 1);
         }
+        //}
     }
 
     private void measureParallelization(final LockTable _lockTable)
