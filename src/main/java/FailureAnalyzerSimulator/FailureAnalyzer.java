@@ -14,8 +14,8 @@ import java.util.*;
 public class FailureAnalyzer
 {
     public Map<Float, Integer> abortHistogramGSVPSV = null;// = new HashMap<>();
-    public Map<Float, Integer> rollbackHistogramGSVPSV = null;//  = new HashMap<>();
-    //public Map<Float, Integer> onTheFlyHistogramGSVPSV = null;//  = new HashMap<>();
+    public Map<Float, Integer> totalRollbackHistogramGSVPSV = null;//  = new HashMap<>();
+    public Map<Float, Integer> perRtnRollbackCmdHistogram = null;//  = new HashMap<>();
 
     int minStartTime = Integer.MAX_VALUE;
     int maxEndTime = Integer.MIN_VALUE;
@@ -140,7 +140,8 @@ public class FailureAnalyzer
         return cleanedLockTableForFailureAnalysis;
     }
 
-    private Map<Integer, List<FailureAnalysisMetadata>> rebuildAllAffectedRoutineAlongWithCommands(Map<DEV_ID, List<FailureAnalysisMetadata>> cleanLockTableForFailureAnalysis, Set<DEV_ID> failedDevSet)
+    private Map<Integer, List<FailureAnalysisMetadata>> rebuildAllAffectedRoutineAlongWithCommands(Map<DEV_ID,
+            List<FailureAnalysisMetadata>> cleanLockTableForFailureAnalysis, Set<DEV_ID> failedDevSet, int failureTime)
     {
         Map<Integer, List<FailureAnalysisMetadata>> routineIDCorrespondingFAMsortedByCommandStartTime = new HashMap<>();
 
@@ -163,44 +164,63 @@ public class FailureAnalyzer
         {
             Collections.sort(routineIDCorrespondingFAMsortedByCommandStartTime.get(routineID), new FailureAnalysisMetadata());
 
+            List<FailureAnalysisMetadata> sortedCommandList = routineIDCorrespondingFAMsortedByCommandStartTime.get(routineID);
+
             boolean isAffected = false;
 
-            for(int I = 0 ; I < routineIDCorrespondingFAMsortedByCommandStartTime.get(routineID).size() ; I++)
+            if(consistencyType == CONSISTENCY_TYPE.SUPER_STRONG)
             {
-                FailureAnalysisMetadata FAGSPSV = routineIDCorrespondingFAMsortedByCommandStartTime.get(routineID).get(I);
-                COMMAND_STATUS cmdStatus = FAGSPSV.commandStatus;
-                //DEV_ID devId = FAGSPSV.devID;
+                int firstCmdId = 0;
+                int lastCmdId = sortedCommandList.size() - 1;
 
-                if (consistencyType == CONSISTENCY_TYPE.STRONG || consistencyType == CONSISTENCY_TYPE.RELAXED_STRONG)
-                {
-                    if(cmdStatus == COMMAND_STATUS.FAILED_BEFORE_EXECUTION ||
-                            cmdStatus == COMMAND_STATUS.FAILED_DURING_EXECUTION ||
-                            cmdStatus == COMMAND_STATUS.FAILED_AFTER_EXECUTION)
-                    {
-                        isAffected = true;
-                        break;
-                    }
-                }
-                else if(consistencyType == CONSISTENCY_TYPE.EVENTUAL)
-                {
-                    if(isAffected)
-                    {
-                        routineIDCorrespondingFAMsortedByCommandStartTime.get(routineID).get(I).commandStatus = COMMAND_STATUS.IGNORE_USED_IN_EV_ONLY;
-                    }
-                    else if(cmdStatus == COMMAND_STATUS.FAILED_BEFORE_EXECUTION ||
-                            cmdStatus == COMMAND_STATUS.FAILED_DURING_EXECUTION)
-                    {
-                        isAffected = true;
-                        //break;
-                    }
-                }
-                else
-                {
-                    System.out.println("\n ERROR: consistency type " + consistencyType + " not supported yet \nTerminating..."  );
-                    System.exit(1);
-                }
+                double routineStartTime = sortedCommandList.get(firstCmdId).cmdStartTime;
+                double routineEndTime = sortedCommandList.get(lastCmdId).cmdEndTime;
 
+                if(routineStartTime <= failureTime && failureTime < routineEndTime  && !failedDevSet.isEmpty())
+                {
+                    isAffected = true; // note: super strong does not care about device id. if any device fails, it aborts all of its ongoing routines
+                }
             }
+            else
+            {
+                for(int I = 0 ; I < sortedCommandList.size() ; I++)
+                {
+                    FailureAnalysisMetadata FAGSPSV = sortedCommandList.get(I);
+                    COMMAND_STATUS cmdStatus = FAGSPSV.commandStatus;
+                    //DEV_ID devId = FAGSPSV.devID;
+
+                    if (consistencyType == CONSISTENCY_TYPE.STRONG || consistencyType == CONSISTENCY_TYPE.RELAXED_STRONG)
+                    {
+                        if(cmdStatus == COMMAND_STATUS.FAILED_BEFORE_EXECUTION ||
+                                cmdStatus == COMMAND_STATUS.FAILED_DURING_EXECUTION ||
+                                cmdStatus == COMMAND_STATUS.FAILED_AFTER_EXECUTION)
+                        {
+                            isAffected = true;
+                            break;
+                        }
+                    }
+                    else if(consistencyType == CONSISTENCY_TYPE.EVENTUAL)
+                    {
+                        if(isAffected)
+                        {
+                            sortedCommandList.get(I).commandStatus = COMMAND_STATUS.IGNORE_USED_IN_EV_ONLY;
+                        }
+                        else if(cmdStatus == COMMAND_STATUS.FAILED_BEFORE_EXECUTION ||
+                                cmdStatus == COMMAND_STATUS.FAILED_DURING_EXECUTION)
+                        {
+                            isAffected = true;
+                            //break;
+                        }
+                    }
+                    else
+                    {
+                        System.out.println("\n ERROR: consistency type " + consistencyType + " not supported yet \nTerminating..."  );
+                        System.exit(1);
+                    }
+
+                }
+            }
+
 
             if(!isAffected)
                 unAffectedRoutineList.add(routineID);
@@ -249,7 +269,10 @@ public class FailureAnalyzer
 
     private void executeFailure(Set<DEV_ID> failedDevSet, int failureTime)
     {
-        assert(consistencyType == CONSISTENCY_TYPE.STRONG || consistencyType == CONSISTENCY_TYPE.RELAXED_STRONG || consistencyType == CONSISTENCY_TYPE.EVENTUAL);
+        assert(consistencyType == CONSISTENCY_TYPE.SUPER_STRONG ||
+                consistencyType == CONSISTENCY_TYPE.STRONG ||
+                consistencyType == CONSISTENCY_TYPE.RELAXED_STRONG ||
+                consistencyType == CONSISTENCY_TYPE.EVENTUAL);
 
 
         Map<DEV_ID, List<FailureAnalysisMetadata>> cleanLockTableForFailureAnalysis; // remove the routines that starts after the failure
@@ -264,20 +287,17 @@ public class FailureAnalyzer
             }
         }
 
-        //int rollbackCount = 0;
         int allRollbackCount = 0;
-        //Set<FailureAnalysisMetadata> onTheFlySet = new HashSet<>();
-        //int ontheFlyCount = onTheFlySet(cleanLockTableForFailureAnalysis, failureTime); // NOTE: Must call it before calling rebuildAllAffectedRoutineAlongWithCommands
-        Map<Integer, List<FailureAnalysisMetadata>> affectedRoutineMap = rebuildAllAffectedRoutineAlongWithCommands(cleanLockTableForFailureAnalysis, failedDevSet);
-
+        Map<Integer, List<FailureAnalysisMetadata>> affectedRoutineMap = rebuildAllAffectedRoutineAlongWithCommands(cleanLockTableForFailureAnalysis, failedDevSet, failureTime);
 
         for(Integer abortingRoutineID : affectedRoutineMap.keySet())
         {
             int commandFailureDetectionTime = failureTime;
 
+            List<FailureAnalysisMetadata> commandList = affectedRoutineMap.get(abortingRoutineID);
+
             if(consistencyType == CONSISTENCY_TYPE.EVENTUAL)
             {
-                List<FailureAnalysisMetadata> commandList = affectedRoutineMap.get(abortingRoutineID);
                 for(FailureAnalysisMetadata FAmeta : commandList)
                 {
                     if(FAmeta.commandStatus == COMMAND_STATUS.FAILED_DURING_EXECUTION ||
@@ -287,9 +307,6 @@ public class FailureAnalyzer
                         break;
                     }
                 }
-
-                //ontheFlyCount = onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime);
-                //onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
 
                 int totalFailureRecoveryCommandSent = 0;
                 Set<DEV_ID> touchedDevSet = new HashSet<>();
@@ -330,18 +347,12 @@ public class FailureAnalyzer
 
                 allRollbackCount += totalFailureRecoveryCommandSent;
 
-//                Float data;
-//
-//                data = (float) rollbackCount;
-//                this.rollbackHistogramGSVPSV.merge(data, 1, (a, b) -> a + b);
-//
-//                data = (float) ontheFlyCount;
-//                this.onTheFlyHistogramGSVPSV.merge(data, 1, (a, b) -> a + b);
-            }
-            else
-            {
-                List<FailureAnalysisMetadata> commandList = affectedRoutineMap.get(abortingRoutineID);
+                Float data = (float) totalFailureRecoveryCommandSent;
+                this.perRtnRollbackCmdHistogram.merge(data, 1, (a, b) -> a + b);
 
+            }
+            else if(consistencyType == CONSISTENCY_TYPE.STRONG || consistencyType == CONSISTENCY_TYPE.RELAXED_STRONG )
+            {
                 int totalCommandCount = commandList.size();
                 int routineEndTime = commandList.get(0).rtnEndTime;
                 //////////////////////////////////////////////////
@@ -356,7 +367,7 @@ public class FailureAnalyzer
                             fam.commandStatus == COMMAND_STATUS.FAILED_BEFORE_EXECUTION
                     )
                     {
-                        commandFailureDetectionTime = fam.cmdEndTime;
+                        //commandFailureDetectionTime = fam.cmdEndTime;
 
                         isFailedBeforeOrDuringExecution = true;
                         break;
@@ -369,60 +380,68 @@ public class FailureAnalyzer
                 if(isFailedBeforeOrDuringExecution)
                 {
                     allRollbackCount += successfulCommandSent;
-                    //ontheFlyCount = onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime);
-                    //onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
+
+                    Float data = (float) successfulCommandSent;
+                    this.perRtnRollbackCmdHistogram.merge(data, 1, (a, b) -> a + b);
                 }
                 else
                 {
                     if(consistencyType == CONSISTENCY_TYPE.RELAXED_STRONG)
                     {
-                        allRollbackCount += totalCommandCount;
-                        commandFailureDetectionTime = routineEndTime;
-                        //ontheFlyCount = onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime);
-                        //onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
-                        // for PSV: rollback the entire command list
+                        allRollbackCount += totalCommandCount; // for PSV: rollback the entire command list
+                        //commandFailureDetectionTime = routineEndTime;
+
+                        Float data = (float) totalCommandCount;
+                        this.perRtnRollbackCmdHistogram.merge(data, 1, (a, b) -> a + b);
                     }
                     else
                     {
-                        //for GSV: rollback till the failure timestamp
-                        //rollbackCount = 0;
 
                         int rollbackTillFailureTimestamp = 0;
                         for(int I = 0 ; I < commandList.size() ; I++)
                         {
                             FailureAnalysisMetadata fam = commandList.get(I);
 
-                            //if(fam.cmdEndTime < failureTime)
-                                //rollbackCount++;
-
                             if(fam.cmdEndTime < failureTime)
                                 rollbackTillFailureTimestamp++;
 
                         }
-                        //ontheFlyCount = onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime);
-                        //onTheFlySet.addAll(onTheFlySet(cleanLockTableForFailureAnalysis, commandFailureDetectionTime));
-                        allRollbackCount += totalCommandCount;
+
+                        allRollbackCount += rollbackTillFailureTimestamp;
+
+                        Float data = (float) rollbackTillFailureTimestamp;
+                        this.perRtnRollbackCmdHistogram.merge(data, 1, (a, b) -> a + b);
                     }
                 }
+            }
+            else if(consistencyType == CONSISTENCY_TYPE.SUPER_STRONG)
+            {
+                int rollbackTillFailureTimestamp = 0;
+                for(int I = 0 ; I < commandList.size() ; I++)
+                {
+                    FailureAnalysisMetadata fam = commandList.get(I);
 
-//                Float data;
-//
-//                data = (float) rollbackCount;
-//                this.rollbackHistogramGSVPSV.merge(data, 1, (a, b) -> a + b);
-//
-//                data = (float) ontheFlyCount;
-//                this.onTheFlyHistogramGSVPSV.merge(data, 1, (a, b) -> a + b);
+                    if(fam.cmdEndTime < failureTime)
+                        rollbackTillFailureTimestamp++;
+
+                }
+
+                allRollbackCount += rollbackTillFailureTimestamp;
+
+                Float data = (float) rollbackTillFailureTimestamp;
+                this.perRtnRollbackCmdHistogram.merge(data, 1, (a, b) -> a + b);
+            }
+            else
+            {
+                System.out.println("\n\nERROR: inside FailureAnalyzer.java... Invalid code path... consistencyType = " + consistencyType.name());
+                System.exit(1);
             }
         }
 
         Float data;
 
         data = (float) allRollbackCount;
-        this.rollbackHistogramGSVPSV.merge(data, 1, (a, b) -> a + b);
-
-        //data = (float) onTheFlySet.size();
-        //this.onTheFlyHistogramGSVPSV.merge(data, 1, (a, b) -> a + b);
-
+        this.totalRollbackHistogramGSVPSV.merge(data, 1, (a, b) -> a + b);
 
         double totalRtnCntInOriginalSubmission = getTotalRoutineCount();
         double abortCnt = affectedRoutineMap.size();
@@ -445,12 +464,12 @@ public class FailureAnalyzer
                                 ExpResults expResults)
     {
         expResults.abortHistogram = new HashMap<>();
-        expResults.rollbackHistogram = new HashMap<>();
-        //expResults.onTheFlyHistogram = new HashMap<>();
+        expResults.totalRollbackHistogramGSVPSV = new HashMap<>();
+        expResults.perRtnRollbackCmdHistogram = new HashMap<>();
 
         this.abortHistogramGSVPSV = expResults.abortHistogram;
-        this.rollbackHistogramGSVPSV = expResults.rollbackHistogram;
-        //this.onTheFlyHistogramGSVPSV = expResults.onTheFlyHistogram;
+        this.totalRollbackHistogramGSVPSV = expResults.totalRollbackHistogramGSVPSV;
+        this.perRtnRollbackCmdHistogram = expResults.perRtnRollbackCmdHistogram;
 
         if(0 <= RANDOM_SEED)
             rand = new Random(RANDOM_SEED);
@@ -464,11 +483,15 @@ public class FailureAnalyzer
             executeFailure(failedDevSet, randomFailureTime);
         }
 
+
         if(this.abortHistogramGSVPSV.isEmpty())
             this.abortHistogramGSVPSV.merge(0.0f, 0, (a, b) -> a + b);
 
-        if(this.rollbackHistogramGSVPSV.isEmpty())
-            this.rollbackHistogramGSVPSV.merge(0.0f, 0, (a, b) -> a + b);
+        if(this.totalRollbackHistogramGSVPSV.isEmpty())
+            this.totalRollbackHistogramGSVPSV.merge(0.0f, 0, (a, b) -> a + b);
+
+        if(this.perRtnRollbackCmdHistogram.isEmpty())
+            this.perRtnRollbackCmdHistogram.merge(0.0f, 0, (a, b) -> a + b);
 
         //if(this.onTheFlyHistogramGSVPSV.isEmpty())
             //this.onTheFlyHistogramGSVPSV.merge(0.0f, 0, (a, b) -> a + b);
@@ -476,7 +499,7 @@ public class FailureAnalyzer
 
 
         assert(!this.abortHistogramGSVPSV.isEmpty());
-        assert(!this.rollbackHistogramGSVPSV.isEmpty());
+        assert(!this.totalRollbackHistogramGSVPSV.isEmpty());
         //assert(!this.onTheFlyHistogramGSVPSV.isEmpty());
     }
 }

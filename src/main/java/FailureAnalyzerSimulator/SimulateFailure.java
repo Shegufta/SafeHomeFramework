@@ -74,7 +74,7 @@ public class SimulateFailure
     private static Map<DEV_ID, ZipfProbBoundary> devID_ProbBoundaryMap = new HashMap<>();
 
     ///////////////////////////////////////////////////////////////////////////////////
-    public static Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
+    //public static Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
     public static List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING_LIST = new ArrayList<>();
     ///////////////////////////////////////////////////////////////////////////////////
 
@@ -237,22 +237,25 @@ public class SimulateFailure
         double lastGeneratedZipfeanFor = Double.MAX_VALUE; // NOTE: declare zipfean here... DO NOT declare it inside the for loop!
 
         ////////////////////////////////////////////////////////////////////////////////
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.STRONG, "GSV");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.RELAXED_STRONG, "PSV");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.EVENTUAL, "EV");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.WEAK, "WV");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY, "LV");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_FCFS, "LAZY_FCFS");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.SUPER_STRONG, "SUPER_GSV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.STRONG, "GSV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.RELAXED_STRONG, "PSV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.EVENTUAL, "EV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.WEAK, "WV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY, "LV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_FCFS, "LAZY_FCFS");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
 
+
+        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.SUPER_STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
         ////////////////////////////////////////////////////////////////////////////////
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
         measurementList.add(MEASUREMENT_TYPE.ABORT_RATE);
-        measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD);
-        //measurementList.add(MEASUREMENT_TYPE.ON_THE_FLY_CMD);
+        measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_TOTAL);
+        measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_PER_RTN);
         //measurementList.add(MEASUREMENT_TYPE.EXECUTION_LATENCY_MS);
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
@@ -387,12 +390,12 @@ public class SimulateFailure
                             expResult.abortHistogram);
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
-                            MEASUREMENT_TYPE.RECOVERY_CMD,
-                            expResult.rollbackHistogram);
+                            MEASUREMENT_TYPE.RECOVERY_CMD_TOTAL,
+                            expResult.totalRollbackHistogramGSVPSV);
 
-//                    measurementCollector.collectData(changingParameterValue, consistency_type,
-//                            MEASUREMENT_TYPE.ON_THE_FLY_CMD,
-//                            expResult.onTheFlyHistogram);
+                    measurementCollector.collectData(changingParameterValue, consistency_type,
+                            MEASUREMENT_TYPE.RECOVERY_CMD_PER_RTN,
+                            expResult.perRtnRollbackCmdHistogram);
 
 //                    measurementCollector.collectData(changingParameterValue, consistency_type,
 //                            MEASUREMENT_TYPE.EXECUTION_LATENCY_MS,
@@ -457,7 +460,7 @@ public class SimulateFailure
                     perMeasurementInfo += changingParameterName + "\t";
                     for(CONSISTENCY_TYPE consistency_type : globalDataCollector.get(variable).get(measurementType).keySet())
                     {
-                        perMeasurementInfo += CONSISTENCY_HEADER.get(consistency_type) + "\t";
+                        perMeasurementInfo += HeaderListSnglTn.getInstance().CONSISTENCY_HEADER.get(consistency_type) + "\t";
                     }
                     perMeasurementInfo += "\n";
 
@@ -539,7 +542,9 @@ public class SimulateFailure
         }
 
         System.out.println("\n\nPROCESSING.....");
-        measurementCollector.writeStatsInFile(parentDirPath, changingParameterName);
+        measurementCollector.writeStatsInFile(parentDirPath, changingParameterName,
+                HeaderListSnglTn.getInstance().CONSISTENCY_HEADER,
+                CONSISTENCY_ORDERING_LIST);
         System.out.println(globalResult);
 
 

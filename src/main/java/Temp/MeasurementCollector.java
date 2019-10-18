@@ -83,21 +83,6 @@ public class MeasurementCollector
             }
         }
 
-        /*
-        public void addData(List<Float> measurementData)
-        {
-            this.isHistogramMode = false;
-            this.dataList.addAll(measurementData);
-
-            for(float data: measurementData)
-            {
-                this.dataList.add(data);
-                this.globalSum += data;
-                this.globalItemCount++;
-            }
-        }
-        */
-
         public void addData(Map<Float,Integer> partialHistogram)
         {
             this.isHistogramMode = true;
@@ -144,28 +129,6 @@ public class MeasurementCollector
         if(!this.variableMeasurementMap.get(variable).get(consistencyType).containsKey(measurementType))
             this.variableMeasurementMap.get(variable).get(consistencyType).put(measurementType, new DataHolder());
     }
-
-    /*
-    public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, double measurementData, boolean skipZeroValue)
-    {
-        initiate(variable, consistencyType, measurementType);
-
-        if(measurementData == 0.0 && skipZeroValue)
-            return;
-
-        List<Float> tempList = new ArrayList<>();
-        tempList.add((float)measurementData);
-
-        this.collectData(variable, consistencyType, measurementType, tempList);
-    }
-
-
-    public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, List<Float> measurementData)
-    {
-        initiate(variable, consistencyType, measurementType);
-        this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).addData(measurementData);
-    }
-    */
 
     public void collectData(double variable, CONSISTENCY_TYPE consistencyType, MEASUREMENT_TYPE measurementType, Map<Float, Integer> histogram)
     {
@@ -264,7 +227,11 @@ public class MeasurementCollector
             Collections.sort(sortedDataSequenceFromHistogram);
 
             int indexTracker = 1;
-            final float frequencyMultiplyer = (float)(1.0 / cdfListSize);
+            float frequencyMultiplyer = 0.0f;
+            if(0 < cdfListSize )
+                frequencyMultiplyer = (float)(1.0 / cdfListSize);
+
+
             //final float frequencyMultiplyer = (float)(1.0 / this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount); // NOTE: this is total item count... not the CDF list size... that CDF list has not been initialized yet!
 
             for(float sortedData : sortedDataSequenceFromHistogram)
@@ -291,48 +258,6 @@ public class MeasurementCollector
         {
             System.out.println("\n\n ERROR: Inside MeasurementCollector.java... The new approach should not execute this part of code... Terminating...");
             System.exit(1);
-            /*
-            System.out.println("\t\tList mode");
-            int currentListSize = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.size();
-            System.out.println("\t\tHistogram mode: currentListSize = " + currentListSize + " | maxDataPoint = " + maxDataPoint);
-
-
-            if(maxDataPoint < currentListSize)
-            {// requires trimming
-
-                Set<Integer> uniqueIndexSet = new HashSet<>();
-                Random rand = new Random();
-
-                while(uniqueIndexSet.size() < maxDataPoint)
-                {
-                    int randIndex = rand.nextInt(currentListSize);
-
-                    if(!uniqueIndexSet.contains(randIndex))
-                        uniqueIndexSet.add(randIndex);
-                }
-
-                List<Float> trimmedList = new ArrayList<>();
-
-                float newSum = 0.0f;
-                int newCount = 0;
-                for(int index : uniqueIndexSet)
-                {
-                    float selectedData = this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.get(index);
-                    trimmedList.add(selectedData);
-
-                    newSum += selectedData;
-                    newCount++;
-                }
-
-                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.clear();
-                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList.addAll(trimmedList);
-                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalSum = newSum;
-                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).globalItemCount = newCount;
-            }
-
-            Collections.sort(this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).dataList);
-
-             */
         }
 
         this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).isListFinalized = true;
@@ -350,7 +275,10 @@ public class MeasurementCollector
     }
 
 
-    public void writeStatsInFile(String parentDirPath, String changingParameterName)
+    public void writeStatsInFile(final String parentDirPath,
+                                 final String changingParameterName,
+                                 final Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER,
+                                 final List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING_LIST)
     {
         File parentDir = new File(parentDirPath);
         if(!parentDir.exists())
@@ -358,25 +286,6 @@ public class MeasurementCollector
             System.out.println("\n\n\nERROR: inside MeasurementCollector.java: directory not found: " + parentDirPath);
             System.exit(1);
         }
-
-//        List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING_LIST = new ArrayList<>();
-//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG);
-//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
-//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
-//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.WEAK);
-//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY);
-//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
-//        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
-//
-//        Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.STRONG, "GSV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.RELAXED_STRONG, "PSV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.EVENTUAL, "EV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.WEAK, "WV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY, "LV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_FCFS, "LAZY_FCFS");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
-
 
         for(double variable : variableMeasurementMap.keySet())
         {
@@ -409,8 +318,8 @@ public class MeasurementCollector
                         currentMeasurement,
                         currentMeasurementAvailableConsistencyList,
                         subDirPath,
-                        Temp.CONSISTENCY_ORDERING_LIST,
-                        Temp.CONSISTENCY_HEADER
+                        CONSISTENCY_ORDERING_LIST,
+                        CONSISTENCY_HEADER
                 );
             }
         }

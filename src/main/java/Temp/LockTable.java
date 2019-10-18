@@ -463,6 +463,11 @@ public class LockTable
 
         switch(this.consistencyType)
         {
+            case SUPER_STRONG:
+            {
+                this.registerStrong(rtn, _simulationStartTime);
+                break;
+            }
             case STRONG:
             {
                 this.registerStrong(rtn, _simulationStartTime);

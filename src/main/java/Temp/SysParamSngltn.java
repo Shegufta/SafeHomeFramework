@@ -236,7 +236,7 @@ public class SysParamSngltn
             commaSeprtdVarListString = properties.getProperty(KEY_COMMA_SEPRTD_VAR_LIST_STRING);
             variableList = parseCommaSpearatedStr(commaSeprtdVarListString);
 
-            commaSeprtdCorrespondingUpperBoundListString = properties.getProperty(KEY_COMMA_SEPRTD_VAR_LIST_STRING);
+            commaSeprtdCorrespondingUpperBoundListString = properties.getProperty(KEY_COMMA_SEPRTD_CORRESPNDIN_UPPR_BND_LIST_STR);
             variableCorrespndinMaxValList = parseCommaSpearatedStr(commaSeprtdCorrespondingUpperBoundListString);
 
             validateLists(variableList, variableCorrespndinMaxValList);

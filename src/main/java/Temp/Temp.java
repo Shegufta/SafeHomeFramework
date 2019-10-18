@@ -74,8 +74,8 @@ public class Temp
     private static Map<DEV_ID, ZipfProbBoundary> devID_ProbBoundaryMap = new HashMap<>();
 
     ///////////////////////////////////////////////////////////////////////////////////
-    public static Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
-    public static List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING_LIST = new ArrayList<>();
+    //private static Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
+    private static List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING_LIST = new ArrayList<>();
     ///////////////////////////////////////////////////////////////////////////////////
 
 
@@ -237,13 +237,14 @@ public class Temp
         double lastGeneratedZipfeanFor = Double.MAX_VALUE; // NOTE: declare zipfean here... DO NOT declare it inside the for loop!
 
         ////////////////////////////////////////////////////////////////////////////////
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.STRONG, "GSV");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.RELAXED_STRONG, "PSV");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.EVENTUAL, "EV");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.WEAK, "WV");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY, "LV");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_FCFS, "LAZY_FCFS");
-        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.SUPER_STRONG, "SUPER_GSV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.STRONG, "GSV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.RELAXED_STRONG, "PSV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.EVENTUAL, "EV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.WEAK, "WV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY, "LV");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_FCFS, "LAZY_FCFS");
+//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
 
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
@@ -517,7 +518,7 @@ public class Temp
                     perMeasurementInfo += changingParameterName + "\t";
                     for(CONSISTENCY_TYPE consistency_type : globalDataCollector.get(variable).get(measurementType).keySet())
                     {
-                        perMeasurementInfo += CONSISTENCY_HEADER.get(consistency_type) + "\t";
+                        perMeasurementInfo += HeaderListSnglTn.getInstance().CONSISTENCY_HEADER.get(consistency_type) + "\t";
                     }
                     perMeasurementInfo += "\n";
 
@@ -599,7 +600,9 @@ public class Temp
         }
 
         System.out.println("\n\nPROCESSING.....");
-        measurementCollector.writeStatsInFile(parentDirPath, changingParameterName);
+        measurementCollector.writeStatsInFile(parentDirPath, changingParameterName,
+                HeaderListSnglTn.getInstance().CONSISTENCY_HEADER,
+                CONSISTENCY_ORDERING_LIST);
         System.out.println(globalResult);
 
 

@@ -8,6 +8,7 @@ package Temp;
  */
 public enum CONSISTENCY_TYPE
 {
+    SUPER_STRONG,
     STRONG,
     RELAXED_STRONG,
     EVENTUAL,

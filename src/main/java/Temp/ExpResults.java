@@ -19,7 +19,8 @@ public class ExpResults
     public Map<Float, Integer> stretchRatioHistogram;
 
     public Map<Float, Integer> abortHistogram = null; // new these variables from inside FailureAnalyzer.simulateFailure();
-    public Map<Float, Integer> rollbackHistogram = null; // new these variables from inside FailureAnalyzer.simulateFailure();
+    public Map<Float, Integer> totalRollbackHistogramGSVPSV = null; // new these variables from inside FailureAnalyzer.simulateFailure();
+    public Map<Float, Integer> perRtnRollbackCmdHistogram = null; // new these variables from inside FailureAnalyzer.simulateFailure();
     //public Map<Float, Integer> onTheFlyHistogram = null; // new these variables from inside FailureAnalyzer.simulateFailure();
     //public Map<Float, Integer> executionLatencyHistogram = null;
 
