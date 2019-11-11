@@ -1,0 +1,16 @@
+[
+  {"Routine Shortcut":"SC0","Routine Name":"start-cooking","Routine":["kc_light1:on", "kc_light2:on", "kc_fan:on:1200"]},
+  {"Routine Shortcut":"SC1","Routine Name":"coffee-americano-1","Routine":["coffee_m:on:60"]},
+  {"Routine Shortcut":"SC2","Routine Name":"coffee-espresso","Routine":["coffee_m:on:75"]},
+  {"Routine Shortcut":"SC3","Routine Name":"coffee-latte","Routine":["coffee_m:on:90"]},
+  {"Routine Shortcut":"SC4","Routine Name":"coffee-cappuccino","Routine":["coffee_m:on:90"]},
+  {"Routine Shortcut":"SC5","Routine Name":"microwave-oatmeal-1","Routine":["microwave:on:105"]},
+  {"Routine Shortcut":"SC6","Routine Name":"microwave-oatmeal-2","Routine":["microwave:on:105"]},
+  {"Routine Shortcut":"SC7","Routine Name":"toaster-1","Routine":["toaster:on:40"]},
+  {"Routine Shortcut":"SC8","Routine Name":"toaster-2","Routine":["toaster:on:75"]},
+  {"Routine Shortcut":"SC9","Routine Name":"toaster-3","Routine":["toaster:on:120"]},
+  {"Routine Shortcut":"SC10","Routine Name":"news-time","Routine":["lv_speaker:on:1200"]},
+  {"Routine Shortcut":"SC11","Routine Name":"daylight-in","Routine":["lv_shade:on:10", "lv_light1:off"]},
+  {"Routine Shortcut":"SC12","Routine Name":"lv-light-on","Routine":["lv_light1:on", "lv_light2:on"]},
+  {"Routine Shortcut":"SCL","Routine Name":"leave-home","Routine":["door:locked", "kc_light1:off", "kc_light2:off", "lv_light1:off", "lv_light2:off", "lv_speaker:off"]}
+]

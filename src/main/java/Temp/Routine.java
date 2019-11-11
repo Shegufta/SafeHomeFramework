@@ -51,6 +51,8 @@ public class Routine implements Comparator<Routine>
         this.abbr = abbr;
     }
 
+    public boolean isEmpty() { return this.commandList.isEmpty();}
+
     public Set<DEV_ID> getAllDevIDSet()
     {
         return this.devIDCommandMap.keySet(); //this.deviceSet;
@@ -89,6 +91,9 @@ public class Routine implements Comparator<Routine>
         this.commandList.add(cmd);
     }
 
+    public int getNumberofCommand() {
+        return commandList.size();
+    }
 
     public float getStretchRatio()
     {

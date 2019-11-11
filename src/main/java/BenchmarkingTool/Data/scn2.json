@@ -1,0 +1,14 @@
+[
+  {"Routine Shortcut":"PT0","Routine Name":"Party dancing mode","Routine":["lv_speaker:loud", "stage_light:off", "kc_light1:off", "kc_light2:off", "party_light:fixed:7200"]},
+  {"Routine Shortcut":"PT1","Routine Name":"Party announcing time","Routine":["lv_speaker:medium", "stage_light:on", "microphone:loud"]},
+  {"Routine Shortcut":"PT2","Routine Name":"Sing one song","Routine":["microphone:loud", "stage_light:on:240"]},
+  {"Routine Shortcut":"PT3","Routine Name":"Show time","Routine":["microphone:loud", "stage_light:on:3600"]},
+  {"Routine Shortcut":"PT4","Routine Name":"Get drink 1","Routine":["kc_light2:on:30"]},
+  {"Routine Shortcut":"PT5","Routine Name":"Get drink 2","Routine":["kc_light2:on:30"]},
+  {"Routine Shortcut":"PT6","Routine Name":"Get drink 3","Routine":["kc_light2:on:30"]},
+  {"Routine Shortcut":"PT7","Routine Name":"Get drink 4","Routine":["kc_light2:on:30"]},
+  {"Routine Shortcut":"PT8","Routine Name":"Get drink 5","Routine":["kc_light2:on:30"]},
+  {"Routine Shortcut":"PT9","Routine Name":"Get cup maccheese 1","Routine":["kc_light1:on", "microwave:on:90"]},
+  {"Routine Shortcut":"PT10","Routine Name":"Get cup maccheese 2","Routine":["kc_light1:on", "microwave:on:90"]},
+  {"Routine Shortcut":"PT11","Routine Name":"Get cup maccheese 3","Routine":["kc_light1:on", "microwave:on:90"]}
+]

@@ -1,0 +1,14 @@
+[
+  {"Routine Shortcut":"FC-CM-12-1","Routine Name":"fac-common12-1-1","Routine":["fac_com12_1:on:30", "fac_com12_2:10"]},
+  {"Routine Shortcut":"FC-CM-12-2","Routine Name":"fac-common12-1-2","Routine":["fac_com12_2:on:20", "fac_com12_3:30"]},
+  {"Routine Shortcut":"FC-CM-12-3","Routine Name":"fac-common12-2-1","Routine":["fac_com12_3:on:10", "fac_com12_1:5"]},
+  {"Routine Shortcut":"FC-CM-23-1","Routine Name":"fac-common23-1-1","Routine":["fac_com23_1:on:30", "fac_com12_2:10"]},
+  {"Routine Shortcut":"FC-CM-23-2","Routine Name":"fac-common23-2-1","Routine":["fac_com23_2:on:20", "fac_com12_1:30"]},
+  {"Routine Shortcut":"FC-CM-23-3","Routine Name":"fac-common23-2-2","Routine":["fac_com23_3:on:10"]},
+  {"Routine Shortcut":"FC-CM-34-1","Routine Name":"fac-common34-1-1","Routine":["fac_com34_1:on:30"]},
+  {"Routine Shortcut":"FC-CM-34-2","Routine Name":"fac-common34-1-2","Routine":["fac_com34_2:on:20", "fac_com12_3:30"]},
+  {"Routine Shortcut":"FC-CM-34-3","Routine Name":"fac-common34-2-1","Routine":["fac_com34_1:on:5", "fac_com12_1:5", "fac_com34_3:on:10"]},
+  {"Routine Shortcut":"FC-CM-45-1","Routine Name":"fac-common45-1-1","Routine":["fac_com45_1:on:30", "fac_com12_2:10", "fac_com12_3:30"]},
+  {"Routine Shortcut":"FC-CM-45-2","Routine Name":"fac-common45-1-2","Routine":["fac_com45_1:on:30", "fac_com12_2:10", "fac_com12_3:30"]},
+  {"Routine Shortcut":"FC-CM-45-3","Routine Name":"fac-common45-2-1","Routine":["fac_com45_1:on:30", "fac_com12_2:10", "fac_com12_3:30"]}
+]

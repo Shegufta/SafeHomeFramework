@@ -1,0 +1,7 @@
+[
+  {"Routine Shortcut":"SH0","Routine Name":"back-home","Routine":["door:on", "lv_speaker:on:5", "lv_light1:on", "temp:72"]},
+  {"Routine Shortcut":"SH1","Routine Name":"leaving_bd1","Routine":["bd1_light1:off", "bd1_light2:off", "bd1_light3:off", "lv_light2:on"]},
+  {"Routine Shortcut":"SH2","Routine Name":"light_on_bd2","Routine":["bd2_light1:on", "bd2_light2:on", "bd2_light3:on"]},
+  {"Routine Shortcut":"SH3","Routine Name":"cloth_change_bd2","Routine":["bd2_shade:closed"]},
+  {"Routine Shortcut":"SH4","Routine Name":"rain","Routine":["bd2_window:off", "bd1_window:off", "lv_window:off", "kc_window:off"]}
+]

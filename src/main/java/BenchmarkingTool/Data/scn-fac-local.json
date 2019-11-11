@@ -1,0 +1,17 @@
+[
+  {"Routine Shortcut":"FC-LC1-1","Routine Name":"fac-local-stage1-1","Routine":["fac_loc1_1:on:30", "fac_loc1_2:on:30", "fac_loc1_3:on:30"]},
+  {"Routine Shortcut":"FC-LC1-2","Routine Name":"fac-local-stage1-2","Routine":["fac_loc1_1:on:30", "fac_loc1_2:on:30", "fac_loc1_3:on:30"]},
+  {"Routine Shortcut":"FC-LC1-3","Routine Name":"fac-local-stage1-3","Routine":["fac_loc1_1:on:30", "fac_loc1_2:on:30", "fac_loc1_3:on:30"]},
+  {"Routine Shortcut":"FC-LC2-1","Routine Name":"fac-local-stage2-1","Routine":["fac_loc2_1:on:30", "fac_loc2_2:on:30", "fac_loc2_3:on:30"]},
+  {"Routine Shortcut":"FC-LC2-2","Routine Name":"fac-local-stage2-2","Routine":["fac_loc2_1:on:30", "fac_loc2_2:on:30", "fac_loc2_3:on:30"]},
+  {"Routine Shortcut":"FC-LC2-3","Routine Name":"fac-local-stage2-3","Routine":["fac_loc2_1:on:30", "fac_loc2_2:on:30", "fac_loc2_3:on:30"]},
+  {"Routine Shortcut":"FC-LC3-1","Routine Name":"fac-local-stage3-1","Routine":["fac_loc3_1:on:30", "fac_loc3_2:on:30", "fac_loc3_3:on:30"]},
+  {"Routine Shortcut":"FC-LC3-2","Routine Name":"fac-local-stage3-2","Routine":["fac_loc3_1:on:30", "fac_loc3_2:on:30", "fac_loc3_3:on:30"]},
+  {"Routine Shortcut":"FC-LC3-3","Routine Name":"fac-local-stage3-3","Routine":["fac_loc3_1:on:30", "fac_loc3_2:on:30", "fac_loc3_3:on:30"]},
+  {"Routine Shortcut":"FC-LC4-1","Routine Name":"fac-local-stage4-1","Routine":["fac_loc4_1:on:30", "fac_loc4_2:on:30", "fac_loc4_3:on:30"]},
+  {"Routine Shortcut":"FC-LC4-2","Routine Name":"fac-local-stage4-2","Routine":["fac_loc4_1:on:30", "fac_loc4_2:on:30", "fac_loc4_3:on:30"]},
+  {"Routine Shortcut":"FC-LC4-3","Routine Name":"fac-local-stage4-3","Routine":["fac_loc4_1:on:30", "fac_loc4_2:on:30", "fac_loc4_3:on:30"]},
+  {"Routine Shortcut":"FC-LC5-1","Routine Name":"fac-local-stage5-1","Routine":["fac_loc5_1:on:30", "fac_loc5_2:on:30", "fac_loc5_3:on:30"]},
+  {"Routine Shortcut":"FC-LC5-2","Routine Name":"fac-local-stage5-2","Routine":["fac_loc5_1:on:30", "fac_loc5_2:on:30", "fac_loc5_3:on:30"]},
+  {"Routine Shortcut":"FC-LC5-3","Routine Name":"fac-local-stage5-3","Routine":["fac_loc5_1:on:30", "fac_loc5_2:on:30", "fac_loc5_3:on:30"]},
+]

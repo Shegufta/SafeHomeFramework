@@ -231,7 +231,7 @@ public class Temp
         /////////////////////////////---CHECKING-DIRECTORY-///////////////////////////////
 
 //        String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
-        String dataStorageDirectory = "/Users/ruiyang/Developer/research/asid/expr/plot_generation/new_format";
+        String dataStorageDirectory = "/Users/ruiyang/Developer/research/asid/expr/plot_generation/scenario";
         File dataStorageDir = new File(dataStorageDirectory);
 
         if(!dataStorageDir.exists())
@@ -405,7 +405,12 @@ public class Temp
                 {
                     routineSet = benchmarkingTool.GetOneWorkload();
                     System.out.printf("Routines: %s \n", routineSet.toString());
-                    int size = routineSet.size();
+//                    System.out.printf("Number of routine in total %d \n", routineSet.size());
+                    int total_num_command = 0;
+                    for (Routine aRoutineSet : routineSet) {
+                        total_num_command += aRoutineSet.getNumberofCommand();
+                    }
+                    System.out.printf("Average number of command: %f \n", total_num_command * 1.0 / routineSet.size());
                 }
                 else
                 {

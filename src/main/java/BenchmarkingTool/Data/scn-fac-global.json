@@ -1,0 +1,8 @@
+[
+  {"Routine Shortcut":"FC-GL-1","Routine Name":"fac-global-1","Routine":["fac_global_1:on:30"]},
+  {"Routine Shortcut":"FC-GL-2","Routine Name":"fac-global-1","Routine":["fac_global_1:off:30"]},
+  {"Routine Shortcut":"FC-GL-3","Routine Name":"fac-global-1","Routine":["fac_global_1:on:30"]},
+  {"Routine Shortcut":"FC-GL-4","Routine Name":"fac-global-1","Routine":["fac_global_1:off:30"]},
+  {"Routine Shortcut":"FC-GL-5","Routine Name":"fac-global-1","Routine":["fac_global_2:on:30"]},
+  {"Routine Shortcut":"FC-GL-6","Routine Name":"fac-global-1","Routine":["fac_global_2:on:30"]}
+]
