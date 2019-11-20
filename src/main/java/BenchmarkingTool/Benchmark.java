@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 
 import Temp.Command;
 import Temp.DEV_ID;
+import Temp.DEV_STATE;
 import Temp.Routine;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -25,7 +26,8 @@ public class Benchmark {
   public enum SETTING_TYPE {
     MATRIX,
     SCENARIO,
-    FACTORY
+    FACTORY,
+    IOT_BENCH
   }
 
   public enum SCENARIO {
@@ -41,7 +43,25 @@ public class Benchmark {
     SYNTHETIC
   }
 
-  private SETTING_TYPE setting_type = SETTING_TYPE.FACTORY;
+  public enum IOTBENCH {
+    NO_STATE,
+    WITH_STATE_NO_TRIGGER,
+    WITH_TRIGGER_END_RTN_STATE_MATCH,
+    WITH_TRIGGER_END_CMD_STATE_MATCH
+  }
+
+  // common parameter for benchmark
+  private double SHT_CMD_RTN_MULTI = 10.0;
+  private List<DEV_ID> localDevIdLIst = new ArrayList<>();
+  private static int total_num_routines = 0;
+  private static List<Routine> routine_list = new ArrayList<>();
+  private static double[][] matrix;
+  
+  private static final String prePath = "src" + File.separator + "main" + File.separator + "java" + File.separator + "BenchmarkingTool" + File.separator;
+  private static final String matrixPath = prePath + "Data" + File.separator + "matrix.tsv";
+  private static final String routinePath = prePath  + "Data" + File.separator + "routines.json";
+
+  private SETTING_TYPE setting_type = SETTING_TYPE.IOT_BENCH;
 
   // Setting for scenarios
   private SCENARIO scenario = SCENARIO.MORNING_CHAOS;
@@ -49,18 +69,20 @@ public class Benchmark {
   private int fst_lst_rtn_interval = 900;
   private boolean is_first_routine_fixed = true;
   private boolean is_last_routine_fixed = true;
+  private static String scnRoutinePath = prePath + "Data" + File.separator + "scn1.json";
+
 
   // Setting for factory
   private FACTORY fac_type = FACTORY.SYNTHETIC;
-  private static int num_synthetic_group = 15; // max 100
-  private static int num_dev_per_group = 4; // max 4
+  private static int num_synthetic_group = 50;  // max 100
+  private static int num_dev_per_group = 4;     // max 4
   private static double local_dev_touching_rate = 0.6;
-  private static int num_cmn_per_neighbor = 4; // max 4
+  private static int num_cmn_per_neighbor = 4;  // max 4
   private static double cmn_dev_touching_rate = 0.3;
-  private static int num_global_dev = 5; // max 10
-  private static double glb_dev_touching_rate = 0.6;
+  private static int num_global_dev = 5;        // max 10
+  private static double glb_dev_touching_rate = 0.1;
   private static int max_time_per_dev = 30;
-  private static int num_item = 8;
+  private static int num_item = 20;
 
   private boolean random_dev = true;
   private static int local_rtn_per_stage = 6;
@@ -68,24 +90,22 @@ public class Benchmark {
   private static int global_rtn = 5;
   private static int intv_between_stage = 5;
 
-  private double SHT_CMD_RTN_MULTI = 10.0;
-
-  private List<DEV_ID> localDevIdLIst = new ArrayList<>();
-
-  private static int total_num_routines = 0;
-  private static List<Routine> routine_list = new ArrayList<>();
-  private static List<Routine> sht_cmd_rtn_list = new ArrayList<>();
-  private static double[][] matrix;
-
-  private static final String prePath = "src" + File.separator + "main" + File.separator + "java" + File.separator + "BenchmarkingTool" + File.separator;
-  private static final String matrixPath = prePath + "Data" + File.separator + "matrix.tsv";
-  private static final String routinePath = prePath  + "Data" + File.separator + "routines.json";
-  private static String scnRoutinePath = prePath + "Data" + File.separator + "scn1.json";
   private static String facRoutinePath = prePath + "Data" + File.separator + "scn-fac-simple.json";
   private static String facLocalRoutinePath =  prePath + "Data" + File.separator + "scn-fac-local.json";
   private static String facCommonRoutinePath =  prePath + "Data" + File.separator + "scn-fac-common.json";
   private static String facGlobalRoutinePath =  prePath + "Data" + File.separator + "scn-fac-global.json";
 
+  private static List<Routine> sht_cmd_rtn_list = new ArrayList<>();
+
+  // Setting for iot_bench
+  private IOTBENCH bench_type = IOTBENCH.NO_STATE;
+  private double iot_bench_rtn_rate = 0.6;
+  private double stretch_factor = 0.6;
+  private static String iotBenchBasicRtnPath =  prePath + "Data" + File.separator + "scn-iotbench-basic.json";
+  private static String iotBenchTriggerRtnPath =  prePath + "Data" + File.separator + "scn-iotbench-trigger.json";
+
+  private static List<Routine> trigger_rtn_list = new ArrayList<>();
+  private HashMap<DEV_ID, DEV_STATE> real_time_dev_state = new HashMap<>();
 
   private void initiateLOCALdevIdList()
   {
@@ -155,10 +175,13 @@ public class Benchmark {
       }
       routine_list = GetRoutineSetFromJson(scnRoutinePath);
       System.out.printf("routine list len: %d\n", routine_list.size());
-    } else { // factory mode
+    } else if (setting_type == SETTING_TYPE.FACTORY) { // factory mode
       fst_lst_rtn_interval = 180;
       routine_list = GetRoutineSetFromJson(facRoutinePath);
       System.out.printf("routine list len: %d\n", routine_list.size());
+    } else { // IoTBench
+      routine_list = GetRoutineSetFromJson(iotBenchBasicRtnPath);
+      trigger_rtn_list = GetRoutineSetFromJson(iotBenchTriggerRtnPath);
     }
     this.initiateLOCALdevIdList();
   }
@@ -179,8 +202,11 @@ public class Benchmark {
       return GetOneScnWorkload();
     } else if (setting_type == SETTING_TYPE.FACTORY) {
       return GetOneFacWorkload();
+    } else if (setting_type == SETTING_TYPE.IOT_BENCH) {
+      return GetOneIoTBenchWorkload();
     }
 
+    // Workload generation for matrix
     List<Routine> workload = new ArrayList<>();
     List<Routine> final_workload = new ArrayList<>();
     do {
@@ -245,6 +271,39 @@ public class Benchmark {
       final_workload.get(routine_id).ID = routine_id++;
     }
     return final_workload;
+  }
+
+  private List<Routine> GetOneIoTBenchWorkload() {
+    if (bench_type == IOTBENCH.NO_STATE) {
+      List<Routine> workload = new ArrayList<>(routine_list);
+      workload.addAll(trigger_rtn_list);
+      Collections.shuffle(workload);
+      int num_rtn_kept = (int) Math.ceil(workload.size() * iot_bench_rtn_rate);
+      workload.subList(num_rtn_kept, workload.size() - 1).clear();
+
+      double total_running_time = 0;
+      for (Routine rtn: workload) {
+        total_running_time += rtn.getBackToBackCmdExecutionTimeWithoutGap();
+      }
+      total_running_time = total_running_time * stretch_factor;
+
+      // Get a list of random registration time, sort, and assign
+      int finalTotal_running_time = (int) total_running_time;
+      List<Integer> reg_times = IntStream.range(0, workload.size() - 1)
+          .mapToObj(i -> ThreadLocalRandom.current().nextInt(0, finalTotal_running_time + 1))
+          .sorted()
+          .collect(Collectors.toList());
+      reg_times.add(0, 0);
+
+      for (int i = 0; i < workload.size(); ++i) {
+        workload.get(i).ID = i;
+        workload.get(i).registrationTime = reg_times.get(i);
+      }
+
+      return workload;
+    }
+
+    return new ArrayList<>();
   }
 
   private List<Routine> GetOneFacWorkload() {
@@ -439,8 +498,29 @@ public class Benchmark {
         JSONObject jsonObject = (JSONObject) obj;
         String abbr = (String) jsonObject.get("Routine Shortcut");
         Routine rtn = new Routine(abbr);
-        JSONArray commandList = (JSONArray) jsonObject.get("Routine");
 
+        // Parse and get "trigger" if exists
+        if (jsonObject.containsKey("Triggers")) {
+          JSONArray triggers = (JSONArray) jsonObject.get("Triggers");
+          Iterator<String> iterator = triggers.iterator();
+          while (iterator.hasNext()) {
+            String[] trigger = iterator.next().split(":");
+            rtn.addTrigger(DEV_ID.valueOf(trigger[0]), DEV_STATE.valueOf(trigger[1]));
+          }
+        }
+
+        // Parse and get "if condition" if exists
+        if (jsonObject.containsKey("Conditions")) {
+          JSONArray conditions = (JSONArray) jsonObject.get("Conditions");
+          Iterator<String> iterator = conditions.iterator();
+          while (iterator.hasNext()) {
+            String[] trigger = iterator.next().split(":");
+            rtn.addTrigger(DEV_ID.valueOf(trigger[0]), DEV_STATE.valueOf(trigger[1]));
+          }
+        }
+
+        // Parse and get commmands
+        JSONArray commandList = (JSONArray) jsonObject.get("Routine");
         Iterator<String> iterator = commandList.iterator();
         while (iterator.hasNext()) {
           String[] cmd_info = iterator.next().split(":");
@@ -462,6 +542,7 @@ public class Benchmark {
     }
     return routine_list;
   }
+
 
   private static double[][] GetRoutineMatrix(String path) throws Exception {
     Scanner scanner = new Scanner(new BufferedReader(new FileReader(path)));

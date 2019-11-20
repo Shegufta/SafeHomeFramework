@@ -1,0 +1,15 @@
+[
+{"Routine Shortcut":"HAB_CF1","Routine":["Alarm_MasterTime:ON"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_CF2","Routine":["Tom_gTER_Cafeteira:OFF"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_CF3","Routine":["Tom_gTER_Cafeteira:OFF:150","Alarm_MasterTime:ON"],"Trigger":"[]","Condition":["Alarm_Master:ON"]},
+{"Routine Shortcut":"HAB_CV1","Routine":["Luz_gTER_Frente_TetoGaragem:ON","Luz_gTER_Frente_ArandelaGaragem:ON","Luz_gTER_Frente_Hall:ON"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_CV2","Routine":["Luz_gTER_Frente_TetoGaragem:ON","Luz_gTER_Frente_ArandelaGaragem:OFF","Luz_gTER_Frente_Hall:ON"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_CV3","Routine":["Luz_gTER_SalaTV_SpotTV:ON","Luz_gTER_SalaTV_SpotJanelaTV:ON"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_CV4","Routine":["Luz_gTER_SalaTV_SpotTV:OFF","Luz_gTER_SalaTV_SpotJanelaTV:OFF"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_CV5","Routine":["Luz_gTER_SalaEstar_Hall:ON","Luz_gTER_SalaEstar_SpotEscada:ON","Luz_gTER_SalaEstar_Jardim:ON","Luz_gTER_SalaEstar_SpotArandela:ON","Luz_gTER_SalaEstar_Arandela:ON"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_CV6","Routine":["Luz_gTER_SalaEstar_Hall:OFF","Luz_gTER_SalaEstar_SpotEscada:OFF","Luz_gTER_SalaEstar_Jardim:OFF","Luz_gTER_SalaEstar_SpotArandela:OFF","Luz_gTER_SalaEstar_Arandela:OFF"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_CV7","Routine":["Luz_gSUP_Escada:ON"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_CV8","Routine":["Luz_gSUP_Escada:OFF"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_AL1","Routine":["sAlarm_Reset:ON"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_AO1","Routine":["NightState:ON"],"Trigger":"[]","Condition":"[]"},
+{"Routine Shortcut":"HAB_AO2","Routine":["NightState:OFF"],"Trigger":"[]","Condition":"[]"}]

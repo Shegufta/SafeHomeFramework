@@ -1,5 +1,7 @@
 package Temp;
 
+import SelfExecutingRoutine.SelfExecutingRoutine;
+
 import java.util.*;
 
 /**
@@ -13,7 +15,11 @@ public class Routine implements Comparator<Routine>
     public int ID;
     public String abbr = "";
     List<Command> commandList;
+    HashMap<DEV_ID, DEV_STATE> trigger = new HashMap<>();
+    HashMap<DEV_ID, DEV_STATE> condition = new HashMap<>();
     public int registrationTime = 0;
+
+    // data structure for status maintaining
     public Map<DEV_ID, Boolean> devIdIsMustMap;
     public Map<DEV_ID, Command> devIDCommandMap;
     public Map<Integer, Command> indexCommandMap;
@@ -90,6 +96,23 @@ public class Routine implements Comparator<Routine>
 
         this.commandList.add(cmd);
     }
+
+    public void addTrigger(DEV_ID dev_id, DEV_STATE state) {
+        this.trigger.put(dev_id, state);
+    }
+
+    public boolean hasTrigger() {
+        return !this.trigger.isEmpty();
+    }
+
+    public void addCondition(DEV_ID dev_id, DEV_STATE state) {
+        this.condition.put(dev_id, state);
+    }
+
+    public boolean hasCondition() {
+        return !this.condition.isEmpty();
+    }
+
 
     public int getNumberofCommand() {
         return commandList.size();
@@ -319,24 +342,38 @@ public class Routine implements Comparator<Routine>
     @Override
     public String toString()
     {
-        String str = "";
+        StringBuilder str = new StringBuilder();
 
-        str += "{ Routine ID:" + this.ID;
-        str += "; abbr: " + this.abbr;
-        str += "; delay:" + this.getStartDelay();
-        str += "; registrationTime: " + this.registrationTime;
-        str += "; backTobackExc: " + this.backToBackCmdExecutionWithoutGap;
-        str += "; expectedEndWithoutAnyGap: " + (int)(this.registrationTime + this.backToBackCmdExecutionWithoutGap);
-        str += "; stretchRatio: " + this.getStretchRatio() + " || ";
+        str.append("{ Routine ID:").append(this.ID);
+        str.append("; abbr: ").append(this.abbr);
+        str.append("; delay:").append(this.getStartDelay());
+        str.append("; registrationTime: ").append(this.registrationTime);
+        str.append("; backTobackExc: ").append(this.backToBackCmdExecutionWithoutGap);
+        str.append("; expectedEndWithoutAnyGap: ").append((int) (this.registrationTime + this.backToBackCmdExecutionWithoutGap));
+        str.append("; stretchRatio: ").append(this.getStretchRatio()).append(" || ");
 
         for(Command cmd : this.commandList)
         {
-            str += cmd;
+            str.append(cmd);
         }
 
-        str += " }\n";
+        if (!this.trigger.isEmpty()) {
+            str.append(" || Trigger: ");
+            for (Map.Entry<DEV_ID, DEV_STATE> entry : trigger.entrySet()) {
+                str.append(entry.getKey().name()).append(":").append(entry.getValue().name()).append(", ");
+            }
+        }
 
-        return str;
+        if (!this.trigger.isEmpty()) {
+            str.append(" || Condition: ");
+            for (Map.Entry<DEV_ID, DEV_STATE> entry : condition.entrySet()) {
+                str.append(entry.getKey().name()).append(":").append(entry.getValue().name()).append(", ");
+            }
+        }
+
+        str.append(" }\n");
+
+        return str.toString();
     }
 
     @Override

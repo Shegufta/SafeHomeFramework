@@ -1,0 +1,26 @@
+package Temp;
+
+public enum DEV_STATE {
+  ALARM,
+  CLOSED,
+  FIRE,
+  FIREALARM,
+  NIGHTALARM,
+  OFF,
+  ON,
+  OPEN,
+  SIRENCONTINUOUS,
+  SIRENOFF,
+  SIRENSOFF,
+  STATE0,
+  STATE1,
+  STATE2,
+  STATE3,
+  STATE4,
+  STATE5,
+  STATE7,
+  STATE8,
+  STATE9,
+  UNKNOWN,
+  email
+}

@@ -231,7 +231,7 @@ public class Temp
         /////////////////////////////---CHECKING-DIRECTORY-///////////////////////////////
 
 //        String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
-        String dataStorageDirectory = "/Users/ruiyang/Developer/research/asid/expr/plot_generation/scenario";
+        String dataStorageDirectory = "/Users/ruiyang/Developer/research/asid/expr/plot_generation/iotbench";
         File dataStorageDir = new File(dataStorageDirectory);
 
         if(!dataStorageDir.exists())
@@ -404,7 +404,7 @@ public class Temp
                 if(IS_RUNNING_BENCHMARK)
                 {
                     routineSet = benchmarkingTool.GetOneWorkload();
-                    System.out.printf("Routines: %s \n", routineSet.toString());
+//                    System.out.printf("Routines: %s \n", routineSet.toString());
 //                    System.out.printf("Number of routine in total %d \n", routineSet.size());
                     int total_num_command = 0;
                     for (Routine aRoutineSet : routineSet) {
