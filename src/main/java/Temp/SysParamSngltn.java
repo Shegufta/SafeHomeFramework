@@ -52,6 +52,8 @@ public class SysParamSngltn
     private final String KEY_COMMA_SEPRTD_VAR_LIST_STRING = "commaSeprtdVarListString";
     private final String KEY_COMMA_SEPRTD_CORRESPNDIN_UPPR_BND_LIST_STR = "commaSeprtdCorrespondingUpperBoundListString";
 
+    private final String KEY_IS_MEASURE_EV_ROUTINE_INSERTION_TIME = "isMeasureEVroutineInsertionTime";
+
 
 
 
@@ -107,6 +109,10 @@ public class SysParamSngltn
     public static int MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING;// = 5;
 
     public static String dataStorageDirectory;// = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
+
+    public static boolean isMeasureEVroutineInsertionTime;
+
+    public static final float DIV_NANOSEC_BY = 1000;
     ////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -197,7 +203,7 @@ public class SysParamSngltn
             IS_RUNNING_BENCHMARK = Boolean.valueOf(properties.getProperty(KEY_IS_RUNNING_BENCHMARK));
             totalSampleCount = Integer.valueOf(properties.getProperty(KEY_TOTAL_SAMPLE_COUNT));
 
-
+            isMeasureEVroutineInsertionTime = Boolean.valueOf(properties.getProperty(KEY_IS_MEASURE_EV_ROUTINE_INSERTION_TIME));
 
             int count = 0;
             isVaryCommandCntPerRtn = Boolean.valueOf(properties.getProperty(KEY_IS_VARY_COMMAND_CNT_PER_RTN));

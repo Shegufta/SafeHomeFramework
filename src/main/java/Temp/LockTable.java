@@ -435,7 +435,8 @@ public class LockTable
     }
 
 
-    public void register(List<Routine> rtnList, int _simulationStartTime)
+    //public void register(List<Routine> rtnList, int _simulationStartTime)
+    public Map<Float, Integer> register(List<Routine> rtnList, int _simulationStartTime)
     {
         if(this.consistencyType == CONSISTENCY_TYPE.LAZY
         || this.consistencyType == CONSISTENCY_TYPE.LAZY_FCFS
@@ -444,29 +445,44 @@ public class LockTable
         {
             lazyScheduling(rtnList, _simulationStartTime);
             initiateNonWV_devID_lastAccesedRtn_Map();
-            return;
+            return null;
         }
 
         if(this.consistencyType == CONSISTENCY_TYPE.WEAK)
         {
             //this.weakScheduling(rtnList, _simulationStartTime);
             this.weakScheduling(rtnList); // NOTE: devID_lastAccesedRtn_Map is initiated inside this function.
-            return;
+            return null;
         }
+
+
+        long startTime = 0;
+        Map<Float, Integer> EV_executionLatencyHistogram = null;
+        boolean isMeasureEVlatency = SysParamSngltn.getInstance().isMeasureEVroutineInsertionTime && this.consistencyType == CONSISTENCY_TYPE.EVENTUAL;
+
+        if(isMeasureEVlatency)
+            EV_executionLatencyHistogram = new HashMap<>();
 
         for(Routine rtn : rtnList)
         {
+            if(isMeasureEVlatency)
+                startTime = System.nanoTime();
+
             this.register(rtn, _simulationStartTime);
+
+            if(isMeasureEVlatency)
+            {
+                long timeSpan = System.nanoTime() - startTime;
+
+                Float data = (float)timeSpan/SysParamSngltn.getInstance().DIV_NANOSEC_BY;
+                EV_executionLatencyHistogram.merge(data, 1, (a, b) -> a + b);
+            }
         }
 
         initiateNonWV_devID_lastAccesedRtn_Map();
 
-//        if(this.consistencyType == CONSISTENCY_TYPE.EVENTUAL)
-//        {
-//            System.out.println(this);
-//            System.out.println("\n calling System.exit(1) inside LockTable.java");
-//            System.exit(1);
-//        }
+        return EV_executionLatencyHistogram;
+
     }
 
     public void register(Routine rtn, int _simulationStartTime)

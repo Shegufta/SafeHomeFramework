@@ -256,6 +256,9 @@ public class SimulateFailure
         measurementList.add(MEASUREMENT_TYPE.ABORT_RATE);
         measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_TOTAL);
         measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_PER_RTN);
+
+        if(SysParamSngltn.getInstance().isMeasureEVroutineInsertionTime)
+            measurementList.add(MEASUREMENT_TYPE.EV_ROUTINE_INSERT_TIME_MICRO_SEC);
         //measurementList.add(MEASUREMENT_TYPE.EXECUTION_LATENCY_MS);
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
@@ -397,6 +400,13 @@ public class SimulateFailure
                             MEASUREMENT_TYPE.RECOVERY_CMD_PER_RTN,
                             expResult.perRtnRollbackCmdHistogram);
 
+                    if(expResult.EV_executionLatencyHistogram != null)
+                    {
+                        measurementCollector.collectData(changingParameterValue, consistency_type,
+                                MEASUREMENT_TYPE.EV_ROUTINE_INSERT_TIME_MICRO_SEC,
+                                expResult.EV_executionLatencyHistogram);
+                    }
+
 //                    measurementCollector.collectData(changingParameterValue, consistency_type,
 //                            MEASUREMENT_TYPE.EXECUTION_LATENCY_MS,
 //                            expResult.executionLatencyHistogram);
@@ -416,6 +426,15 @@ public class SimulateFailure
                     globalDataCollector.get(changingParameterValue).put(measurementType, new LinkedHashMap<>());
 
                 if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO )
+                {
+                    if(CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
+                    {
+                        double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, measurementType);
+                        avg = (double)((int)(avg * 1000.0))/1000.0;
+                        globalDataCollector.get(changingParameterValue).get(measurementType).put(CONSISTENCY_TYPE.EVENTUAL, avg);
+                    }
+                }
+                else if(measurementType == MEASUREMENT_TYPE.EV_ROUTINE_INSERT_TIME_MICRO_SEC)
                 {
                     if(CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
                     {
@@ -806,7 +825,7 @@ public class SimulateFailure
         }
 
 
-        lockTable.register(perExpRtnList, _simulationStartTime);
+        Map<Float, Integer> EV_executionLatencyHistogram = lockTable.register(perExpRtnList, _simulationStartTime);
 
         ExpResults expResults = new ExpResults();
 
@@ -818,6 +837,12 @@ public class SimulateFailure
                 failureAnalyzerSampleCount,
                 expResults
                 );
+
+        if(_consistencyType == CONSISTENCY_TYPE.EVENTUAL && SysParamSngltn.getInstance().isMeasureEVroutineInsertionTime)
+            expResults.EV_executionLatencyHistogram = EV_executionLatencyHistogram;
+        else
+            expResults.EV_executionLatencyHistogram = null;
+
 
         return expResults;
     }

@@ -70,6 +70,8 @@ public class Temp
 
     private static final String dataStorageDirectory = SysParamSngltn.getInstance().dataStorageDirectory; //  "C:\\Users\\shegufta\\Desktop\\smartHomeData";
 
+    private static final boolean isMeasureEVroutineInsertionTime = SysParamSngltn.getInstance().isMeasureEVroutineInsertionTime;
+
     private static List<DEV_ID> devIDlist = new ArrayList<>();
     private static Map<DEV_ID, ZipfProbBoundary> devID_ProbBoundaryMap = new HashMap<>();
 
@@ -191,6 +193,9 @@ public class Temp
 
         System.out.println("dataStorageDirectory = " + dataStorageDirectory + "\n");
         logStr += "dataStorageDirectory = " + dataStorageDirectory + "\n\n";
+
+        System.out.println("isMeasureEVroutineInsertionTime = " + isMeasureEVroutineInsertionTime + "\n");
+        logStr += "isMeasureEVroutineInsertionTime = " + isMeasureEVroutineInsertionTime + "\n\n";
 
         System.out.println("###################################");
         logStr += "###################################\n";
