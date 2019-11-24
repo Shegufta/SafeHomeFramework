@@ -269,6 +269,8 @@ public class Temp
 //        measurementList.add(MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN);
 //        measurementList.add(MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT);
         measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
+
+        measurementList.add(MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE);
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
 
@@ -392,10 +394,24 @@ public class Temp
                     routineSet = generateAutomatedRtn(RANDOM_SEED);
                 }
 
+                Map<DEV_ID, Routine> GSV_devID_lastAccesedRtn_Map = null;
+                Map<DEV_ID, Routine> WV_devID_lastAccesedRtn_Map = null;
 
                 for(CONSISTENCY_TYPE consistency_type :  Temp.CONSISTENCY_ORDERING_LIST)
                 {
                     ExpResults expResult = runExperiment(devIDlist, consistency_type, routineSet, SIMULATION_START_TIME);
+
+                    if(measurementList.contains(MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE))
+                    {
+                        if(consistency_type == CONSISTENCY_TYPE.WEAK)
+                        {
+                            WV_devID_lastAccesedRtn_Map = expResult.measurement.devID_lastAccesedRtn_Map;
+                        }
+                        else if(consistency_type == CONSISTENCY_TYPE.STRONG)
+                        {
+                            GSV_devID_lastAccesedRtn_Map = expResult.measurement.devID_lastAccesedRtn_Map;
+                        }
+                    }
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
                             MEASUREMENT_TYPE.WAIT_TIME,
@@ -460,6 +476,41 @@ public class Temp
                                 expResult.stretchRatioHistogram);
                     }
                 }
+
+                if(measurementList.contains(MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE))
+                {
+                    if( (WV_devID_lastAccesedRtn_Map != null) && (GSV_devID_lastAccesedRtn_Map != null) )
+                    {
+                        assert(GSV_devID_lastAccesedRtn_Map.size() == WV_devID_lastAccesedRtn_Map.size());
+
+                        float totalDevice = GSV_devID_lastAccesedRtn_Map.size();
+                        float endStateMismatchCount = 0;
+
+                        for(Map.Entry<DEV_ID, Routine> entry : GSV_devID_lastAccesedRtn_Map.entrySet() )
+                        {
+                            DEV_ID device = entry.getKey();
+                            Routine routineGSV = entry.getValue();
+
+                            assert(WV_devID_lastAccesedRtn_Map.containsKey(device));
+
+                            Routine routineWV = WV_devID_lastAccesedRtn_Map.get(device);
+
+                            if(routineWV.ID != routineGSV.ID)
+                            {
+                                endStateMismatchCount++;
+                            }
+                        }
+
+                        float endStateMismatchPercentage = (endStateMismatchCount/totalDevice)*100.0f;
+
+                        Map<Float, Integer> endStateMismatchPercentageHistogram = new HashMap<>();
+                        endStateMismatchPercentageHistogram.put(endStateMismatchPercentage , 1);
+
+                        measurementCollector.collectData(changingParameterValue, CONSISTENCY_TYPE.WEAK,
+                                MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE,
+                                endStateMismatchPercentageHistogram);
+                    }
+                }
             }
 
             logStr += "\n=========================================================================\n";
@@ -480,6 +531,15 @@ public class Temp
                         double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, measurementType);
                         avg = (double)((int)(avg * 1000.0))/1000.0;
                         globalDataCollector.get(changingParameterValue).get(measurementType).put(CONSISTENCY_TYPE.EVENTUAL, avg);
+                    }
+                }
+                else if(measurementType == MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE)
+                {
+                    if(Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.STRONG) && Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.WEAK))
+                    {
+                        double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, measurementType);
+                        avg = (double)((int)(avg * 1000.0))/1000.0;
+                        globalDataCollector.get(changingParameterValue).get(measurementType).put(CONSISTENCY_TYPE.WEAK, avg);
                     }
                 }
                 else
@@ -503,6 +563,9 @@ public class Temp
         for(MEASUREMENT_TYPE measurementType : measurementList )
         {
             if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO && !Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
+                continue;
+
+            if(measurementType == MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE && ( !Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.STRONG) || !Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.WEAK) )   )
                 continue;
 
             globalResult += "================================\n";

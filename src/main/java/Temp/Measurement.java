@@ -472,8 +472,12 @@ public class Measurement
         }
     }
 
+    public Map<DEV_ID, Routine> devID_lastAccesedRtn_Map;
+
     public Measurement(final LockTable lockTable)
     {
+        devID_lastAccesedRtn_Map = lockTable.devID_lastAccesedRtn_Map;
+
         measureParallelization(lockTable);
         //measureOrderingMismatch(lockTable);
         measureOrderingMismatchBubble(lockTable);

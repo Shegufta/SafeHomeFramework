@@ -11,6 +11,7 @@ import java.util.*;
 public class LockTable
 {
     public Map<DEV_ID, List<Routine>> lockTable;
+    public Map<DEV_ID, Routine> devID_lastAccesedRtn_Map = null;
     public Map<DEV_ID, List<Routine>> perDevRoutineListForWeakScheduling = null;
     List<Routine> weakSchedulingSpecialLockTable = null;
 
@@ -25,6 +26,7 @@ public class LockTable
         //this.CURRENT_TIME = 0;
         //this.ROUTINE_ID = 0;
         this.consistencyType = _consistencyType;
+        this.devID_lastAccesedRtn_Map = new HashMap<>();
 
         for(DEV_ID devID : devIDlist)
         {
@@ -400,6 +402,34 @@ public class LockTable
                     perDevRoutineListForWeakScheduling.put(devID, new ArrayList<>());
 
                 perDevRoutineListForWeakScheduling.get(devID).add(rtnList.get(I));
+
+                if(!this.devID_lastAccesedRtn_Map.containsKey(devID))
+                {
+                    this.devID_lastAccesedRtn_Map.put(devID, rtnList.get(I));
+                }
+                else if(this.devID_lastAccesedRtn_Map.get(devID).getCommandByDevID(devID).getCmdEndTime() < rtnList.get(I).getCommandByDevID(devID).getCmdEndTime())
+                {
+                    this.devID_lastAccesedRtn_Map.put(devID, rtnList.get(I));
+                }
+            }
+        }
+    }
+
+    private void initiateNonWV_devID_lastAccesedRtn_Map()
+    {
+        assert(lockTable != null); // SBA: this should never called from WV....
+        assert(this.consistencyType != CONSISTENCY_TYPE.WEAK); // SBA: this should never called from WV....
+
+        for(Map.Entry<DEV_ID, List<Routine>> entry : lockTable.entrySet())
+        {
+            DEV_ID devID = entry.getKey();
+            List<Routine> lineage = entry.getValue();
+
+            if(!lineage.isEmpty())
+            {
+                int lastIndex = lineage.size() - 1;
+                Routine lastAccessedRtn = lineage.get(lastIndex);
+                this.devID_lastAccesedRtn_Map.put(devID, lastAccessedRtn);
             }
         }
     }
@@ -413,13 +443,14 @@ public class LockTable
         )
         {
             lazyScheduling(rtnList, _simulationStartTime);
+            initiateNonWV_devID_lastAccesedRtn_Map();
             return;
         }
 
         if(this.consistencyType == CONSISTENCY_TYPE.WEAK)
         {
             //this.weakScheduling(rtnList, _simulationStartTime);
-            this.weakScheduling(rtnList);
+            this.weakScheduling(rtnList); // NOTE: devID_lastAccesedRtn_Map is initiated inside this function.
             return;
         }
 
@@ -427,6 +458,8 @@ public class LockTable
         {
             this.register(rtn, _simulationStartTime);
         }
+
+        initiateNonWV_devID_lastAccesedRtn_Map();
 
 //        if(this.consistencyType == CONSISTENCY_TYPE.EVENTUAL)
 //        {
@@ -468,17 +501,17 @@ public class LockTable
                 this.registerStrong(rtn, _simulationStartTime);
                 break;
             }
-            case STRONG:
+            case STRONG: //GSV
             {
                 this.registerStrong(rtn, _simulationStartTime);
                 break;
             }
-            case RELAXED_STRONG:
+            case RELAXED_STRONG: //PSV
             {
                 registerRelaxedStepByStep(rtn, _simulationStartTime);
                 break;
             }
-            case EVENTUAL:
+            case EVENTUAL: // EV
             {
                 //this.insertRecursively(rtn, 0, _simulationStartTime, new HashSet<>(), new HashSet<>());
                 this.insertRecursively(rtn, 0, rtn.registrationTime, new HashSet<>(), new HashSet<>());
