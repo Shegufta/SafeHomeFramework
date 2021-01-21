@@ -1,0 +1,10 @@
+[
+  {"Routine Shortcut":"WUP","Routine Name":"daily-wakeup","Routine":["bd1_light2:on:6000"]},
+  {"Routine Shortcut":"GM1","Routine Name":"bd1-getup","Routine":["bd1_curtain:on:100", "bd1_light2:off:10", "dummy1:on:6000", "coffee_m:on:1200", "kc_speaker:on:30", "kc_light1:on:10"]},
+  {"Routine Shortcut":"BF1","Routine Name":"breakfast1","Routine":["kc_light1:on:10", "toaster:on:1200", "microwave:on:1200", "kc_speaker:on:100"]},
+  {"Routine Shortcut":"BF2","Routine Name":"breakfast2","Routine":["coffee_m:on:1200", "microwave:on:1200", "toaster:on:1200", "kc_speaker:on:100", "kc_light1:on:10"]},
+  {"Routine Shortcut":"LV1","Routine Name":"daylight-in","Routine":["lv_shade:on:100", "lv_light1:off:10", "kc_light1:off:10"]},
+  {"Routine Shortcut":"EAT","Routine Name":"eating-time","Routine":["lv_light1:on:10", "lv_speaker:on:600"]},
+  {"Routine Shortcut":"NEWS","Routine Name":"news-time","Routine":["lv_speaker:on:12000"]},
+  {"Routine Shortcut":"GDN","Routine Name":"water-plants","Routine":["gd_sprinkler:on:12000"]}
+]

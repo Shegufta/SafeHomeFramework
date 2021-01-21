@@ -23,6 +23,9 @@ public class MeasurementCollector
         public Map<Float,Integer> globalHistogram;
         List<Float> cdfDataListInHistogramMode = new ArrayList<>();
         List<Float> cdfFrequencyListInHisotgramMode = new ArrayList<>();
+        List<Float> pdfDataListInHistogramMode = new ArrayList<>();
+        List<Float> pdfFrequencyListInHisotgramMode = new ArrayList<>();
+
 
         public Boolean isListFinalized;
         double globalItemCount;
@@ -50,6 +53,18 @@ public class MeasurementCollector
                 return dataList.get(N);
         }
 
+        public float getPDFNthDataOrMinusOne(int N, float dummyMaxItemCount)
+        {
+            if( (N < 0) || (this.pdfListSize() == 0) || (this.pdfListSize() <= N))
+                    return -1;
+
+            if (isHistogramMode)
+                return pdfDataListInHistogramMode.get(N);
+            else
+                return dataList.get(N);
+        }
+
+
         public float getNthCDFOrMinusOne(int N)
         {
             if( (N < 0) || (this.cdfListSize() == 0) || (this.cdfListSize() <= N))
@@ -60,6 +75,18 @@ public class MeasurementCollector
             else
             {
                 float frequency = 1.0f / this.cdfListSize();
+                return frequency * (N + 1.0f);
+            }
+        }
+
+        public float getNthPDFOrMinusOne(int N) {
+            if ((N < 0) || (this.pdfListSize() == 0) || (this.pdfListSize() <= N))
+                return -1;
+
+            if (isHistogramMode) {
+                return pdfFrequencyListInHisotgramMode.get(N);
+            } else {
+                float frequency = 1.0f / this.pdfListSize();
                 return frequency * (N + 1.0f);
             }
         }
@@ -79,6 +106,17 @@ public class MeasurementCollector
             }
             else
             {
+                return (int)this.globalItemCount;
+            }
+        }
+
+        public int pdfListSize()
+        {
+            assert(this.isListFinalized); // should not call until finalize.
+            if(this.isHistogramMode) {
+                assert(!pdfDataListInHistogramMode.isEmpty());
+                return pdfDataListInHistogramMode.size();
+            } else {
                 return (int)this.globalItemCount;
             }
         }
@@ -240,6 +278,8 @@ public class MeasurementCollector
 
                 this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).cdfDataListInHistogramMode.add(sortedData);
                 this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).cdfFrequencyListInHisotgramMode.add(indexTracker * frequencyMultiplyer);
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).pdfDataListInHistogramMode.add(sortedData);
+                this.variableMeasurementMap.get(variable).get(consistencyType).get(measurementType).pdfFrequencyListInHisotgramMode.add(frequency);
 
                 if(1 < frequency)
                 {
@@ -385,6 +425,64 @@ public class MeasurementCollector
         }
     }
 
+    private void writeCombinedPDFInFile(
+        final MEASUREMENT_TYPE currentMeasurement,
+        final String subDirPath,
+        List<DataHolder> insertedInConsistencyOrder,
+        List<String> consistencyHeader
+    )
+    {
+
+        assert(insertedInConsistencyOrder.size() == consistencyHeader.size());
+
+        String fileName = currentMeasurement.name() + "_PDF.dat";
+        String filePath = subDirPath + File.separator + fileName;
+
+        float maxItemCount = Integer.MIN_VALUE;
+
+        String combinedPDFStr = "";
+        for(int I = 0 ; I < consistencyHeader.size() ; I++)
+        {
+            if( maxItemCount < insertedInConsistencyOrder.get(I).pdfListSize())
+                maxItemCount = insertedInConsistencyOrder.get(I).pdfListSize();
+
+            combinedPDFStr += "data\t" + consistencyHeader.get(I);
+
+            if(I < (consistencyHeader.size() - 1))
+                combinedPDFStr += "\t";
+            else
+                combinedPDFStr += "\n";
+        }
+
+        System.out.println("\tPrepared the header: " + combinedPDFStr + "\t\tnext working to extract the data...: maxItemCount = " + maxItemCount);
+
+        for(int N = 0 ; N < maxItemCount ; N++) {
+            for(int I = 0 ; I < insertedInConsistencyOrder.size() ; I++) {
+                float data = insertedInConsistencyOrder.get(I).getPDFNthDataOrMinusOne(N, maxItemCount);
+                float PDF = insertedInConsistencyOrder.get(I).getNthPDFOrMinusOne(N);
+
+                combinedPDFStr += data + "\t" + PDF;
+
+                if(I < (insertedInConsistencyOrder.size() - 1))
+                    combinedPDFStr += "\t";
+                else
+                    combinedPDFStr += "\n";
+            }
+        }
+
+        try
+        {
+            Writer fileWriter = new FileWriter(filePath);
+            fileWriter.write(combinedPDFStr);
+            fileWriter.close();
+        }
+        catch (Exception ex)
+        {
+            System.out.println("\n\nERROR: cannot write file " + filePath);
+            System.exit(1);
+        }
+    }
+
     private void arrangeListsForPrinting(
             final double variable,
             final MEASUREMENT_TYPE currentMeasurement,
@@ -416,6 +514,11 @@ public class MeasurementCollector
                 subDirPath,
                 insertedInConsistencyOrder,
                 consistencyHeader);
+//        writeCombinedPDFInFile(
+//                currentMeasurement,
+//                subDirPath,
+//                insertedInConsistencyOrder,
+//                consistencyHeader);
 
     }
 }

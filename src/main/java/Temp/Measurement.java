@@ -136,6 +136,7 @@ public class Measurement
 
     private void measureParallelization(final LockTable _lockTable)
     {
+        System.out.printf("Start measuring Parallel delta for consistency type %s\n", _lockTable.consistencyType.name());
         Integer minStartTimeInclusive = Integer.MAX_VALUE;
         Integer maxEndTimeExclusive = Integer.MIN_VALUE;
 
@@ -152,7 +153,7 @@ public class Measurement
 
         int totalTimeSpan = maxEndTimeExclusive - minStartTimeInclusive; // start time is inclusive, end time is exclusive. e.g.  J : [<R1|C1>:1:2) [<R0|C3>:3:4) [<R2|C0>:4:5)
 
-
+        System.out.printf("Total time span: %d with start %d end %d \n", totalTimeSpan, minStartTimeInclusive, maxEndTimeExclusive);
 
         //this.parallelRtnCntList = new ArrayList<>(Collections.nCopies(totalTimeSpan, 0.0f));
 
@@ -162,6 +163,8 @@ public class Measurement
         {
             int startIdx = rtn.routineStartTime() - minStartTimeInclusive;
             int endIdx = rtn.routineEndTime() - minStartTimeInclusive;
+
+            System.out.printf("rtn %s start idx: %d, end idx: %d\n", rtn.ID, startIdx, endIdx);
 
             for(int I = startIdx ; I < endIdx ; I++)
             {
@@ -192,9 +195,10 @@ public class Measurement
             // i.e. just the changing points
             if(frequency != currentFreq)
             {
+                System.out.printf("A different parallel level %d\n", frequency);
                 currentFreq = frequency;
 
-                Integer count = deltaParallelismHistogram.get(frequency);
+                Integer count = deltaParallelismHistogram.get((float)frequency);
                 // here the count is the data. we have to count how many time these "count" appear
 
                 if(count == null)
@@ -202,8 +206,11 @@ public class Measurement
                 else
                     deltaParallelismHistogram.put((float)frequency, count + 1);
             }
-
         }
+        // here the count is the data. we have to count how many time these "count" appear
+
+        deltaParallelismHistogram.merge((float) 0, 1, Integer::sum);
+        System.out.printf("Size of parallelism data: %d\n", deltaParallelismHistogram.size());
     }
 
     /*
@@ -363,6 +370,12 @@ public class Measurement
 
                         if(collisionTime < earliestCollisionTime)
                             earliestCollisionTime = collisionTime;
+
+                        System.out.printf("Incongrance with rtn ID: %d\n" +
+                                "    conflicting rtn ID: %d\n" +
+                                "    conflicting cmd devID: %s",
+                            rtn1.ID, rtn2.ID, cmd1.devID);
+
                     }
                 }
 
@@ -463,6 +476,16 @@ public class Measurement
                 int spanEndTimeExclusive = rtn1.routineEndTime();
                 float expectedConsistencySpanRtn1 = spanEndTimeExclusive - spanStartTimeInclusive;
                 float collisionTime = spanEndTimeExclusive - earliestCollisionTime;
+
+                if (collisionTime > 0) {
+                    System.out.printf("Incongrance with rtn ID: %d\n" +
+                            "    Start time %d\n" +
+                            "    End time %d\n" +
+                            "    Earlist collision time %f\n" +
+                            "    collisionTime %f, spanTime %f\n",
+                        rtn1.ID, spanStartTimeInclusive, spanEndTimeExclusive, earliestCollisionTime,
+                        collisionTime, expectedConsistencySpanRtn1);
+                }
 
                 timeSpentInCollisionRatio = (collisionTime / expectedConsistencySpanRtn1) * 100.0f;
             }

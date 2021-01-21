@@ -4,7 +4,7 @@
   {"Routine Shortcut":"GU2","Routine Name":"bd3-getup","Routine":["temp:72", "bd3_light1:on", "bd3_alarm:on:45", "bd3_curtain:on", "bd3_shade:closed"]},
   {"Routine Shortcut":"GU3","Routine Name":"bd1-cloth-change","Routine":["bd1_light2:on", "bd1_curtain:off"]},
   {"Routine Shortcut":"GU4","Routine Name":"bd2-cloth-change","Routine":["bd2_light1:on", "bd2_light2:on", "bd2_curtain:off"]},
-  {"Routine Shortcut":"GU5","Routine Name":"bd3-cloth-change","Routine":["bd1_light2:on", "bd3_shade:closed"]},
+  {"Routine Shortcut":"GU5","Routine Name":"bd3-cloth-change","Routine":["bd3_light2:on", "bd3_shade:closed"]},
   {"Routine Shortcut":"GU6","Routine Name":"bd2-morn-stretch","Routine":["bd2_light2:on", "bd2_light3:on", "bd2_shade:open", "bd2_curtain:open", "bd2_speaker:on:500"]},
   {"Routine Shortcut":"WS0","Routine Name":"u1-washing","Routine":["bath_light1:on", "bath_speaker:on:300"]},
   {"Routine Shortcut":"WS1","Routine Name":"u2-washing","Routine":["bath_light1:on", "bath_door:locked:120"]},

@@ -230,14 +230,11 @@ public class Temp
         //////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////---CHECKING-DIRECTORY-///////////////////////////////
 
-//        String dataStorageDirectory = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
-        String dataStorageDirectory = "/Users/ruiyang/Developer/research/asid/expr/plot_generation/iotbench";
         File dataStorageDir = new File(dataStorageDirectory);
 
-        if(!dataStorageDir.exists())
-        {
-            System.out.println("\n ERROR: directory not found: " + dataStorageDirectory);
-            System.exit(1);
+        if(!dataStorageDir.exists()) {
+            dataStorageDir.mkdirs();
+            System.out.println("\n Creating directory for: " + dataStorageDirectory);
         }
         //////////////////////////////////////////////////////////////////////////////////
 
@@ -404,7 +401,7 @@ public class Temp
                 if(IS_RUNNING_BENCHMARK)
                 {
                     routineSet = benchmarkingTool.GetOneWorkload();
-//                    System.out.printf("Routines: %s \n", routineSet.toString());
+                    System.out.printf("Routines: %s \n", routineSet.toString());
 //                    System.out.printf("Number of routine in total %d \n", routineSet.size());
                     int total_num_command = 0;
                     for (Routine aRoutineSet : routineSet) {
@@ -415,6 +412,7 @@ public class Temp
                 else
                 {
                     routineSet = generateAutomatedRtn(RANDOM_SEED);
+                    System.out.printf("Routines: %s \n", routineSet.toString());
                 }
 
                 Map<DEV_ID, Routine> GSV_devID_lastAccesedRtn_Map = null;
@@ -434,6 +432,10 @@ public class Temp
                         {
                             GSV_devID_lastAccesedRtn_Map = expResult.measurement.devID_lastAccesedRtn_Map;
                         }
+                    }
+
+                    if (consistency_type == CONSISTENCY_TYPE.EVENTUAL) {
+                        System.out.printf("Routines for EV: %s \n", routineSet.toString());
                     }
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
@@ -642,8 +644,11 @@ public class Temp
         }
 
         String epoch = System.currentTimeMillis() + "";
-        String parentDirPath = dataStorageDirectory + File.separator + epoch + "_VARY_"+ changingParameterName;
-        parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + minCmdCntPerRtn + "-" + maxCmdCntPerRtn;
+//        String parentDirPath = dataStorageDirectory + File.separator + epoch + "_VARY_"+ changingParameterName;
+//        parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + minCmdCntPerRtn + "-" + maxCmdCntPerRtn;
+
+        String parentDirPath = dataStorageDirectory;
+        
 
         File parentDir = new File(parentDirPath);
         if(!parentDir.exists())

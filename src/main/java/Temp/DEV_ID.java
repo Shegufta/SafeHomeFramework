@@ -33,6 +33,11 @@ public enum DEV_ID {
     X,
     Y,
     Z,
+    
+    // Dummy device
+    dummy1, 
+
+    // Scenario devices
     bath_light1,
     bath_speaker,
     bath_door,

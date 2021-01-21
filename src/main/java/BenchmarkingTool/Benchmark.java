@@ -27,7 +27,8 @@ public class Benchmark {
     MATRIX,
     SCENARIO,
     FACTORY,
-    IOT_BENCH
+    IOT_BENCH,
+    SHRUNK_MORNING
   }
 
   public enum SCENARIO {
@@ -50,6 +51,12 @@ public class Benchmark {
     WITH_TRIGGER_END_CMD_STATE_MATCH
   }
 
+  public enum SHUNKMORN {
+    SPREAD,
+    COMPACT,
+    FIX
+  }
+
   // common parameter for benchmark
   private double SHT_CMD_RTN_MULTI = 10.0;
   private List<DEV_ID> localDevIdLIst = new ArrayList<>();
@@ -61,7 +68,7 @@ public class Benchmark {
   private static final String matrixPath = prePath + "Data" + File.separator + "matrix.tsv";
   private static final String routinePath = prePath  + "Data" + File.separator + "routines.json";
 
-  private SETTING_TYPE setting_type = SETTING_TYPE.IOT_BENCH;
+  private SETTING_TYPE setting_type = SETTING_TYPE.FACTORY;
 
   // Setting for scenarios
   private SCENARIO scenario = SCENARIO.MORNING_CHAOS;
@@ -82,7 +89,7 @@ public class Benchmark {
   private static int num_global_dev = 5;        // max 10
   private static double glb_dev_touching_rate = 0.1;
   private static int max_time_per_dev = 30;
-  private static int num_item = 20;
+  private static int num_item = 8;
 
   private boolean random_dev = true;
   private static int local_rtn_per_stage = 6;
@@ -103,8 +110,12 @@ public class Benchmark {
   private double stretch_factor = 0.6;
   private static String iotBenchBasicRtnPath =  prePath + "Data" + File.separator + "scn-iotbench-basic.json";
   private static String iotBenchTriggerRtnPath =  prePath + "Data" + File.separator + "scn-iotbench-trigger.json";
-
   private static List<Routine> trigger_rtn_list = new ArrayList<>();
+
+  // Setting for shrunk morning
+  private static SHUNKMORN shrunk_type = SHUNKMORN.FIX;
+  private static String shrunkMrnRtnPath = prePath + "Data" + File.separator + "shrunk-morning.json";
+
   private HashMap<DEV_ID, DEV_STATE> real_time_dev_state = new HashMap<>();
 
   private void initiateLOCALdevIdList()
@@ -179,9 +190,11 @@ public class Benchmark {
       fst_lst_rtn_interval = 180;
       routine_list = GetRoutineSetFromJson(facRoutinePath);
       System.out.printf("routine list len: %d\n", routine_list.size());
-    } else { // IoTBench
+    } else if (setting_type == SETTING_TYPE.IOT_BENCH) { // IoTBench
       routine_list = GetRoutineSetFromJson(iotBenchBasicRtnPath);
       trigger_rtn_list = GetRoutineSetFromJson(iotBenchTriggerRtnPath);
+    } else { // shrunk morning
+      routine_list = GetRoutineSetFromJson(shrunkMrnRtnPath);
     }
     this.initiateLOCALdevIdList();
   }
@@ -204,6 +217,8 @@ public class Benchmark {
       return GetOneFacWorkload();
     } else if (setting_type == SETTING_TYPE.IOT_BENCH) {
       return GetOneIoTBenchWorkload();
+    } else if (setting_type == SETTING_TYPE.SHRUNK_MORNING) {
+      return GetOneShrukMrnWorkload();
     }
 
     // Workload generation for matrix
@@ -526,7 +541,7 @@ public class Benchmark {
           String[] cmd_info = iterator.next().split(":");
           int duration = 0;
           if (cmd_info.length < 3) {
-            duration = this.rand.nextInt(5) + 1;
+            duration = 1;
           } else {
             duration = Integer.parseInt(cmd_info[2]);
           }
@@ -541,6 +556,64 @@ public class Benchmark {
       e.printStackTrace();
     }
     return routine_list;
+  }
+
+  private List<Routine> GetOneShrukMrnWorkload() {
+    // Assume a scenario with a couple living together.
+    // User 1 has regular daily meeting at 8:30am.
+    // User 2 gets up with similar time.
+    // Users get up later than 7:40. 
+    // They want to finish all morning routines (eating) before 8:20am
+    //     to well prepared for User1's the meeting.
+
+
+    // Add all routines into workload
+    List<Routine> workload = new ArrayList<>(routine_list);
+
+    int stt_gm = 0;
+    int end_gm = 1200;
+    int stt_daylight = 0;
+    int end_daylight = 2100;
+    
+    if (shrunk_type == SHUNKMORN.COMPACT) {
+      stt_gm = 600;
+      end_gm = 780;
+      stt_daylight = 1200;
+      end_daylight = 1560;
+    }
+      
+    // Good morning between 7:40 - 8:00
+    int t_good_morning = ThreadLocalRandom.current().nextInt(stt_gm, end_gm + 1);
+    // User1 make his breakfast after getting up but before 8:05
+    int t_breakfast1 = ThreadLocalRandom.current().nextInt(t_good_morning + 10, 1501);
+    // Outside brightness reach setting between 7:40 - 8:15
+    int t_daylight = ThreadLocalRandom.current().nextInt(stt_daylight, end_daylight + 1);
+    // Eating time starts after one of the breakfast is done but before 8:10
+    int t_eating = ThreadLocalRandom.current().nextInt( Math.min(t_breakfast1 + 256, 1570), 2101);
+    // News time could happen after good morning, but before 8:01
+    int t_news = ThreadLocalRandom.current().nextInt( t_good_morning + 10, 1260);
+
+    int[] t_startings;
+    if (shrunk_type == SHUNKMORN.FIX) {
+      t_startings = new int[]{0, 347, 573, 900, 1497, 1134, 948, 900};
+    } else {
+      t_startings = new int[]{300, t_good_morning, t_breakfast1, 1200, t_daylight, t_eating, t_news, 1200};
+    }
+
+    int[] sortedIndices = IntStream.range(0, t_startings.length)
+                              .boxed().sorted(Comparator.comparingInt(i -> t_startings[i]))
+                              .mapToInt(ele -> ele).toArray();
+    Arrays.sort(t_startings);
+    int min_start_t = t_startings[0];
+    List<Routine> res_workload = new ArrayList<>();
+
+    for (int i = 0; i < t_startings.length; ++i) {
+      res_workload.add(workload.get(sortedIndices[i]));
+      res_workload.get(i).ID = i;
+      res_workload.get(i).registrationTime = t_startings[i] - min_start_t;
+    }
+
+    return res_workload;
   }
 
 
