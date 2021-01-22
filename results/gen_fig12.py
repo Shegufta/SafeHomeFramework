@@ -12,13 +12,14 @@ import time
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--deployment", required=False, help="path for morning scenario", default="morning")
 parser.add_argument("-m", "--morning", required=False, help="path for morning scenario", default="morning")
 parser.add_argument("-p", "--party", required=False, help="path for party scenario", default="party")
 parser.add_argument("-f", "--factory", required=False, help="path for factory scenario", default="factory")
 parser.add_argument("-marker", "--marker", required=False, help="whether to draw marker on the plot", default=False)
 args = parser.parse_args()
 
-scenario_folders = [args.morning, args.morning, args.party, args.factory]
+scenario_folders = [args.deployment, args.morning, args.party, args.factory]
 
 matplotlib.font_manager._rebuild()
 matplotlib.rcParams['font.family'] = 'Times New Roman'

@@ -12,6 +12,13 @@ and could compare the performance of different models. SafehomeFramework
 contains both synthetic parameterized workload and realistic workload that 
 generated from real-life scenarios.
 
+- [Environment Setup](#environment-setup)
+    * [Setup Steps](#setup-steps)
+    * [Setup Configurations](#setup-configurations)
+    * [Run](#run)
+- [Result Collector](#result-collector)
+- [Paper Result Reproduce](#paper-result-reproduce)
+
 ## Environment Setup
 SafeHomeFramework is a java application and runs easiest with the help of 
 Intellij. Thus, the pre-request of deploying SafeHomeFramework requires:
@@ -111,6 +118,10 @@ In first run, the long-running command duration are randomly from 100 to 110.
 In second run, the long-running command duration are randomly from 200 to 210.
 So on so forth until the last set with 1000 to 1010.
 
+### Run
+With Run/Debug configuration setup as [Environment Setup](#setup-steps), click 
+*Run* in Intellij to run the code.
+
 ## Result Collector
 SafeHomeFramework collects and provides some initial results for data analysis.
 The results are stored in `dataStorageDirectory` specified in configuration file.
@@ -127,3 +138,6 @@ different models. One metric one file. The main metric-to-filename mappings are:
 The `N` other folders includes the CDF data of each metric under the `N` different 
 parameter values. One value one folder. The CDF covers the data of 
 `totalSampleCount` runs.
+
+## Paper Result Reproduce
+The instruction to reproduce results in the paper is in `result/` folder 
