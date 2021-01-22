@@ -1,19 +1,18 @@
-#SafeHomeFramework
-
+# SafeHomeFramework
 SafeHome is a management system that provides atomicity and isolation among 
 concurrent routines in a smart environment. SafeHome is intended to run at 
 an edge device such as a home hub or an enhanced access point from where it
 can control devices. SafeHome does not require additional logic on devices. 
 SafeHome proposes new Visibility Models (GSV, PSV, EV, and WV) that trade 
 off responsiveness against temporary incongruence of smart home state. It 
-also provides a seiral order of executed routines taking failures into account.
+also provides a serial order of executed routines taking failures into account.
  
-SafehomeFramework is a simulator that mimic SafeHome routine execution logic 
+SafeHomeFramework is a simulator that mimic SafeHome routine execution logic 
 and could compare the performance of different models. SafehomeFramework 
 contains both synthetic parameterized workload and realistic workload that 
 generated from real-life scenarios.
 
-##Environment Setup
+## Environment Setup
 SafeHomeFramework is a java application and runs easiest with the help of 
 Intellij. Thus, the pre-request of deploying SafeHomeFramework requires:
 - Intellij (best later than 2020.2)
