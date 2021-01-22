@@ -54,7 +54,8 @@ public class SysParamSngltn
 
     private final String KEY_IS_MEASURE_EV_ROUTINE_INSERTION_TIME = "isMeasureEVroutineInsertionTime";
 
-
+    public static String KEY_BENCHMARK_SETTING = "benchmark_setting";
+    public static String KEY_SCENARIO_TYPE = "scenario_type";
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -110,11 +111,13 @@ public class SysParamSngltn
 
     public static String dataStorageDirectory;// = "C:\\Users\\shegufta\\Desktop\\smartHomeData";
 
+    public static String benchmark_setting;
+    public static String scenario_type;
+
     public static boolean isMeasureEVroutineInsertionTime;
 
     public static final float DIV_NANOSEC_BY = 1000;
     ////////////////////////////////////////////////////////////////////////////////////
-
 
 
     private static SysParamSngltn singleton;
@@ -277,6 +280,9 @@ public class SysParamSngltn
             MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING = Integer.valueOf(properties.getProperty(KEY_MINIMUM_CONCURRENCY_LEVEL_FOR_BENCHMARKING));
 
             dataStorageDirectory = getOSindependentPath (properties.getProperty(KEY_DATA_STORAE_DIRECTORY));
+
+            benchmark_setting = properties.getProperty(KEY_BENCHMARK_SETTING);
+            scenario_type = properties.getProperty(KEY_SCENARIO_TYPE);
         }
         catch(Exception ex)
         {

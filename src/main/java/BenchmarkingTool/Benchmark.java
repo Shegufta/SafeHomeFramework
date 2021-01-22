@@ -8,10 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import Temp.Command;
-import Temp.DEV_ID;
-import Temp.DEV_STATE;
-import Temp.Routine;
+import Temp.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -68,10 +65,10 @@ public class Benchmark {
   private static final String matrixPath = prePath + "Data" + File.separator + "matrix.tsv";
   private static final String routinePath = prePath  + "Data" + File.separator + "routines.json";
 
-  private SETTING_TYPE setting_type = SETTING_TYPE.FACTORY;
+  private final SETTING_TYPE setting_type;
 
   // Setting for scenarios
-  private SCENARIO scenario = SCENARIO.MORNING_CHAOS;
+  // private SCENARIO scenario = SCENARIO.MORNING_CHAOS;
   private boolean is_fixed_fst_lst_interval = true;
   private int fst_lst_rtn_interval = 900;
   private boolean is_first_routine_fixed = true;
@@ -153,12 +150,17 @@ public class Benchmark {
     else
       this.rand = new Random(rand_seed);
 
+    String setting = SysParamSngltn.getInstance().benchmark_setting;
+    setting_type = SETTING_TYPE.valueOf(setting);
+
     if (setting_type == SETTING_TYPE.MATRIX) {
       routine_list = GetRoutineSetFromJson(routinePath);
       sht_cmd_rtn_list = GetShortCommandRoutineList();  // one per device;
       System.out.printf("routine list len: %d\n", routine_list.size());
       matrix = GetRoutineMatrix(matrixPath);
     } else if (setting_type == SETTING_TYPE.SCENARIO) {
+      String scn = SysParamSngltn.getInstance().scenario_type;
+      SCENARIO scenario = SCENARIO.valueOf(scn);
       if (scenario == SCENARIO.PARTY) {
         scnRoutinePath = prePath + "Data" + File.separator + "scn2.json";
         is_fixed_fst_lst_interval = false;
