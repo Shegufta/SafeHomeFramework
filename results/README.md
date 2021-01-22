@@ -34,7 +34,7 @@ HS103 in the same network with Raspberry Pi. This is done with Kasa app.
 SafeHomePrototype also provides dummy device if there is not enough TP-Link HS103 
 devices, in which case, the SafeHomePrototype could also be run on other central 
 devices such as laptop. For artifact reproducability check, we will be happy to work 
-closely to run this deloyment result.
+closely to run this deployment result.
 
 ### Morning/Factory/Party Scenario Simulation
 Steps:
@@ -64,3 +64,48 @@ python3 gen-es-bar.py
 ```
 This will generate Figure 12(b) named `end-state.png` in your current folder 
 `results/finalIncong/`.
+
+## Figure 16 (a) (b) (c) Impact of Routine Size
+Steps:
+- Copy contents in `config/varyCommand.config` to `config/SafeHomeFramework.config`
+  and run. Results will be stored in `results/varyCommand/`
+- In `results` folder, run `python3 gen_avg.py varyCommand`
+- The result folder will be in `results/varyCommand/figure/overall/`.
+    - Figure 16(a) is reproduced as `E2E_RTN_TIME.png`
+    - Figure 16(b) is reproduced as `PARALLEL_DELTA.png`
+    - Figure 16(c) two temporary incongruence lines is reproduced separately in 
+    `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png` and the order mismatch line is in 
+    `ORDERR_MISMATCH_BUBBLE.png`
+    **Note** The y-axis range in two code-generated figures are different.
+      
+## Figure 16 (d) Impact of Device Popularity
+Steps:
+- Copy contents in `config/varyAlpha.config` to `config/SafeHomeFramework.config`
+  and run. Results will be stored in `results/varyAlpha/`
+- In `results` folder, run `python3 gen_avg.py varyAlpha`
+- The result folder will be in `results/varyAlpha/figure/overall/`.
+    - Figure 16(d) is reproduced as `E2E_RTN_TIME.png`
+    - Figure 16(d) in the paper has an errata in its x-axis labels (which we will 
+    fix in the camera-ready version): the corrected x-axis ranges from 0.0 to 2.0.
+
+## Figure 17 (a) Impact of Long Running Routine Duration
+Steps:
+- Copy contents in `config/varyLngDuration.config` to `config/SafeHomeFramework.config`
+  and run. Results will be stored in `results/varyLngDuration/`
+- In `results` folder, run `python3 gen_avg.py varyLngDuration`
+- The result folder will be in `results/varyLngDuration/figure/overall/`.
+    - Figure 17(a) two temporary incongruence lines are reproduced separately in 
+    `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png` and the order mismatch line is in 
+    `ORDERR_MISMATCH_BUBBLE.png`  
+    **Note** The y-axis range in two code-generated figures are different.
+
+## Figure 17 (b) Impact of Percentage of Long Running Routines
+Steps:
+- Copy contents in `config/varyLngPctg.config` to `config/SafeHomeFramework.config`
+  and run. Results will be stored in `results/varyLngPctg/`
+- In `results` folder, run `python3 gen_avg.py varyLngPctg`
+- The result folder will be in `results/varyLngPctg/figure/overall/`.
+    - Figure 17(b) two temporary incongruence lines are reproduced separately in 
+    `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png` and the order mismatch line is in
+    `ORDERR_MISMATCH_BUBBLE.png`  
+    **Note** The y-axis range in two code-generated figures are different.
