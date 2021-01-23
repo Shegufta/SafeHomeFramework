@@ -25,7 +25,7 @@ This experiment includes 4 sets of experiments:
 - Factory scenario in simulator (SafeHomeFramework)
 
 ### Morning Scenario Deployment
-The deployment is on Raspberry Pi 4 (prefer 4GB) controlling TP-Link HS103 devices. 
+The deployment is on Raspberry Pi (prefer 4GB) controlling TP-Link HS103 devices. 
 The deployment code is in [SafeHomePrototype repository](https://github.com/Shegufta/SafeHomePrototype). 
 The deployment code shares the same logic and same setup process with 
 SafeHomeFramework. To reproduce deployment result, it also needs to setup TP-Link 
@@ -38,12 +38,15 @@ closely to run this deployment result.
 
 ### Morning/Factory/Party Scenario Simulation
 Steps:
-- Copy contents in `config/morning.config` to `config/SafeHomeFramework.config`
-  and run. Results will be stored in `results/morning`
-- Copy contents in `config/factory.config` to `config/SafeHomeFramework.config`
-  and run. Results will be stored in `results/factory`
-- Copy contents in `config/party.config` to `config/SafeHomeFramework.config`
-  and run. Results will be stored in `results/party`
+- Copy contents in `config/EuroSys2021PaperConf/morning.config` to 
+`config/SafeHomeFramework.config` and run. Results will be stored in 
+`results/morning`
+- Copy contents in `config/EuroSys2021PaperConf/factory.config` to
+`config/SafeHomeFramework.config` and run. Results will be stored in 
+`results/factory`
+- Copy contents in `config/EuroSys2021PaperConf/party.config` to 
+`config/SafeHomeFramework.config` and run. Results will be stored in 
+`results/party`
   
 ### Generate Figure 12(a)
 Run `python3 gen_fig12.py` under `results/` folder. It will generate 
@@ -67,8 +70,9 @@ This will generate Figure 12(b) named `end-state.png` in your current folder
 
 ## Figure 16 (a) (b) (c) Impact of Routine Size
 Steps:
-- Copy contents in `config/varyCommand.config` to `config/SafeHomeFramework.config`
-  and run. Results will be stored in `results/varyCommand/`
+- Copy contents in `config/EuroSys2021PaperConf/varyCommand.config` to 
+`config/SafeHomeFramework.config` and run. Results will be stored in 
+`results/varyCommand/`
 - In `results` folder, run `python3 gen_avg.py varyCommand`
 - The result folder will be in `results/varyCommand/figure/overall/`.
     - Figure 16(a) is reproduced as `E2E_RTN_TIME.png`
@@ -80,8 +84,8 @@ Steps:
       
 ## Figure 16 (d) Impact of Device Popularity
 Steps:
-- Copy contents in `config/varyAlpha.config` to `config/SafeHomeFramework.config`
-  and run. Results will be stored in `results/varyAlpha/`
+- Copy contents in `config/EuroSys2021PaperConf/varyAlpha.config` to 
+`config/SafeHomeFramework.config` and run. Results will be stored in `results/varyAlpha/`
 - In `results` folder, run `python3 gen_avg.py varyAlpha`
 - The result folder will be in `results/varyAlpha/figure/overall/`.
     - Figure 16(d) is reproduced as `E2E_RTN_TIME.png`
@@ -90,8 +94,9 @@ Steps:
 
 ## Figure 17 (a) Impact of Long Running Routine Duration
 Steps:
-- Copy contents in `config/varyLngDuration.config` to `config/SafeHomeFramework.config`
-  and run. Results will be stored in `results/varyLngDuration/`
+- Copy contents in `config/EuroSys2021PaperConf/varyLngDuration.config` to 
+`config/SafeHomeFramework.config` and run. Results will be stored in 
+`results/varyLngDuration/`
 - In `results` folder, run `python3 gen_avg.py varyLngDuration`
 - The result folder will be in `results/varyLngDuration/figure/overall/`.
     - Figure 17(a) two temporary incongruence lines are reproduced separately in 
@@ -101,8 +106,9 @@ Steps:
 
 ## Figure 17 (b) Impact of Percentage of Long Running Routines
 Steps:
-- Copy contents in `config/varyLngPctg.config` to `config/SafeHomeFramework.config`
-  and run. Results will be stored in `results/varyLngPctg/`
+- Copy contents in `config/EuroSys2021PaperConf/varyLngPctg.config` to 
+`config/SafeHomeFramework.config` and run. Results will be stored in 
+`results/varyLngPctg/`
 - In `results` folder, run `python3 gen_avg.py varyLngPctg`
 - The result folder will be in `results/varyLngPctg/figure/overall/`.
     - Figure 17(b) two temporary incongruence lines are reproduced separately in 

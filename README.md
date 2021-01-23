@@ -7,9 +7,9 @@ SafeHome proposes new Visibility Models (GSV, PSV, EV, and WV) that trade
 off responsiveness against temporary incongruence of smart home state. It 
 also provides a serial order of executed routines taking failures into account.
  
-SafeHomeFramework is a simulator that mimic SafeHome routine execution logic 
+SafeHomeFramework is a simulator that mimics SafeHome routine execution logic 
 and could compare the performance of different models. SafehomeFramework 
-contains both synthetic parameterized workload and realistic workload that 
+contains both synthetic parameterized workload and realistic workload 
 generated from real-life scenarios.
 
 - [Environment Setup](#environment-setup)
@@ -23,7 +23,7 @@ generated from real-life scenarios.
 SafeHomeFramework is a java application and runs easiest with the help of 
 Intellij. Thus, the pre-request of deploying SafeHomeFramework requires:
 - Intellij (best later than 2020.2)
-- Java 1.8
+- Java 1.8+
 
 ### Setup Steps
 - Open IntelliJ and import SafeHome project
