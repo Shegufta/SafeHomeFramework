@@ -244,13 +244,19 @@ public class SimulateFailure
         ////////////////////////////////////////////////////////////////////////////////
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
 
-        measurementList.add(MEASUREMENT_TYPE.ABORT_RATE); // for fig 13(a) 13(b)
-        measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_PER_RTN); // for fig 13(c) 13(d)
-        //measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_TOTAL);
 
         if(SysParamSngltn.getInstance().isMeasureEVroutineInsertionTime) // for fig 15(d) this flag needs to be turned on from the config file. See the corresponding config file
             measurementList.add(MEASUREMENT_TYPE.EV_ROUTINE_INSERT_TIME_MICRO_SEC);
-        //measurementList.add(MEASUREMENT_TYPE.EXECUTION_LATENCY_MS);
+        else {
+            measurementList.add(MEASUREMENT_TYPE.ABORT_RATE); // for fig 13(a) 13(b)
+            measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_PER_RTN); // for fig 13(c) 13(d)
+            // To get fig 13(d), run the simulator using fig13ac.config. In the output directore
+            // collect the file yourOutputDir/avg/RECOVERY_CMD_PER_RTN.dat
+            // Multiply each value with (100.0/$cmdCntPerRtn). in fig13ac.config, $cmdCntPerRtn = 4
+            // so to generate fig 13(d), multiply each value with 25
+
+            //measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_TOTAL);
+        }
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
 
