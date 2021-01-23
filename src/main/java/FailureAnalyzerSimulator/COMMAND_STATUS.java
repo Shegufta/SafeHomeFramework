@@ -1,11 +1,26 @@
-package FailureAnalyzerSimulator;
-
 /**
+ * Command Status for SafeHome commands.
+ *
+ * COMMAND_STATUS defines the possible status of each command when defining and
+ * running in SafeHome.
+ *
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
  * @date 10-Oct-19
  * @time 6:38 PM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
  */
+
+package FailureAnalyzerSimulator;
+
+
 public enum COMMAND_STATUS
 {
     BEST_EFFORT,

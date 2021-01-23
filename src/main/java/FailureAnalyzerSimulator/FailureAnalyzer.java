@@ -1,3 +1,24 @@
+/**
+ * Failure Analyzer for SafeHome.
+ *
+ * Failure Analyzer simulate SafeHome execution with failure happens for specific
+ * CONSISTENCY_TYPE (e.g. GSV, PSV, EV, etc). It records data about routine abort
+ * and rollback overhead.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 10-Oct-19
+ * @time 6:37 PM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package FailureAnalyzerSimulator;
 
 import SafeHomeSimulator.*;

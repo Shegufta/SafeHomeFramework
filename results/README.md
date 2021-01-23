@@ -1,5 +1,12 @@
 # Paper Experiment Result Reproduce Instruction
 
+This instruction intends to help the reproduction of results from Eurosys 2021 paper.
+The metrics collected following below instructions will closely match paper's results 
+and claims. This instruction helped to provide plotting scripts to reproduce some 
+paper figures e.g. Figure 12, 16, 17, but some other figures need to combine collected 
+metric or do some simple post processing to get the numbers in paper. We will include
+detailed processing steps in the instruction.
+
 ## General Procedure
 For figures in paper, we provided independent configuration file for each setting.
 To run one setting, you need to:
@@ -85,7 +92,7 @@ Steps:
 - Copy contents in `config/EuroSys2021PaperConf/fig13ac.config` to 
   `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
   stored in `results/fig13ac/[folder_with_timestamp_in_name]`
-- In `results` folder, run `python3 gen_cdf.py fig13ac`
+- In `results` folder, run `python3 gen_avg.py -d fig13ac`
 - The generated figures are in `results/fig13ac/[folder_with_timestamp_in_name]/figure/overall/`
     - `ABORT_RATE.png` is reproduced as Figure 13(a)
     - `RECOVERY_CMD_PER_RTN.png` is reproduced for Figure 13(c) with an unprocessed 
@@ -100,7 +107,7 @@ Steps:
 - Copy contents in `config/EuroSys2021PaperConf/fig13bd.config` to 
   `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
   stored in `results/fig13bd/[folder_with_timestamp_in_name]`
-- In `results` folder, run `python3 gen_cdf.py fig13ac`
+- In `results` folder, run `python3 gen_avg.py -d fig13bd`
 - The generated figures are in `results/fig13bd/[folder_with_timestamp_in_name]/figure/overall/`
     - `ABORT_RATE.png` is reproduced as Figure 13(b)
     - `RECOVERY_CMD_PER_RTN.png` is reproduced for Figure 13(d) with an unprocessed 
@@ -113,7 +120,7 @@ Steps:
 - Copy contents in `config/EuroSys2021PaperConf/varyCommand.config` to 
 `config/SafeHomeFramework.config` and run ***SafeHomeSimulator***. Results will be stored in 
 `results/varyCommand/`
-- In `results` folder, run `python3 gen_cdf.py varyCommand`
+- In `results` folder, run `python3 gen_cdf.py -d varyCommand`
 - The generated figures are in sub-folders: `results/varyCommand/figure/`. The three 
 lines in Figure 15(c) are plotted respectively in:
     - `minCmdCntPerRtn2.0/stretch.png` for C = 2
@@ -122,10 +129,19 @@ lines in Figure 15(c) are plotted respectively in:
     **Note** The y-axis range in the three code-generated figures are from 0.0 - 1.0 
     and the paper figure ranges from 0.7 - 1.0.
 
+## Figure 15 (d) Routine Scheduling Overhead
+Steps:
+- Copy contents in `config/EuroSys2021PaperConf/fig15d.config` to 
+  `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
+  stored in `results/fig15d/[folder_with_timestamp_in_name]`
+- In `results` folder, run `python3 gen_avg.py -d fig15d/[folder_with_timestamp_in_name]`
+- The generated figures are in `results/fig15d/[folder_with_timestamp_in_name]/figure/overall/`
+    - Figure 15(d) is reproduced as `EV_ROUTINE_INSERT_TIME_MICRO_SEC.png`. 
+
 ## Figure 16 (a) (b) (c) Impact of Routine Size
 Steps:
 - Experiement results already collected in reproducing Figure 15(c). 
-- In `results` folder, run `python3 gen_avg.py varyCommand`
+- In `results` folder, run `python3 gen_avg.py -d varyCommand`
 - The result folder will be in `results/varyCommand/figure/overall/`.
     - Figure 16(a) is reproduced as `E2E_RTN_TIME.png`. Y-axis uses seconds as unit 
     while the paper uses minutes.
@@ -140,7 +156,7 @@ Steps:
 - Copy contents in `config/EuroSys2021PaperConf/varyAlpha.config` to 
 `config/SafeHomeFramework.config` and run ***SafeHomeSimulator***. Results will be stored in 
 `results/varyAlpha/`.
-- In `results` folder, run `python3 gen_avg.py varyAlpha`.
+- In `results` folder, run `python3 gen_avg.py -d varyAlpha`.
 - The result folder will be in `results/varyAlpha/figure/overall/`.
     - Figure 16(d) is reproduced as `E2E_RTN_TIME.png`. Y-axis uses seconds as unit 
     while the paper uses minutes.
@@ -152,7 +168,7 @@ Steps:
 - Copy contents in `config/EuroSys2021PaperConf/varyLngDuration.config` to 
 `config/SafeHomeFramework.config` and run ***SafeHomeSimulator***. Results will be stored in 
 `results/varyLngDuration/`
-- In `results` folder, run `python3 gen_avg.py varyLngDuration`
+- In `results` folder, run `python3 gen_avg.py -d varyLngDuration`
 - The result folder will be in `results/varyLngDuration/figure/overall/`.
     - Figure 17(a) two temporary incongruence lines are reproduced separately in 
     `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png` and the order mismatch line is in 
@@ -164,7 +180,7 @@ Steps:
 - Copy contents in `config/EuroSys2021PaperConf/varyLngPctg.config` to 
 `config/SafeHomeFramework.config` and run ***SafeHomeSimulator*** Results will be stored in 
 `results/varyLngPctg/`
-- In `results` folder, run `python3 gen_avg.py varyLngPctg`
+- In `results` folder, run `python3 gen_avg.py -d varyLngPctg`
 - The result folder will be in `results/varyLngPctg/figure/overall/`.
     - Figure 17(b) two temporary incongruence lines are reproduced separately in 
     `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png` and the order mismatch line is in

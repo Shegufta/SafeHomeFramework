@@ -1,3 +1,24 @@
+/**
+ * Failure Simulator for SafeHome
+ *
+ * Main class to initiate experiments with failures FailureAnalyzerSimulator
+ * generates different workload, conduct and analyze experiments through
+ * FailureAnalyzer. The workload are parameterized synthetic.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 10-Oct-19
+ * @time 6:43 PM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package FailureAnalyzerSimulator;
 
 import BenchmarkingTool.*;
@@ -11,12 +32,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 10-Oct-19
- * @time 6:43 PM
- */
 
 // graph plotting tool command:  "python .\gen_all.py -d C:\Users\shegufta\Desktop\smartHomeData\1568337471715_VARY_maxConcurrentRtn_R_101_C_6"
 

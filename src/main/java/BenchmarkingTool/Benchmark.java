@@ -1,3 +1,25 @@
+/**
+ * Benchmark Tool for SafeHome
+ *
+ * This benchmark tool generate workload based on multiple realistic scenarios.
+ * Each scenario contains a pre-defined routine sets which are generated based
+ * on [IoTBench v1.1](https://github.com/IoTBench/IoTBench-test-suite).
+ * Main scenarios include FACTORY, SCENARIO.MORNING_CHAOS and SCENARIO.PARTY.
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ * @author Rui Yang
+ * @project SafeHomeFramework
+ * @date 07-Sep-2019
+ *
+ */
+
+
 package BenchmarkingTool;
 
 import java.io.BufferedReader;
@@ -13,10 +35,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-/**
- * @author Rui Yang
- * @date 07-Sep-2019
- */
 
 public class Benchmark {
 
@@ -447,9 +465,7 @@ public class Benchmark {
 
       // Sort the workload by registration time and assign ID
       workload.sort(Comparator.comparingInt(r -> r.registrationTime));
-//    // modify duplicate time
-//    for (int i = 0; i < workload.size(); ++i) {
-//    }
+      // modify duplicate time
       for (int i = 0; i < workload.size(); ++i) {
         workload.get(i).ID = i;
       }
@@ -631,7 +647,6 @@ public class Benchmark {
         }
       }
     }
-    // System.out.println(Arrays.deepToString(matrix));
     return matrix;
   }
 }

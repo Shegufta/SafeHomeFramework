@@ -1,3 +1,20 @@
+/**
+ * Metadata class for SafeHome Failure Analyzer.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 10-Oct-19
+ * @time 6:37 PM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package FailureAnalyzerSimulator;
 
 import SafeHomeSimulator.Command;
@@ -7,12 +24,7 @@ import SafeHomeSimulator.Routine;
 import java.util.Comparator;
 import java.util.Set;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 10-Oct-19
- * @time 6:37 PM
- */
+
 public class FailureAnalysisMetadata implements Comparator<FailureAnalysisMetadata>
 {
     public int routineID;
