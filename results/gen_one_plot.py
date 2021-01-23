@@ -18,7 +18,7 @@ linestyle_dict = {'PSV': '--', 'EV': '-.', 'WV': (0, (8, 10)), 'GSV' : '-'}
 markfacecolor_dict = {'EV' : '#4ead5b', 'WV': '#cd783f'}
 markedgecolor_dict = {'EV': '#60803f', 'WV': '#b76b38'}
 markedgewidth_dict = {'EV': 1}
-target_lines = ['GSV', 'EV', 'WV', 'PSV']
+target_lines = ['GSV', 'EV', 'WV', 'PSV', 'SUPER_GSV']
 
 bar_color = ['#ffffff', '#DF8244', '#4EAD5B', '#B99130', '#E7E6E6']
 bar_edgecolor = ['#3f74b1', '#ffffff', '#4EAD5B', '#ffffff', '#000000']

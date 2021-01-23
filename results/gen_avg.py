@@ -12,7 +12,6 @@ folder = args.dir_expr
 
 # For average graphs 
 files = [ fi for fi in next(os.walk(folder + '/avg/'))[2] if fi.endswith(".dat") ]
-# files = ['BACK2BACK_RTN_CMD_EXCTN_TIME.dat']
 for file in files:
   full_file_path = folder + '/avg/' + file
   figure_folder  = folder + '/figure/overall/'
