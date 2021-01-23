@@ -249,33 +249,52 @@ public class SafeHomeSimulator
         Double changingParameterValue = -1.0;
         double lastGeneratedZipfeanFor = Double.MAX_VALUE; // NOTE: declare zipfean here... DO NOT declare it inside the for loop!
 
-        ////////////////////////////////////////////////////////////////////////////////
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.WEAK);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
-        CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
-        ////////////////////////////////////////////////////////////////////////////////
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
-        measurementList.add(MEASUREMENT_TYPE.WAIT_TIME);
-        measurementList.add(MEASUREMENT_TYPE.BACK2BACK_RTN_CMD_EXCTN_TIME);
-        measurementList.add(MEASUREMENT_TYPE.E2E_RTN_TIME);
-        measurementList.add(MEASUREMENT_TYPE.LATENCY_OVERHEAD);
-        measurementList.add(MEASUREMENT_TYPE.E2E_VS_WAITTIME);
-        measurementList.add(MEASUREMENT_TYPE.STRETCH_RATIO);
-        measurementList.add(MEASUREMENT_TYPE.PARALLEL_DELTA);
-        measurementList.add(MEASUREMENT_TYPE.PARALLEL_RAW);
-        measurementList.add(MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE);
-        measurementList.add(MEASUREMENT_TYPE.DEVICE_UTILIZATION);
-//        measurementList.add(MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT);
-//        measurementList.add(MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT);
-//        measurementList.add(MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN);
-//        measurementList.add(MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT);
-        measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
 
-        measurementList.add(MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE);
-        ////////////////////////////////////////////////////////////////////////////////
+        boolean isGeneratingFigure14 = false; // set it true only for generating Fig14 data
+
+        if(isGeneratingFigure14)
+        {
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
+            //////////////////////////////////////////////////////////////
+            measurementList.add(MEASUREMENT_TYPE.E2E_RTN_TIME);
+            measurementList.add(MEASUREMENT_TYPE.PARALLEL_DELTA);
+            measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
+        }
+        else
+        {
+            ////////////////////////////////////////////////////////////////////////////////
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG);
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.WEAK);
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
+            ////////////////////////////////////////////////////////////////////////////////
+
+            measurementList.add(MEASUREMENT_TYPE.WAIT_TIME);
+            measurementList.add(MEASUREMENT_TYPE.BACK2BACK_RTN_CMD_EXCTN_TIME);
+            measurementList.add(MEASUREMENT_TYPE.E2E_RTN_TIME);
+            measurementList.add(MEASUREMENT_TYPE.LATENCY_OVERHEAD);
+            measurementList.add(MEASUREMENT_TYPE.E2E_VS_WAITTIME);
+            measurementList.add(MEASUREMENT_TYPE.STRETCH_RATIO);
+            measurementList.add(MEASUREMENT_TYPE.PARALLEL_DELTA);
+            measurementList.add(MEASUREMENT_TYPE.PARALLEL_RAW);
+            measurementList.add(MEASUREMENT_TYPE.ORDERR_MISMATCH_BUBBLE);
+            measurementList.add(MEASUREMENT_TYPE.DEVICE_UTILIZATION);
+//          measurementList.add(MEASUREMENT_TYPE.ISVLTN1_PER_RTN_COLLISION_COUNT);
+//          measurementList.add(MEASUREMENT_TYPE.ISVLTN2_VIOLATED_RTN_PRCNT);
+//          measurementList.add(MEASUREMENT_TYPE.ISVLTN3_CMD_VIOLATION_PRCNT_PER_RTN);
+//          measurementList.add(MEASUREMENT_TYPE.ISVLTN4_CMD_TO_COMMIT_COLLISION_TIMESPAN_PRCNT);
+            measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
+
+            measurementList.add(MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE);
+            ////////////////////////////////////////////////////////////////////////////////
+        }
+
+
         ////////////////////////////////////////////////////////////////////////////////
 
         boolean isBenchmarkingDoneForSinglePass = false;
