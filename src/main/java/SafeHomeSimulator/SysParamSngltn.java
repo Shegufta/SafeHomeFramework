@@ -286,6 +286,7 @@ public class SysParamSngltn
         }
         catch(Exception ex)
         {
+            System.out.println("\nFailed to parse the config file... Maybe some required parameters are commented out... Pls double check...\n");
             System.out.println(ex.toString());
             System.out.println(ex.getStackTrace());
             System.exit(1);

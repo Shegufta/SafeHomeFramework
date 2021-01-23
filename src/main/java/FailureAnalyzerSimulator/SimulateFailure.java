@@ -243,11 +243,12 @@ public class SimulateFailure
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
         ////////////////////////////////////////////////////////////////////////////////
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
-        measurementList.add(MEASUREMENT_TYPE.ABORT_RATE);
-        measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_TOTAL);
-        measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_PER_RTN);
 
-        if(SysParamSngltn.getInstance().isMeasureEVroutineInsertionTime)
+        measurementList.add(MEASUREMENT_TYPE.ABORT_RATE); // for fig 13(a) 13(b)
+        measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_PER_RTN); // for fig 13(c) 13(d)
+        //measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_TOTAL);
+
+        if(SysParamSngltn.getInstance().isMeasureEVroutineInsertionTime) // for fig 15(d) this flag needs to be turned on from the config file. See the corresponding config file
             measurementList.add(MEASUREMENT_TYPE.EV_ROUTINE_INSERT_TIME_MICRO_SEC);
         //measurementList.add(MEASUREMENT_TYPE.EXECUTION_LATENCY_MS);
         ////////////////////////////////////////////////////////////////////////////////
