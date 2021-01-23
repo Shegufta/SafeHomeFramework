@@ -115,6 +115,21 @@ Steps:
     by `100.0/#cmdCntPerRtn`. `#cmdCntPerRtn=4` in this setting. Thus, the reproduced 
     value should multiply 25 for result (which will match Figure 13(d)).  
 
+## Figure 14 Scheduling Polices
+Steps:
+- Go to `src/main/java/SafeHomeSimulator/SafeHomeSimulator.java`. Modify as 
+`isGeneratingFigure14 = true` (around line 267)
+- Copy contents in `config/EuroSys2021PaperConf/fig14.config` to 
+`config/SafeHomeFramework.config` and run ***SafeHomeSimulator***. Results will be stored in 
+`results/fig14/`
+- In `results` folder, run `python3 gen_bar_charts.py -d fig14`
+- The generated figures in folder `results/fig14/figure/overall`:
+   - Among all three generated figures the legend number is the reciprocal for legend in 
+   Figure 14. For example, $\rou=8$ is shown with 0.125 in code-generated figure. 
+   - Figure 14(a) is reproduced as `E2E_RTN_TIME.png`
+   - Figure 14(b) is reproduced as `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png`
+   - Figure 14(c) is reproduced as `PARALLEL_DELTA.png`
+
 ## Figure 15 (c) CDF of Strech Factor
 Steps:
 - Copy contents in `config/EuroSys2021PaperConf/varyCommand.config` to 

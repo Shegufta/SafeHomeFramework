@@ -134,11 +134,12 @@ class SinglePlot:
   def set_bottom_margin(self, margin):
     self.bottom_margin = margin
 
-  def generate_bar_chart(self, full_fname, figure_folder):
+  def generate_bar_chart(self, full_fname, figure_folder, seperator=','):
     if not os.path.exists(figure_folder):
       os.makedirs(figure_folder)
 
-    df = pd.read_csv(full_fname, sep=',')
+    df = pd.read_csv(full_fname, sep=seperator)
+    df = df.dropna(how='all', axis=1)
     x_axis = df.columns[1:]
     n_groups = len(df.columns) - 1
     bar_ind = np.arange(n_groups)
