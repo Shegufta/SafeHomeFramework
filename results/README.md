@@ -68,11 +68,23 @@ python3 gen-es-bar.py
 This will generate Figure 12(b) named `end-state.png` in your current folder 
 `results/finalIncong/`.
 
-## Figure 16 (a) (b) (c) Impact of Routine Size
+## Figure 15 (c) CDF of Strech Factor
 Steps:
 - Copy contents in `config/EuroSys2021PaperConf/varyCommand.config` to 
 `config/SafeHomeFramework.config` and run. Results will be stored in 
 `results/varyCommand/`
+- In `results` folder, run `python3 gen_cdf.py varyCommand`
+- The generated figures are in sub-folders: `results/varyCommand/figure/`. The three 
+lines in Figure 15(c) are plotted respectively in:
+    - `minCmdCntPerRtn2.0/stretch.png` for C = 2
+    - `minCmdCntPerRtn4.0/stretch.png` for C = 4
+    - `minCmdCntPerRtn8.0/stretch.png` for C = 8  
+    **Note** The y-axis range in the three code-generated figures are from 0.0 - 1.0 
+    and the paper figure ranges from 0.7 - 1.0.
+
+## Figure 16 (a) (b) (c) Impact of Routine Size
+Steps:
+- Experiement results already collected in reproducing Figure 15(c). 
 - In `results` folder, run `python3 gen_avg.py varyCommand`
 - The result folder will be in `results/varyCommand/figure/overall/`.
     - Figure 16(a) is reproduced as `E2E_RTN_TIME.png`
