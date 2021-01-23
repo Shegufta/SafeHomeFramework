@@ -1,4 +1,4 @@
-package Temp;
+package SafeHomeSimulator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -318,8 +318,10 @@ public class SysParamSngltn
         return osIndependentPath;
     }
 
+    /*
     public static void main(String[] args)
     {
         SysParamSngltn.getInstance();
     }
+    */
 }

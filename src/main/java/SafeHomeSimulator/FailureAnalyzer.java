@@ -1,7 +1,5 @@
-package Temp;
-
+package SafeHomeSimulator;
 import java.util.*;
-
 /**
  * @author Shegufta Ahsan
  * @project SafeHomeFramework

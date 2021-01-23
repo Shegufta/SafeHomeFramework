@@ -29,9 +29,9 @@ Intellij. Thus, the pre-request of deploying SafeHomeFramework requires:
 - Open IntelliJ and import SafeHome project
 - Setup Run/Debug Configurations:
     - Add a new configuration with type *Application*
-    - Set main class as *Temp.Temp*
+    - Set main class as *SafeHomeSimulator.SafeHomeSimulator*
     - Set work directory as *the root directory of the project folder*. Note: 
-    not the directory stored for Temp.java.
+    not the directory stored for SafeHomeSimulator.java.
     - Save and apply
 
 ### Setup Configurations

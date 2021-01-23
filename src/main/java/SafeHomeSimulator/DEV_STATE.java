@@ -1,4 +1,4 @@
-package Temp;
+package SafeHomeSimulator;
 
 public enum DEV_STATE {
   ALARM,

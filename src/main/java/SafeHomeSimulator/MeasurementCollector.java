@@ -1,9 +1,9 @@
-package Temp;
+package SafeHomeSimulator;
+import java.util.*;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
-import java.util.*;
 
 /**
  * @author Shegufta Ahsan

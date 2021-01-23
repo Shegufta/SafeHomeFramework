@@ -1,4 +1,4 @@
-package Temp;
+package SafeHomeSimulator;
 
 /**
  * @author Shegufta Ahsan

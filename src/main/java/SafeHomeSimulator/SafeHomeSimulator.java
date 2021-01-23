@@ -1,4 +1,4 @@
-package Temp;
+package SafeHomeSimulator;
 
 
 import BenchmarkingTool.*;
@@ -19,7 +19,7 @@ import java.util.*;
  */
 // graph plotting tool command:  "python .\gen_all.py -d C:\Users\shegufta\Desktop\smartHomeData\1568337471715_VARY_maxConcurrentRtn_R_101_C_6"
 
-public class Temp
+public class SafeHomeSimulator
 {
     public static final boolean IS_RUNNING_BENCHMARK = SysParamSngltn.getInstance().IS_RUNNING_BENCHMARK; //false; // Careful... if it is TRUE, all other parameters will be in don't care mode!
     private static final int totalSampleCount = SysParamSngltn.getInstance().totalSampleCount; //1000;//7500;//10000; // 100000;
@@ -86,7 +86,6 @@ public class Temp
 //
 //>>>>>>> Stashed changes
     ///////////////////////////////////////////////////////////////////////////////////
-    //private static Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
     private static List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING_LIST = new ArrayList<>();
     ///////////////////////////////////////////////////////////////////////////////////
 
@@ -251,15 +250,6 @@ public class Temp
         double lastGeneratedZipfeanFor = Double.MAX_VALUE; // NOTE: declare zipfean here... DO NOT declare it inside the for loop!
 
         ////////////////////////////////////////////////////////////////////////////////
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.SUPER_STRONG, "SUPER_GSV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.STRONG, "GSV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.RELAXED_STRONG, "PSV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.EVENTUAL, "EV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.WEAK, "WV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY, "LV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_FCFS, "LAZY_FCFS");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
-
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
@@ -412,13 +402,13 @@ public class Temp
                 else
                 {
                     routineSet = generateAutomatedRtn(RANDOM_SEED);
-                    System.out.printf("Routines: %s \n", routineSet.toString());
+                    //System.out.printf("Routines: %s \n", routineSet.toString());
                 }
 
                 Map<DEV_ID, Routine> GSV_devID_lastAccesedRtn_Map = null;
                 Map<DEV_ID, Routine> WV_devID_lastAccesedRtn_Map = null;
 
-                for(CONSISTENCY_TYPE consistency_type :  Temp.CONSISTENCY_ORDERING_LIST)
+                for(CONSISTENCY_TYPE consistency_type :  SafeHomeSimulator.CONSISTENCY_ORDERING_LIST)
                 {
                     ExpResults expResult = runExperiment(devIDlist, consistency_type, routineSet, SIMULATION_START_TIME);
 
@@ -434,9 +424,9 @@ public class Temp
                         }
                     }
 
-                    if (consistency_type == CONSISTENCY_TYPE.EVENTUAL) {
-                        System.out.printf("Routines for EV: %s \n", routineSet.toString());
-                    }
+//                    if (consistency_type == CONSISTENCY_TYPE.EVENTUAL) {
+//                        System.out.printf("Routines for EV: %s \n", routineSet.toString());
+//                    }
 
                     measurementCollector.collectData(changingParameterValue, consistency_type,
                             MEASUREMENT_TYPE.WAIT_TIME,
@@ -551,7 +541,7 @@ public class Temp
 
                 if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO )
                 {
-                    if(Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
+                    if(SafeHomeSimulator.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
                     {
                         double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.EVENTUAL, measurementType);
                         avg = (double)((int)(avg * 1000.0))/1000.0;
@@ -560,7 +550,7 @@ public class Temp
                 }
                 else if(measurementType == MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE)
                 {
-                    if(Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.STRONG) && Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.WEAK))
+                    if(SafeHomeSimulator.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.STRONG) && SafeHomeSimulator.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.WEAK))
                     {
                         double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, CONSISTENCY_TYPE.WEAK, measurementType);
                         avg = (double)((int)(avg * 1000.0))/1000.0;
@@ -569,7 +559,7 @@ public class Temp
                 }
                 else
                 {
-                    for(CONSISTENCY_TYPE consistency_type :  Temp.CONSISTENCY_ORDERING_LIST)
+                    for(CONSISTENCY_TYPE consistency_type :  SafeHomeSimulator.CONSISTENCY_ORDERING_LIST)
                     {
                         double avg = measurementCollector.finalizePrepareStatsAndGetAvg(changingParameterValue, consistency_type, measurementType);
                         avg = (double)((int)(avg * 1000.0))/1000.0;
@@ -587,10 +577,10 @@ public class Temp
 
         for(MEASUREMENT_TYPE measurementType : measurementList )
         {
-            if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO && !Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
+            if(measurementType == MEASUREMENT_TYPE.STRETCH_RATIO && !SafeHomeSimulator.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.EVENTUAL))
                 continue;
 
-            if(measurementType == MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE && ( !Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.STRONG) || !Temp.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.WEAK) )   )
+            if(measurementType == MEASUREMENT_TYPE.COMPARE_WV_VS_GSV_END_STATE && ( !SafeHomeSimulator.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.STRONG) || !SafeHomeSimulator.CONSISTENCY_ORDERING_LIST.contains(CONSISTENCY_TYPE.WEAK) )   )
                 continue;
 
             globalResult += "================================\n";
@@ -789,7 +779,7 @@ public class Temp
 
     public static int getUniqueRtnID()
     {
-        return Temp.ROUTINE_ID++;
+        return SafeHomeSimulator.ROUTINE_ID++;
     }
 
     private static List<Routine> generateAutomatedRtn(int nonNegativeSeed)

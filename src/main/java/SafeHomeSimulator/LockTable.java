@@ -1,7 +1,5 @@
-package Temp;
-
+package SafeHomeSimulator;
 import java.util.*;
-
 /**
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
@@ -765,8 +763,8 @@ public class LockTable
 
     public CmdInsertionData getLockTableEmptyPlaceIndex(DEV_ID _devID, int _scanStartTime, int _targetCmdDuration)
     {
-        boolean isPreLeaseAllowed = Temp.IS_PRE_LEASE_ALLOWED;
-        boolean isPostLeaseAllowed = Temp.IS_POST_LEASE_ALLOWED;
+        boolean isPreLeaseAllowed = SafeHomeSimulator.IS_PRE_LEASE_ALLOWED;
+        boolean isPostLeaseAllowed = SafeHomeSimulator.IS_POST_LEASE_ALLOWED;
 
         int index;
         int scanStartTime = _scanStartTime;

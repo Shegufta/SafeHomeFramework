@@ -1,8 +1,8 @@
 package FailureAnalyzerSimulator;
 
-import Temp.Command;
-import Temp.DEV_ID;
-import Temp.Routine;
+import SafeHomeSimulator.Command;
+import SafeHomeSimulator.DEV_ID;
+import SafeHomeSimulator.Routine;
 
 import java.util.Comparator;
 import java.util.Set;

@@ -1,7 +1,8 @@
 package FailureAnalyzerSimulator;
 
 import BenchmarkingTool.*;
-import Temp.*;
+import SafeHomeSimulator.*;
+import java.util.*;
 import org.apache.commons.math3.distribution.ZipfDistribution;
 
 import java.io.File;
@@ -74,7 +75,6 @@ public class SimulateFailure
     private static Map<DEV_ID, ZipfProbBoundary> devID_ProbBoundaryMap = new HashMap<>();
 
     ///////////////////////////////////////////////////////////////////////////////////
-    //public static Map<CONSISTENCY_TYPE, String> CONSISTENCY_HEADER = new HashMap<>();
     public static List<CONSISTENCY_TYPE> CONSISTENCY_ORDERING_LIST = new ArrayList<>();
     ///////////////////////////////////////////////////////////////////////////////////
 
@@ -237,16 +237,6 @@ public class SimulateFailure
         double lastGeneratedZipfeanFor = Double.MAX_VALUE; // NOTE: declare zipfean here... DO NOT declare it inside the for loop!
 
         ////////////////////////////////////////////////////////////////////////////////
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.SUPER_STRONG, "SUPER_GSV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.STRONG, "GSV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.RELAXED_STRONG, "PSV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.EVENTUAL, "EV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.WEAK, "WV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY, "LV");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_FCFS, "LAZY_FCFS");
-//        CONSISTENCY_HEADER.put(CONSISTENCY_TYPE.LAZY_PRIORITY, "LAZY_PRIORITY");
-
-
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.SUPER_STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG);
         CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.RELAXED_STRONG);

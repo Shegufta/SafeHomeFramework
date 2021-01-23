@@ -1,4 +1,4 @@
-package Temp;
+package SafeHomeSimulator;
 
 import java.util.HashMap;
 import java.util.Map;
