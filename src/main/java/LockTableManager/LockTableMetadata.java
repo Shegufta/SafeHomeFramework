@@ -1,3 +1,20 @@
+/**
+ * MetaData for SafeHome LockTable
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 6/25/2019
+ * @time 9:42 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package LockTableManager;
 
 import RegistrationPkg.LockTableBluePrint;
@@ -9,10 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 6/25/2019
- * @time 9:42 AM
+
  */
 public class LockTableMetadata
 {

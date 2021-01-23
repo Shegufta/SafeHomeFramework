@@ -1,3 +1,20 @@
+/**
+ * SelfExecutingRoutine for SafeHome.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 6/18/2019
+ * @time 2:42 PM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package SelfExecutingRoutine;
 
 import ConcurrencyController.ConcurrencyControllerSingleton;
@@ -10,12 +27,7 @@ import Utility.DEV_STATUS;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 6/18/2019
- * @time 2:42 PM
- */
+
 public class SelfExecutingRoutine
 {
     public class DevLockStatusCmdChainID

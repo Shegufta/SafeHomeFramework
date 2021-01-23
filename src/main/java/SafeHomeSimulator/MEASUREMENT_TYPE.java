@@ -1,11 +1,23 @@
-package SafeHomeSimulator;
-
 /**
+ * Types of metrics that are supported to collect in SafeHome.
+ *
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
  * @date 07-Sep-19
  * @time 7:50 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
  */
+
+package SafeHomeSimulator;
+
+
 public enum MEASUREMENT_TYPE
 {
     WAIT_TIME,

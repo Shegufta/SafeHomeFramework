@@ -1,3 +1,20 @@
+/**
+ * (Deprecated) SafeHome main runner.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 6/20/2019
+ * @time 7:41 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package SafeHome;
 
 import ConcurrencyController.ConcurrencyControllerSingleton;
@@ -12,12 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 6/20/2019
- * @time 7:41 AM
- */
+
 public class SafeHome
 {
     public SafeHome(Set<DEV_ID> _devIDset)

@@ -1,3 +1,22 @@
+/**
+ * SafeHome Simulator.
+ *
+ * Main class to simualate different SafeHome models under no failures.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 17-Jul-19
+ * @time 10:32 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package SafeHomeSimulator;
 
 
@@ -11,12 +30,6 @@ import java.io.Writer;
 import java.util.*;
 
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 17-Jul-19
- * @time 10:32 AM
- */
 // graph plotting tool command:  "python .\gen_all.py -d C:\Users\shegufta\Desktop\smartHomeData\1568337471715_VARY_maxConcurrentRtn_R_101_C_6"
 
 public class SafeHomeSimulator

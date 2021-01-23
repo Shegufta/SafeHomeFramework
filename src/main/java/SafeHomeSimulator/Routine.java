@@ -1,12 +1,27 @@
-package SafeHomeSimulator;
-import java.util.*;
-
 /**
+ * Routine for SafeHome.
+ *
+ * Routine includes the structure of routine and the corresponding operations.
+ * A routine consists of one or more Command.
+ *
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
  * @date 18-Jul-19
  * @time 12:02 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
  */
+
+package SafeHomeSimulator;
+import java.util.*;
+
+
 public class Routine implements Comparator<Routine>
 {
     public int ID;

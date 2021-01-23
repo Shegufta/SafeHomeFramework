@@ -1,11 +1,28 @@
-package SafeHomeSimulator;
-import java.util.*;
 /**
+ * (Deprecated) Failure Analyzer for SafeHome.
+ *
+ * Failure Analyzer simulate SafeHome execution with failure happens for specific
+ * CONSISTENCY_TYPE (e.g. GSV, PSV, EV, etc). It records data about routine abort
+ * and rollback overhead.
+ *
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
  * @date 13-Aug-19
  * @time 3:52 PM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
  */
+
+package SafeHomeSimulator;
+import java.util.*;
+
+
 public class FailureAnalyzer
 {
     private enum COMMAND_STATUS

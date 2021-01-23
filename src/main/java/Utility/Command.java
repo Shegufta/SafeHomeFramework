@@ -1,14 +1,28 @@
+/**
+ * (Deployment related) Command for SafeHome.
+ *
+ * Command includes the structure of a command and the corresponding operations.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 5/20/2019
+ * @time 1:31 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package Utility;
 
 
 import static Utility.DEV_ID.DUMMY_WAIT;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 5/20/2019
- * @time 1:31 AM
- */
+
 public class Command
 {
     public DEV_ID devID;

@@ -1,11 +1,27 @@
-package SafeHomeSimulator;
-
 /**
+ * Device IDs in SafeHome.
+ *
+ * DEV_ID maintains all the potential IDs that might be touched during
+ * experiments. All device names including devices through benchmark need
+ * to be added to this enum.
+ *
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
  * @date 18-Jul-19
  * @time 6:17 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
  */
+
+package SafeHomeSimulator;
+
+
 public enum DEV_ID {
     A,
     B,

@@ -1,3 +1,20 @@
+/**
+ * PerDevLockList maintains the locks for each device in SafeHome.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 6/19/2019
+ * @time 3:49 PM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package LockTableManager;
 
 import ConcurrencyController.ConcurrencyControllerSingleton;
@@ -6,12 +23,7 @@ import Utility.*;
 
 import java.util.*;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 6/19/2019
- * @time 3:49 PM
- */
+
 public class PerDevLockListManager
 {
     public DEV_ID devID;

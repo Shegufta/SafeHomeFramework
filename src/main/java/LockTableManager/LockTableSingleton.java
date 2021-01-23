@@ -1,3 +1,22 @@
+/**
+ * Lock Table Singleton for SafeHome
+ *
+ * Core LockTable logic is in src/main/java/SafeHomeSimulator/LockTable.java.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 6/3/2019
+ * @time 10:34 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package LockTableManager;
 
 import ConcurrencyController.ConcurrencyControllerSingleton;
@@ -12,12 +31,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 6/3/2019
- * @time 10:34 AM
- */
+
 public class LockTableSingleton
 {
     private static String TAGstart;

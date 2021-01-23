@@ -1,11 +1,27 @@
-package SafeHomeSimulator;
-import java.util.*;
 /**
+ * Measurement for SafeHome
+ *
+ * Measurement stores the metric data for further data analytics. It is used
+ * to measure and store the metric that are measured based on LockTable.
+ *
  * @author Shegufta Ahsan
  * @project SafeHomeFramework
  * @date 04-Sep-19
  * @time 10:37 PM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
  */
+
+package SafeHomeSimulator;
+import java.util.*;
+
+
 public class Measurement
 {
     public Map<Float, Integer> deltaParallelismHistogram = new HashMap<>();

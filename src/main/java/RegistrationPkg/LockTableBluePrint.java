@@ -1,3 +1,22 @@
+/**
+ * LockTableBluePrint in SafeHome.
+ *
+ * Used to show the devices and routines touched for a specific lock table.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 6/25/2019
+ * @time 11:49 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package RegistrationPkg;
 
 import LockTableManager.DevBasedRoutineMetadata;
@@ -7,12 +26,7 @@ import Utility.DEV_ID;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 6/25/2019
- * @time 11:49 AM
- */
+
 public class LockTableBluePrint
 {
     /*

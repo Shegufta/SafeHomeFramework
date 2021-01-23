@@ -1,3 +1,20 @@
+/**
+ * SelfExecutingCmdChain for SafeHome.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 6/18/2019
+ * @time 4:05 PM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package SelfExecutingRoutine;
 
 import ConcurrencyController.ConcurrencyControllerSingleton;
@@ -11,12 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 6/18/2019
- * @time 4:05 PM
- */
+
 public class SelfExecutingCmdChain implements Runnable
 {
     private Thread thread;

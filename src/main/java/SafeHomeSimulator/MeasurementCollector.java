@@ -1,3 +1,23 @@
+/**
+ * MeasurementCollector for SafeHome
+ *
+ * MeasurementCollector collects metric data for further data analytics.
+ * It is used to add data point to existing records.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 07-Sep-19
+ * @time 7:47 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package SafeHomeSimulator;
 import java.util.*;
 
@@ -5,12 +25,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 07-Sep-19
- * @time 7:47 AM
- */
+
 public class MeasurementCollector
 {
     private class DataHolder

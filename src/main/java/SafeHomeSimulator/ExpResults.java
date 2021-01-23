@@ -1,14 +1,30 @@
+/**
+ * ExpResults for SafeHome
+ *
+ * ExpResults stores the metric data for further data analytics. It is used
+ * to store the metric that are measured during runtime. It also includes an
+ * object for Measurement for other metrics.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 07-Aug-19
+ * @time 1:05 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package SafeHomeSimulator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 07-Aug-19
- * @time 1:05 AM
- */
+
 public class ExpResults
 {
     public Map<Float, Integer> waitTimeHistogram;

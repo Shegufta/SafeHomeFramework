@@ -1,14 +1,28 @@
+/**
+ * Command for SafeHome.
+ *
+ * Command includes the structure of a command and the corresponding operations.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 18-Jul-19
+ * @time 12:03 AM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package SafeHomeSimulator;
 
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 18-Jul-19
- * @time 12:03 AM
- */
+
 public class Command
 {
     public DEV_ID devID;

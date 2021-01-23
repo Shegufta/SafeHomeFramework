@@ -1,15 +1,30 @@
+/**
+ * System Parameter Singleton for SafeHome.
+ *
+ * SysParamSngltn parses global configurations from
+ * conf/SafeHomeFramework.config.
+ *
+ * @author Shegufta Ahsan
+ * @project SafeHomeFramework
+ * @date 23-Sep-19
+ * @time 7:15 PM
+ *
+ *       Paper: Home, SafeHome: Smart Home Reliability with Visibility and
+ *              Atomicity (Eurosys 2021)
+ *     Authors: Shegufta Bakht Ahsan*, Rui Yang*, Shadi Abdollahian Noghabi^,
+ *              Indranil Gupta*
+ * Institution: *University of Illinois at Urbana-Champaign,
+ *              ^Microsoft Research
+ *
+ */
+
 package SafeHomeSimulator;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFramework
- * @date 23-Sep-19
- * @time 7:15 PM
- */
+
 public class SysParamSngltn
 {
     private final String PROPERTY_FILE_NAME = "conf/SafeHomeFramework.config";
