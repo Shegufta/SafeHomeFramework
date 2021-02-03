@@ -98,9 +98,7 @@ Steps:
     - `RECOVERY_CMD_PER_RTN.png` is reproduced for Figure 13(c) with an unprocessed 
     y-axis. To get data in Figure 13(c), the reproduced result needs to be multiplied
     by `100.0/#cmdCntPerRtn`. `#cmdCntPerRtn=4` in this setting. Thus, the reproduced 
-    value should multiply 25 for result (which will match Figure 13(c)).  
-    Besides, there is a code bug where for must_percent = 0.0, S-GSV is showing 
-    non-zero value. That number should be zero.
+    value should multiply 25 for result (which will match Figure 13(c)). 
     
 ## Figure 13 (b) (d) Impact of Must Command Under Failure
 Steps:

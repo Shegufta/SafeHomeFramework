@@ -25,12 +25,6 @@ import SafeHomeSimulator.*;
 import java.util.*;
 
 
-/**
- * @author Shegufta Ahsan
- * @project SafeHomeFailureAnalyzer
- * @date 17-Sep-19
- * @time 4:17 PM
- */
 public class FailureAnalyzer
 {
     public Map<Float, Integer> abortHistogramGSVPSV = null;// = new HashMap<>();
@@ -198,7 +192,12 @@ public class FailureAnalyzer
 
                 if(routineStartTime <= failureTime && failureTime < routineEndTime  && !failedDevSet.isEmpty())
                 {
-                    isAffected = true; // note: super strong does not care about device id. if any device fails, it aborts all of its ongoing routines
+                    for (FailureAnalysisMetadata failureAnalysisMetadata : sortedCommandList) {
+                        if (failureAnalysisMetadata.commandStatus != COMMAND_STATUS.BEST_EFFORT) {
+                            isAffected = true; // note: super strong does not care about device id. if any device fails, it aborts all of its ongoing routines
+                            break;
+                        }
+                    }
                 }
             }
             else
