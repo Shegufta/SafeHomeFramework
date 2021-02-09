@@ -84,6 +84,7 @@ public class SafeHomeSimulator
     private static final String dataStorageDirectory = SysParamSngltn.getInstance().dataStorageDirectory; //  "C:\\Users\\shegufta\\Desktop\\smartHomeData";
 
     private static final boolean isMeasureEVroutineInsertionTime = SysParamSngltn.getInstance().isMeasureEVroutineInsertionTime;
+    private static final boolean isSchedulingPoliciesComparison = SysParamSngltn.isSchedulingPoliciesComparison;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
     private static Map<DEV_ID, ZipfProbBoundary> devID_ProbBoundaryMap = new HashMap<>();
@@ -219,6 +220,9 @@ public class SafeHomeSimulator
         System.out.println("isMeasureEVroutineInsertionTime = " + isMeasureEVroutineInsertionTime + "\n");
         logStr += "isMeasureEVroutineInsertionTime = " + isMeasureEVroutineInsertionTime + "\n\n";
 
+        System.out.println("isSchedulingPoliciesComparison = " + isSchedulingPoliciesComparison + "\n");
+        logStr += "isSchedulingPoliciesComparison = " + isSchedulingPoliciesComparison + "\n\n";
+
         System.out.println("###################################");
         logStr += "###################################\n";
 
@@ -264,12 +268,11 @@ public class SafeHomeSimulator
 
         List<MEASUREMENT_TYPE> measurementList = new ArrayList<>();
 
-        boolean isGeneratingFigure14 = false; // set it true only for generating Fig14 data
-
-        if(isGeneratingFigure14)
+        if(isSchedulingPoliciesComparison) // in the config file, set it true only for generating Fig14 data (EUROSYS 2021 submission)
         {
             CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
             CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY);
             CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
             //////////////////////////////////////////////////////////////
             measurementList.add(MEASUREMENT_TYPE.E2E_RTN_TIME);

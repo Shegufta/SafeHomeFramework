@@ -72,8 +72,12 @@ public class SysParamSngltn
     public static String KEY_BENCHMARK_SETTING = "benchmark_setting";
     public static String KEY_SCENARIO_TYPE = "scenario_type";
 
+    public final String KEY_IS_SCHEDULING_POLICIES_COMPARISON = "isSchedulingPoliciesComparison";
+
 
     ///////////////////////////////////////////////////////////////////////////////
+    public static boolean isSchedulingPoliciesComparison;
+
     public static boolean IS_RUNNING_BENCHMARK;// = false; // Careful... if it is TRUE, all other parameters will be in don't care mode!
 
     public static int totalSampleCount;// = 1000;//7500;//10000; // 100000;
@@ -298,6 +302,13 @@ public class SysParamSngltn
 
             benchmark_setting = properties.getProperty(KEY_BENCHMARK_SETTING);
             scenario_type = properties.getProperty(KEY_SCENARIO_TYPE);
+
+            try {
+                isSchedulingPoliciesComparison = Boolean.valueOf(properties.getProperty(KEY_IS_SCHEDULING_POLICIES_COMPARISON));
+            }
+            catch(Exception ex) {
+                isSchedulingPoliciesComparison = false; // for backward compatibility, if config file does not have the field, initialize it with false
+            }
         }
         catch(Exception ex)
         {
