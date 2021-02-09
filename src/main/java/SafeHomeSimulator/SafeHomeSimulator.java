@@ -903,7 +903,7 @@ public class SafeHomeSimulator
                 nextDbl = rand.nextFloat();
                 nextDbl = (nextDbl == 1.0f) ? nextDbl - 0.001f : nextDbl;
                 boolean isMust = (nextDbl < mustCmdPercentage);
-                Command cmd = new Command(devID, devIDDurationMap.get(devID), isMust);
+                Command cmd = new Command(devID, devIDDurationMap.get(devID), isMust, mustCmdPercentage);
                 rtn.addCommand(cmd);
             }
             routineList.add(rtn);

@@ -37,6 +37,7 @@ public class FailureAnalysisMetadata implements Comparator<FailureAnalysisMetada
     public ROUTINE_STATUS routineStatus;
 
     public boolean isMust;
+    public double mustPercent;
 
     @Override
     public String toString()
@@ -65,6 +66,7 @@ public class FailureAnalysisMetadata implements Comparator<FailureAnalysisMetada
 
         assert (cmd != null);
         this.isMust = cmd.isMust;
+        this.mustPercent = cmd.mustPercent;
         this.cmdStartTime = cmd.startTime;
         this.cmdEndTime = cmd.getCmdEndTime();
         this.rtnStartTime = _routine.routineStartTime();

@@ -190,14 +190,9 @@ public class FailureAnalyzer
                 double routineStartTime = sortedCommandList.get(firstCmdId).cmdStartTime;
                 double routineEndTime = sortedCommandList.get(lastCmdId).cmdEndTime;
 
-                if(routineStartTime <= failureTime && failureTime < routineEndTime  && !failedDevSet.isEmpty())
+                if( 0.0 < sortedCommandList.get(firstCmdId).mustPercent  && (routineStartTime <= failureTime && failureTime < routineEndTime  && !failedDevSet.isEmpty()))
                 {
-                    for (FailureAnalysisMetadata failureAnalysisMetadata : sortedCommandList) {
-                        if (failureAnalysisMetadata.commandStatus != COMMAND_STATUS.BEST_EFFORT) {
-                            isAffected = true; // note: super strong does not care about device id. if any device fails, it aborts all of its ongoing routines
-                            break;
-                        }
-                    }
+                    isAffected = true; // note: super strong does not care about device id. if any device fails, it aborts all of its ongoing routines
                 }
             }
             else

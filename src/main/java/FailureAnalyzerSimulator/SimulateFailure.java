@@ -265,9 +265,9 @@ public class SimulateFailure
         else {
             measurementList.add(MEASUREMENT_TYPE.ABORT_RATE); // for fig 13(a) 13(b)
             measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_PER_RTN); // for fig 13(c) 13(d)
-            // To get fig 13(d), run the simulator using fig13ac.config. In the output directore
+            // To get fig 13(d), run the simulator using fig13d.config. In the output directory
             // collect the file yourOutputDir/avg/RECOVERY_CMD_PER_RTN.dat
-            // Multiply each value with (100.0/$cmdCntPerRtn). in fig13ac.config, $cmdCntPerRtn = 4
+            // Multiply each value with (100.0/$cmdCntPerRtn). in fig13c.config, $cmdCntPerRtn = 4
             // so to generate fig 13(d), multiply each value with 25
 
             //measurementList.add(MEASUREMENT_TYPE.RECOVERY_CMD_TOTAL);
@@ -763,7 +763,7 @@ public class SimulateFailure
                 nextDbl = rand.nextFloat();
                 nextDbl = (nextDbl == 1.0f) ? nextDbl - 0.001f : nextDbl;
                 boolean isMust = (nextDbl < mustCmdPercentage);
-                Command cmd = new Command(devID, devIDDurationMap.get(devID), isMust);
+                Command cmd = new Command(devID, devIDDurationMap.get(devID), isMust, mustCmdPercentage);
                 rtn.addCommand(cmd);
             }
             routineList.add(rtn);

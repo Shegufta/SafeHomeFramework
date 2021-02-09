@@ -29,12 +29,14 @@ public class Command
     public int duration;
     public boolean isMust;
     public int startTime;
+    public double mustPercent;
 
-    public Command(DEV_ID _devID, int _duration, boolean _isMust)
+    public Command(DEV_ID _devID, int _duration, boolean _isMust, double _mustPercent)
     {
         this.devID = _devID;
         this.duration = _duration;
         this.isMust = _isMust;
+        this.mustPercent = _mustPercent;
     }
 
     public int getCmdEndTime()
@@ -67,7 +69,7 @@ public class Command
 
     public Command getDeepCopy()
     {
-        Command deepCopyCommand = new Command(this.devID, this.duration, this.isMust);
+        Command deepCopyCommand = new Command(this.devID, this.duration, this.isMust, this.mustPercent);
         deepCopyCommand.startTime = this.startTime;
         return deepCopyCommand;
     }

@@ -410,6 +410,7 @@ public class Benchmark {
 
   private List<Routine> getFactorySyntheticWorkload() {
 
+    double dontCareNumber = 0.0;
     List<Routine> workload = new ArrayList<>();
     // Assume each group has enough unfinished items to process
 //    HashSet<Integer> existing_start_time = new HashSet<Integer>();
@@ -425,7 +426,7 @@ public class Benchmark {
               if (this.rand.nextDouble() < cmn_dev_touching_rate) { // device is touched for this item
                 int duration = this.rand.nextInt(max_time_per_dev) + 1;
                 Command cmd = new Command(
-                    DEV_ID.valueOf("common_dev_" + Integer.toString(group - 1) + "_" + Integer.toString(cmn_dev)), duration, true);
+                    DEV_ID.valueOf("common_dev_" + Integer.toString(group - 1) + "_" + Integer.toString(cmn_dev)), duration, true, dontCareNumber);
                 lst_cmd_finish_time += duration;
                 rtn.addCommand((cmd));
               }
@@ -435,7 +436,7 @@ public class Benchmark {
             if (this.rand.nextDouble() < local_dev_touching_rate) { // device is touched for this item
               int duration = this.rand.nextInt(max_time_per_dev) + 1;
               Command cmd = new Command(
-                  DEV_ID.valueOf("local_dev_" + Integer.toString(group) + "_" + Integer.toString(local_dev)), duration, true);
+                  DEV_ID.valueOf("local_dev_" + Integer.toString(group) + "_" + Integer.toString(local_dev)), duration, true, dontCareNumber);
               lst_cmd_finish_time += duration;
               rtn.addCommand((cmd));
             }
@@ -444,7 +445,7 @@ public class Benchmark {
             if (this.rand.nextDouble() < cmn_dev_touching_rate) { // device is touched for this item
               int duration = this.rand.nextInt(max_time_per_dev) + 1;
               Command cmd = new Command(
-                  DEV_ID.valueOf("common_dev_" + Integer.toString(group) + "_" + Integer.toString(cmn_dev)), duration, true);
+                  DEV_ID.valueOf("common_dev_" + Integer.toString(group) + "_" + Integer.toString(cmn_dev)), duration, true, dontCareNumber);
               lst_cmd_finish_time += duration;
               rtn.addCommand((cmd));
             }
@@ -453,7 +454,7 @@ public class Benchmark {
             if (this.rand.nextDouble() < glb_dev_touching_rate) { // device is touched for this item
               int duration = this.rand.nextInt(max_time_per_dev) + 1;
               Command cmd = new Command(
-                  DEV_ID.valueOf("global_dev_" + Integer.toString(glb_dev)), duration, true);
+                  DEV_ID.valueOf("global_dev_" + Integer.toString(glb_dev)), duration, true, dontCareNumber);
               lst_cmd_finish_time += duration;
               rtn.addCommand((cmd));
             }
@@ -512,7 +513,8 @@ public class Benchmark {
         continue;
       }
       int duration = this.rand.nextInt(5) + 1;
-      Command cmd = new Command(dev, duration, true);
+      double dontCareNumber = 0.0;
+      Command cmd = new Command(dev, duration, true, dontCareNumber);
       Routine rtn = new Routine(dev.name());
       rtn.addCommand(cmd);
       routine_list.add(rtn);
@@ -563,7 +565,8 @@ public class Benchmark {
           } else {
             duration = Integer.parseInt(cmd_info[2]);
           }
-          Command cmd = new Command(DEV_ID.valueOf(cmd_info[0]), duration, true);
+          double dontCareNumber = 0.0;
+          Command cmd = new Command(DEV_ID.valueOf(cmd_info[0]), duration, true, dontCareNumber);
           rtn.addCommand(cmd);
           // System.out.println(String.join(",",cmd_info));
         }
