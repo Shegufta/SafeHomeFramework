@@ -47,7 +47,8 @@ This experiment includes 4 sets of experiments:
 The deployment is on Raspberry Pi (prefer 4GB) controlling TP-Link HS103 devices. 
 The deployment code is in [SafeHomePrototype repository](https://github.com/Shegufta/SafeHomePrototype). 
 The deployment code shares the same logic and same setup process with 
-SafeHomeFramework. To reproduce deployment result, it also needs to setup TP-Link 
+SafeHomeFramework. The code with result collection is in *with-measurement* 
+branch. To reproduce deployment result, it also needs to setup TP-Link 
 HS103 in the same network with Raspberry Pi. This is done with Kasa app. 
 
 SafeHomePrototype also provides dummy device if there is not enough TP-Link HS103 
