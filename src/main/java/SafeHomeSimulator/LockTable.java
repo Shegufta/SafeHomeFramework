@@ -129,6 +129,7 @@ public class LockTable
         public DEV_ID devID;
         public boolean isLocked;
         public int lockReleaseTime;
+        public int routineEndTime;
 
         public LazySchedulingHelper(DEV_ID _devID)
         {
@@ -180,6 +181,40 @@ public class LockTable
         return (earliestReleaseDevID == null) ? simulationStartTime : earliestLockReleaseTime;
     }
 
+    private int lazy_JumpToNextFinishedRoutineTimeAndReleaseAllLocksBeforeThatTimeline(Map<DEV_ID, LazySchedulingHelper> lockTableHelper, int simulationStartTime, List<Routine> _waitingList)
+    {
+        int earliestRtnEndTime = Integer.MAX_VALUE;
+        DEV_ID earliestReleaseDevID = null;
+
+        for(LazySchedulingHelper RShlpr : lockTableHelper.values())
+        {
+            if(RShlpr.isLocked)
+            {
+                if(RShlpr.lockReleaseTime < earliestRtnEndTime)
+                {
+                    earliestRtnEndTime = RShlpr.lockReleaseTime;
+                    earliestReleaseDevID = RShlpr.devID;
+                }
+            }
+        }
+
+        if(earliestReleaseDevID != null)
+        {
+            for(LazySchedulingHelper RShlpr : lockTableHelper.values())
+            {
+                if(RShlpr.isLocked)
+                {
+                    if(earliestRtnEndTime == RShlpr.lockReleaseTime)
+                    {
+                        lockTableHelper.get(RShlpr.devID).isLocked = false; // release lock
+                    }
+                }
+            }
+        }
+
+        return (earliestReleaseDevID == null) ? simulationStartTime : earliestRtnEndTime;
+    }
+
     private boolean isAllLockReleased(Map<DEV_ID, LazySchedulingHelper> lockTableHelper)
     {
         for(LazySchedulingHelper RShlpr : lockTableHelper.values())
@@ -211,6 +246,7 @@ public class LockTable
         {
             lockTableHelper.get(cmd.devID).isLocked = true;
             lockTableHelper.get(cmd.devID).lockReleaseTime = cmd.getCmdEndTime();
+            lockTableHelper.get(cmd.devID).routineEndTime = rtn.routineEndTime();
         }
     }
 
@@ -229,7 +265,6 @@ public class LockTable
         while(!waitingList.isEmpty())
         {
             int lockReleaseTime = lazy_ReleaseEarliestCommandLock(lockTableHelper, _simulationStartTime, waitingList);
-            boolean isAllLockReleased = this.isAllLockReleased(lockTableHelper);
             List<Routine> scheduledRtnList = new ArrayList<>();
 
 
@@ -237,7 +272,7 @@ public class LockTable
             {
                 for(Routine waitingRoutine : waitingList)
                 {
-                    if( !isAllLockReleased &&(lockReleaseTime < waitingRoutine.registrationTime))
+                    if( !this.isAllLockReleased(lockTableHelper) &&(lockReleaseTime < waitingRoutine.registrationTime))
                         break;
 
                     if(lazy_canAcquireAllLocks( lockTableHelper , waitingRoutine))
@@ -252,10 +287,30 @@ public class LockTable
                 }
             }
             else if(consistencyType == CONSISTENCY_TYPE.LAZY_FCFS)
-            { // stop checking after first routine from the waiting list
+            {
+                int nextRtnEndTime = lazy_JumpToNextFinishedRoutineTimeAndReleaseAllLocksBeforeThatTimeline(lockTableHelper, _simulationStartTime, waitingList);
+
+                for(Routine waitingRoutine : waitingList)
+                {
+                    if( !this.isAllLockReleased(lockTableHelper) && (nextRtnEndTime < waitingRoutine.registrationTime))
+                        break;
+
+                    if(lazy_canAcquireAllLocks( lockTableHelper , waitingRoutine))
+                    {
+                        int maxTime = Math.max(nextRtnEndTime, waitingRoutine.registrationTime);
+
+                        registerRoutineFromExactTime(waitingRoutine, maxTime); // register in the lock table
+                        lazy_acquireAllLock(lockTableHelper ,waitingRoutine);
+
+                        scheduledRtnList.add(waitingRoutine);
+                    }
+                }
+
+                /*
+                // stop checking after first routine from the waiting list
                 Routine firstWaitingRoutine = waitingList.get(0); // get the first routine
 
-                if(!isAllLockReleased)
+                if(!this.isAllLockReleased(lockTableHelper))
                 {
                     for(Routine earlyComerNonConflictingRtn : waitingList)
                     {
@@ -266,7 +321,6 @@ public class LockTable
                         {
                             firstWaitingRoutine = earlyComerNonConflictingRtn;
                         }
-
                     }
                 }
 
@@ -279,6 +333,7 @@ public class LockTable
 
                     scheduledRtnList.add(firstWaitingRoutine);
                 }
+                 */
 
             }
             else if(consistencyType == CONSISTENCY_TYPE.LAZY_PRIORITY)
@@ -287,7 +342,7 @@ public class LockTable
 
                 for(Routine waitingRoutine : waitingList)
                 {
-                    if( !isAllLockReleased &&(lockReleaseTime < waitingRoutine.registrationTime))
+                    if( !this.isAllLockReleased(lockTableHelper) &&(lockReleaseTime < waitingRoutine.registrationTime))
                         break;
 
                     if(lazy_canAcquireAllLocks( lockTableHelper , waitingRoutine))

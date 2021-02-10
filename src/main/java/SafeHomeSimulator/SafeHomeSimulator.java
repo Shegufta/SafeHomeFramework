@@ -272,7 +272,6 @@ public class SafeHomeSimulator
         {
             CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_FCFS);
             CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY_PRIORITY);
-            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.LAZY);
             CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
             //////////////////////////////////////////////////////////////
             measurementList.add(MEASUREMENT_TYPE.E2E_RTN_TIME);
