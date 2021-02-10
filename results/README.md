@@ -90,29 +90,40 @@ This will generate Figure 12(b) named `end-state.png` in your current folder
 
 ## Figure 13 (a) (c) Impact of Must Command Under Failure
 Steps:
-- Copy contents in `config/EuroSys2021PaperConf/fig13ac.config` to 
+- Copy contents in `config/EuroSys2021PaperConf/fig13a.config` to 
   `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig13ac/[folder_with_timestamp_in_name]`
-- In `results` folder, run `python3 gen_avg.py -d fig13ac`
-- The generated figures are in `results/fig13ac/[folder_with_timestamp_in_name]/figure/overall/`
-    - `ABORT_RATE.png` is reproduced as Figure 13(a)
-    - `RECOVERY_CMD_PER_RTN.png` is reproduced for Figure 13(c) with an unprocessed 
-    y-axis. To get data in Figure 13(c), the reproduced result needs to be multiplied
-    by `100.0/#cmdCntPerRtn`. `#cmdCntPerRtn=4` in this setting. Thus, the reproduced 
-    value should multiply 25 for result (which will match Figure 13(c)). 
+  stored in `results/fig13a/[folder_with_timestamp_in_name]`
+- Copy contents in `config/EuroSys2021PaperConf/fig13c.config` to 
+  `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
+  stored in `results/fig13c/[folder_with_timestamp_in_name]`
+- In `results` folder, run `python3 gen_avg.py -d fig13a/[folder_with_timestamp_in_name]` 
+  and `python3 gen_avg.py -d fig13c/[folder_with_timestamp_in_name]` respectively.
+- Figure 13(a) is reproduced as 
+  `results/fig13a/[folder_with_timestamp_in_name]/figure/overall/ABORT_RATE.png`
+- Figure 13(c) is reprodueced as 
+  `results/fig13c/[folder_with_timestamp_in_name]/figure/overall/RECOVERY_CMD_PER_RTN.png`
+  To get data in Figure 13(c), the reproduced result needs to be multiplied
+  by `100.0/#cmdCntPerRtn`. `#cmdCntPerRtn=4` in this setting. Thus, the reproduced 
+  value should multiply 25 for result (which will match Figure 13(c)). 
     
 ## Figure 13 (b) (d) Impact of Must Command Under Failure
 Steps:
-- Copy contents in `config/EuroSys2021PaperConf/fig13bd.config` to 
+- Copy contents in `config/EuroSys2021PaperConf/fig13b.config` to 
   `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig13bd/[folder_with_timestamp_in_name]`
-- In `results` folder, run `python3 gen_avg.py -d fig13bd`
-- The generated figures are in `results/fig13bd/[folder_with_timestamp_in_name]/figure/overall/`
-    - `ABORT_RATE.png` is reproduced as Figure 13(b)
-    - `RECOVERY_CMD_PER_RTN.png` is reproduced for Figure 13(d) with an unprocessed 
-    y-axis. To get data in Figure 13(d), the reproduced result needs to be multiplied
-    by `100.0/#cmdCntPerRtn`. `#cmdCntPerRtn=4` in this setting. Thus, the reproduced 
-    value should multiply 25 for result (which will match Figure 13(d)).  
+  stored in `results/fig13b/[folder_with_timestamp_in_name]`
+- Copy contents in `config/EuroSys2021PaperConf/fig13d.config` to 
+  `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
+  stored in `results/fig13d/[folder_with_timestamp_in_name]`
+- In `results` folder, run `python3 gen_avg.py -d fig13b/[folder_with_timestamp_in_name]` 
+  and `python3 gen_avg.py -d fig13d/[folder_with_timestamp_in_name]`
+- Figure 13(b) is reproduced as 
+  `results/fig13b/[folder_with_timestamp_in_name]/figure/overall/ABORT_RATE.png`
+- Figure 13(d) is reproduced as 
+  `results/fig13d/[folder_with_timestamp_in_name]/figure/overall/RECOVERY_CMD_PER_RTN.png`
+  with an unprocessed y-axis.
+  To get data in Figure 13(d), the reproduced result needs to be multiplied
+  by `100.0/#cmdCntPerRtn`. `#cmdCntPerRtn=4` in this setting. Thus, the reproduced 
+  value should multiply 25 for result (which will match Figure 13(d)).  
 
 ## Figure 14 Scheduling Polices
 Steps:
