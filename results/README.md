@@ -92,16 +92,16 @@ This will generate Figure 12(b) named `end-state.png` in your current folder
 Steps:
 - Copy contents in `config/EuroSys2021PaperConf/fig13a.config` to 
   `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig13a/[folder_with_timestamp_in_name]`
+  stored in `results/fig13a/`
 - Copy contents in `config/EuroSys2021PaperConf/fig13c.config` to 
   `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig13c/[folder_with_timestamp_in_name]`
-- In `results` folder, run `python3 gen_avg.py -d fig13a/[folder_with_timestamp_in_name]` 
-  and `python3 gen_avg.py -d fig13c/[folder_with_timestamp_in_name]` respectively.
+  stored in `results/fig13c/`
+- In `results` folder, run `python3 gen_avg.py -d fig13a` 
+  and `python3 gen_avg.py -d fig13c` respectively.
 - Figure 13(a) is reproduced as 
-  `results/fig13a/[folder_with_timestamp_in_name]/figure/overall/ABORT_RATE.png`
+  `results/fig13a/figure/overall/ABORT_RATE.png`
 - Figure 13(c) is reprodueced as 
-  `results/fig13c/[folder_with_timestamp_in_name]/figure/overall/RECOVERY_CMD_PER_RTN.png`
+  `results/fig13c/figure/overall/RECOVERY_CMD_PER_RTN.png`
   To get data in Figure 13(c), the reproduced result needs to be multiplied
   by `100.0/#cmdCntPerRtn`. `#cmdCntPerRtn=4` in this setting. Thus, the reproduced 
   value should multiply 25 for result (which will match Figure 13(c)). 
@@ -110,16 +110,16 @@ Steps:
 Steps:
 - Copy contents in `config/EuroSys2021PaperConf/fig13b.config` to 
   `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig13b/[folder_with_timestamp_in_name]`
+  stored in `results/fig13b/`
 - Copy contents in `config/EuroSys2021PaperConf/fig13d.config` to 
   `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig13d/[folder_with_timestamp_in_name]`
-- In `results` folder, run `python3 gen_avg.py -d fig13b/[folder_with_timestamp_in_name]` 
-  and `python3 gen_avg.py -d fig13d/[folder_with_timestamp_in_name]`
+  stored in `results/fig13d/`
+- In `results` folder, run `python3 gen_avg.py -d fig13b` 
+  and `python3 gen_avg.py -d fig13d`
 - Figure 13(b) is reproduced as 
-  `results/fig13b/[folder_with_timestamp_in_name]/figure/overall/ABORT_RATE.png`
+  `results/fig13b/figure/overall/ABORT_RATE.png`
 - Figure 13(d) is reproduced as 
-  `results/fig13d/[folder_with_timestamp_in_name]/figure/overall/RECOVERY_CMD_PER_RTN.png`
+  `results/fig13d/figure/overall/RECOVERY_CMD_PER_RTN.png`
   with an unprocessed y-axis.
   To get data in Figure 13(d), the reproduced result needs to be multiplied
   by `100.0/#cmdCntPerRtn`. `#cmdCntPerRtn=4` in this setting. Thus, the reproduced 
@@ -139,6 +139,10 @@ Steps:
    - Figure 14(a) is reproduced as `E2E_RTN_TIME.png`
    - Figure 14(b) is reproduced as `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png`
    - Figure 14(c) is reproduced as `PARALLEL_DELTA.png`
+- *Note*: The reproduced figures share the same trend with paper figure with slight number 
+difference. The reason behind is a later observed bug that the paper figure is the result 
+of a single run, so it suffers the bias. If you are interested in the single run result, you 
+could set the `totalSampleCount=1`.
 
 ## Figure 15 (c) CDF of Strech Factor
 Steps:
@@ -158,9 +162,9 @@ lines in Figure 15(c) are plotted respectively in:
 Steps:
 - Copy contents in `config/EuroSys2021PaperConf/fig15d.config` to 
   `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig15d/[folder_with_timestamp_in_name]`
-- In `results` folder, run `python3 gen_avg.py -d fig15d/[folder_with_timestamp_in_name]`
-- The generated figures are in `results/fig15d/[folder_with_timestamp_in_name]/figure/overall/`
+  stored in `results/fig15d/`
+- In `results` folder, run `python3 gen_avg.py -d fig15d`
+- The generated figures are in `results/fig15d/figure/overall/`
     - Figure 15(d) is reproduced as `EV_ROUTINE_INSERT_TIME_MICRO_SEC.png`. 
 
 ## Figure 16 (a) (b) (c) Impact of Routine Size
