@@ -5,7 +5,7 @@ import argparse
 import os
 import sys
 
-def aggregateData(filename, all_paths, seperator='\t', save_tmp_data=False, tmp_data_name=None):
+def aggregateData(filename, all_paths, seperator='\t', save_tmp_data=False, tmp_data_name=None, unified=False):
   df_result = None
 
   for full_fname in all_paths:
@@ -19,6 +19,8 @@ def aggregateData(filename, all_paths, seperator='\t', save_tmp_data=False, tmp_
     cc_cols  = [cc_level] * len(df.index)
     df['strategy'] = str_cols
     df['num_cc_routines'] = cc_cols
+    if unified:
+      df[['EV']] = df[['EV']].div(df['GSV'], axis=0)
 
     if df_result is None:
       df_result = df.copy()
@@ -98,7 +100,7 @@ else:
     
 # Aggregate data
 df_incong = aggregateData('ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.dat', incong_data_source, save_tmp_data=True)
-df_latency = aggregateData('E2E_RTN_TIME.dat', latency_data_source, save_tmp_data=True)
+df_latency = aggregateData('E2E_RTN_TIME.dat', latency_data_source, save_tmp_data=True, unified=True)
 
 drawBarPlot(df_incong, figure_folder + 'ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png', strategies, var2, 'minCmdCntPerRtn')
 drawBarPlot(df_latency, figure_folder + 'E2E_RTN_TIME.png', strategies, var2, 'minCmdCntPerRtn')
