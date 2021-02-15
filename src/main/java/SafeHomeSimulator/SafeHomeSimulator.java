@@ -85,6 +85,8 @@ public class SafeHomeSimulator
 
     private static final boolean isMeasureEVroutineInsertionTime = SysParamSngltn.getInstance().isMeasureEVroutineInsertionTime;
     private static final boolean isSchedulingPoliciesComparison = SysParamSngltn.isSchedulingPoliciesComparison;
+    private static boolean isAnalyzingTLunderEV = SysParamSngltn.isAnalyzingTLunderEV;
+    private static boolean isGenerateSeparateOutputDir = SysParamSngltn.isGenerateSeparateOutputDir;
 
     private static List<DEV_ID> devIDlist = new ArrayList<>();
     private static Map<DEV_ID, ZipfProbBoundary> devID_ProbBoundaryMap = new HashMap<>();
@@ -223,6 +225,12 @@ public class SafeHomeSimulator
         System.out.println("isSchedulingPoliciesComparison = " + isSchedulingPoliciesComparison + "\n");
         logStr += "isSchedulingPoliciesComparison = " + isSchedulingPoliciesComparison + "\n\n";
 
+        System.out.println("isAnalyzingTLunderEV = " + isAnalyzingTLunderEV + "\n");
+        logStr += "isAnalyzingTLunderEV = " + isAnalyzingTLunderEV + "\n\n";
+
+        System.out.println("isGenerateSeparateOutputDir = " + isGenerateSeparateOutputDir + "\n");
+        logStr += "isGenerateSeparateOutputDir = " + isGenerateSeparateOutputDir + "\n\n";
+
         System.out.println("###################################");
         logStr += "###################################\n";
 
@@ -248,9 +256,20 @@ public class SafeHomeSimulator
 
         File dataStorageDir = new File(dataStorageDirectory);
 
-        if(!dataStorageDir.exists()) {
-            dataStorageDir.mkdirs();
-            System.out.println("\n Creating directory for: " + dataStorageDirectory);
+        if(SysParamSngltn.isGenerateSeparateOutputDir)
+        { // original approach
+            if(!dataStorageDir.exists())
+            {
+                System.out.println("\n ERROR: directory not found: " + dataStorageDirectory);
+                System.exit(1);
+            }
+        }
+        else
+        { //Rui's version
+            if(!dataStorageDir.exists()) {
+                dataStorageDir.mkdirs();
+                System.out.println("\n Creating directory for: " + dataStorageDirectory);
+            }
         }
         //////////////////////////////////////////////////////////////////////////////////
 
@@ -276,6 +295,14 @@ public class SafeHomeSimulator
             //////////////////////////////////////////////////////////////
             measurementList.add(MEASUREMENT_TYPE.E2E_RTN_TIME);
             measurementList.add(MEASUREMENT_TYPE.PARALLEL_DELTA);
+            measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
+        }
+        else if(isAnalyzingTLunderEV)
+        {
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.STRONG); //GSV
+            CONSISTENCY_ORDERING_LIST.add(CONSISTENCY_TYPE.EVENTUAL);
+            ////////////////////////////////////////////////////////////////
+            measurementList.add(MEASUREMENT_TYPE.E2E_RTN_TIME);
             measurementList.add(MEASUREMENT_TYPE.ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT);
         }
         else
@@ -667,12 +694,19 @@ public class SafeHomeSimulator
             System.exit(1);
         }
 
-        String epoch = System.currentTimeMillis() + "";
-//        String parentDirPath = dataStorageDirectory + File.separator + epoch + "_VARY_"+ changingParameterName;
-//        parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + minCmdCntPerRtn + "-" + maxCmdCntPerRtn;
 
-        String parentDirPath = dataStorageDirectory;
-        
+        String parentDirPath = "";
+
+        if(SysParamSngltn.isGenerateSeparateOutputDir)
+        { // original approach
+            String epoch = System.currentTimeMillis() + "";
+            parentDirPath = dataStorageDirectory + File.separator + epoch + "_VARY_"+ changingParameterName;
+            parentDirPath += "_R_" + maxConcurrentRtn + "_C_" + minCmdCntPerRtn + "-" + maxCmdCntPerRtn;
+        }
+        else
+        { //Rui's version
+            parentDirPath = dataStorageDirectory;
+        }
 
         File parentDir = new File(parentDirPath);
         if(!parentDir.exists())

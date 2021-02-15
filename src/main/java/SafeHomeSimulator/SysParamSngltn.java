@@ -74,9 +74,14 @@ public class SysParamSngltn
 
     public final String KEY_IS_SCHEDULING_POLICIES_COMPARISON = "isSchedulingPoliciesComparison";
 
+    public final String KEY_IS_ANALYZING_TL_UNDER_EV = "isAnalyzingTLunderEV";
+    public final String KEY_IS_GENERATE_SEPARATE_OUTPUT_DIR = "isGenerateSeparateOutputDir";
+
 
     ///////////////////////////////////////////////////////////////////////////////
-    public static boolean isSchedulingPoliciesComparison;
+    public static boolean isSchedulingPoliciesComparison; // used for experiment 14 (Eurosys 2021 version)
+    public static boolean isAnalyzingTLunderEV; // used for experiment 15 (Eurosys 2021 version)
+    public static boolean isGenerateSeparateOutputDir;
 
     public static boolean IS_RUNNING_BENCHMARK;// = false; // Careful... if it is TRUE, all other parameters will be in don't care mode!
 
@@ -308,6 +313,29 @@ public class SysParamSngltn
             }
             catch(Exception ex) {
                 isSchedulingPoliciesComparison = false; // for backward compatibility, if config file does not have the field, initialize it with false
+            }
+
+            try {
+                isAnalyzingTLunderEV = Boolean.valueOf(properties.getProperty(KEY_IS_ANALYZING_TL_UNDER_EV));
+            }
+            catch(Exception ex) {
+                isAnalyzingTLunderEV = false; // for backward compatibility, if config file does not have the field, initialize it with false
+            }
+
+            if(isSchedulingPoliciesComparison && isAnalyzingTLunderEV)
+            {
+                System.out.println("Error in config file...");
+                System.out.println("isSchedulingPoliciesComparison and isAnalyzingTLunderEV cannot be true at the same time...");
+                System.out.println("You can run at most one experiment at any given time!");
+                System.out.println("TERMINATING....");
+                System.exit(1);
+            }
+
+            try {
+                isGenerateSeparateOutputDir = Boolean.valueOf(properties.getProperty(KEY_IS_GENERATE_SEPARATE_OUTPUT_DIR));
+            }
+            catch(Exception ex) {
+                isGenerateSeparateOutputDir = false; // for backward compatibility, if config file does not have the field, initialize it with false
             }
         }
         catch(Exception ex)

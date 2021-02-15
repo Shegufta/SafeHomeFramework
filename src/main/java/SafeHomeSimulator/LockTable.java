@@ -602,7 +602,7 @@ public class LockTable
             case EVENTUAL: // EV
             {
                 //this.insertRecursively(rtn, 0, _simulationStartTime, new HashSet<>(), new HashSet<>());
-                this.insertRecursively(rtn, 0, rtn.registrationTime, new HashSet<>(), new HashSet<>());
+                this.insertRecursively(rtn, 0, rtn.registrationTime, new HashSet<>(), new HashSet<>(), Integer.MAX_VALUE);
                 break;
             }
             default:
@@ -745,12 +745,13 @@ public class LockTable
 
     public boolean EFFICIENT_PRE_POST_SET_CALCULATION = true;
 
-    public boolean insertRecursively(Routine rtn, int commandIdx, int insertionStartTime, Set<Integer> _preSet, Set<Integer> _postSet)
+    public boolean insertRecursively(Routine rtn, int commandIdx, int insertionStartTime, Set<Integer> _preSet, Set<Integer> _postSet, int _preLeaseOffScenarioEarliestRtnEndTime)
     {
         assert(this.isNoOverlap(_preSet, _postSet));
 
         if(rtn.commandList.size() == commandIdx)
             return true;
+
 
         DEV_ID devID = rtn.getDevID(commandIdx);
         int commandStartTime = insertionStartTime;
@@ -758,7 +759,7 @@ public class LockTable
 
         while(true)
         {
-            CmdInsertionData cmdInsertionData = getLockTableEmptyPlaceIndex(devID, commandStartTime, cmdDuration );
+            CmdInsertionData cmdInsertionData = getLockTableEmptyPlaceIndex(devID, commandStartTime, cmdDuration, _preLeaseOffScenarioEarliestRtnEndTime );
             commandStartTime = cmdInsertionData.cmdStartTime; // the commandStartTime might drift from "insertionStartTime"
             int lockTableInsertionIndex = cmdInsertionData.cmdInsertIndex;
 
@@ -768,10 +769,15 @@ public class LockTable
             Set<Integer> postSet = new HashSet<>(_postSet);
             postSet.addAll(getPostSet(devID, lockTableInsertionIndex));
 
+            int currentCmdMaxEndTime = commandStartTime + rtn.commandList.get(commandIdx).duration;
+
+            if(_preLeaseOffScenarioEarliestRtnEndTime < currentCmdMaxEndTime)
+                return false;
+
             if(isNoOverlap(preSet, postSet))
             {
-                int nextCmdMinimumStartTime = commandStartTime + rtn.commandList.get(commandIdx).duration;
-                boolean deepDive = insertRecursively(rtn, commandIdx + 1, nextCmdMinimumStartTime, preSet, postSet);/// call recursion
+                int nextCmdMinimumStartTime = currentCmdMaxEndTime;
+                boolean deepDive = insertRecursively(rtn, commandIdx + 1, nextCmdMinimumStartTime, preSet, postSet, cmdInsertionData.preLeaseOffScenarioEarliestRtnEndTime);/// call recursion
 
                 if(deepDive)
                 {
@@ -835,16 +841,19 @@ public class LockTable
     }
 
 
-    public CmdInsertionData getLockTableEmptyPlaceIndex(DEV_ID _devID, int _scanStartTime, int _targetCmdDuration)
+    public CmdInsertionData getLockTableEmptyPlaceIndex(DEV_ID _devID, int _scanStartTime, int _targetCmdDuration, int _preLeaseOffScenarioEarliestRtnEndTime)
     {
         boolean isPreLeaseAllowed = SafeHomeSimulator.IS_PRE_LEASE_ALLOWED;
         boolean isPostLeaseAllowed = SafeHomeSimulator.IS_POST_LEASE_ALLOWED;
+        int preLeaseOffScenarioEarliestRtnEndTime = _preLeaseOffScenarioEarliestRtnEndTime; // used only if pre-lease is off
 
         int index;
         int scanStartTime = _scanStartTime;
 
         for(index = 0 ; index < lockTable.get(_devID).size() ; ++index)
         {
+            preLeaseOffScenarioEarliestRtnEndTime = _preLeaseOffScenarioEarliestRtnEndTime; // initialize with a fresh value for backtrack run
+
             Routine currentRtnInLineage = lockTable.get(_devID).get(index);
             int cmdStartTime = currentRtnInLineage.lockStartTime(_devID);
             int cmdEndTime = currentRtnInLineage.lockEndTime(_devID);
@@ -878,6 +887,10 @@ public class LockTable
                                 scanStartTime = cmdEndTime; // shift the scan line after the command
                                 continue;
                             }
+                            else
+                            {
+                                preLeaseOffScenarioEarliestRtnEndTime = Math.min(preLeaseOffScenarioEarliestRtnEndTime, currentRtnInLineage.routineStartTime());
+                            }
                         }
 
                         if(!isPostLeaseAllowed && (0 < index))
@@ -890,12 +903,15 @@ public class LockTable
                                 if(prevRtnInLineage.isCandidateCmdInsidePostLeaseZone(_devID, scanStartTime, _targetCmdDuration ))
                                 {
                                     scanStartTime = prevRtnInLineage.routineEndTime(); // shift the scan line after the command
+                                    --index; // Reason: the startTime is being adjusted based on the PREVIOUS entry.
+                                    //Therefore, after the adjustment, compare it with the current entry. CONTINUE will
+                                    //increase index by one. Therefore, its decreased here ahead of time.
                                     continue;
                                 }
                             }
                         }
 
-                        return new CmdInsertionData(scanStartTime, index);
+                        return new CmdInsertionData(scanStartTime, index, preLeaseOffScenarioEarliestRtnEndTime);
                     }
                     else
                     {
@@ -924,7 +940,7 @@ public class LockTable
         }
 
 
-        return new CmdInsertionData(scanStartTime, index);
+        return new CmdInsertionData(scanStartTime, index, preLeaseOffScenarioEarliestRtnEndTime);
 
         /*
         int index;
@@ -975,10 +991,13 @@ public class LockTable
     {
         int cmdStartTime;
         int cmdInsertIndex;
-        public CmdInsertionData(int _cmdStartTime, int _cmdInsertIndex)
+        int preLeaseOffScenarioEarliestRtnEndTime;
+
+        public CmdInsertionData(int _cmdStartTime, int _cmdInsertIndex, int _preLeaseOffScenarioEarliestRtnEndTime)
         {
             this.cmdStartTime = _cmdStartTime;
             this.cmdInsertIndex = _cmdInsertIndex;
+            this.preLeaseOffScenarioEarliestRtnEndTime = _preLeaseOffScenarioEarliestRtnEndTime;
         }
 
         @Override
