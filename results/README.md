@@ -144,6 +144,17 @@ difference. The reason behind is a later observed bug that the paper figure is t
 of a single run, so it suffers the bias. If you are interested in the single run result, you 
 could set the `totalSampleCount=1`.
 
+## Figure 15 (a)(b) Effectiveness of Pre-lease and Pose-lease
+- Copy contents in `config/EuroSys2021PaperConf/fig15ab-bothoff-con2.config` to 
+`config/SafeHomeFramework.config` and run ***SafeHomeSimulator***. Results will be stored in 
+`results/fig15ab/bothoff/con2/`
+- Do this for all the rest of configurations starting with `fig15ab` (8 configurations 
+in total)
+- In `results` folder, run `python3 gen_fig15.py`
+- The generated figures are in sub-folders: `results/fig15ab/figure`.
+  - Figure 15(a) is reproduced as `E2E_RTN_TIME.png`.
+  - Figure 15(b) is reproduced as `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png`.
+
 ## Figure 15 (c) CDF of Strech Factor
 Steps:
 - Copy contents in `config/EuroSys2021PaperConf/varyCommand.config` to 
