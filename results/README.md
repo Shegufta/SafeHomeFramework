@@ -89,35 +89,26 @@ This will generate Figure 12(b) named `end-state.png` in your current folder
 `results/finalIncong/`.
 
 ## Figure 13 (a) (c) Impact of Must Command Under Failure
+
+Figure 13(a)(c) are for impact of must command under failures and 13 (b)(d) are 
+for impact of number of device failure.
+
 Steps:
 - Copy contents in `config/EuroSys2021PaperConf/fig13a.config` to 
   `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig13a/`
-- Copy contents in `config/EuroSys2021PaperConf/fig13c.config` to 
-  `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig13c/`
-- In `results` folder, run `python3 gen_avg.py -d fig13a` 
-  and `python3 gen_avg.py -d fig13c` respectively.
+  stored in `results/fig13a/`.
+- Similar actions to `fig13b.config`, `fig13c.config`, `fig13d.config`
+- In `results` folder, run `python3 gen_avg.py -d fig13a`. Similar to `fig13b`, 
+  `fig13c` and `fig13d`.
 - Figure 13(a) is reproduced as 
-  `results/fig13a/figure/overall/ABORT_RATE.png`
-- Figure 13(c) is reprodueced as 
-  `results/fig13c/figure/overall/RECOVERY_CMD_PER_RTN.png`
+  `results/fig13a/figure/overall/ABORT_RATE.png`.
+- Figure 13(b) is reproduced as 
+  `results/fig13b/figure/overall/ABORT_RATE.png`.
+- Figure 13(c) is reproduced as 
+  `results/fig13c/figure/overall/RECOVERY_CMD_PER_RTN.png` with an unprocessed y-axis.
   To get data in Figure 13(c), the reproduced result needs to be multiplied
   by `100.0/#cmdCntPerRtn`. `#cmdCntPerRtn=4` in this setting. Thus, the reproduced 
-  value should multiply 25 for result (which will match Figure 13(c)). 
-    
-## Figure 13 (b) (d) Impact of Must Command Under Failure
-Steps:
-- Copy contents in `config/EuroSys2021PaperConf/fig13b.config` to 
-  `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig13b/`
-- Copy contents in `config/EuroSys2021PaperConf/fig13d.config` to 
-  `config/SafeHomeFramework.config` and run ***SimulateFailure***. Results will be 
-  stored in `results/fig13d/`
-- In `results` folder, run `python3 gen_avg.py -d fig13b` 
-  and `python3 gen_avg.py -d fig13d`
-- Figure 13(b) is reproduced as 
-  `results/fig13b/figure/overall/ABORT_RATE.png`
+  value should multiply 25 for results in the paper. 
 - Figure 13(d) is reproduced as 
   `results/fig13d/figure/overall/RECOVERY_CMD_PER_RTN.png`
   with an unprocessed y-axis.
@@ -160,14 +151,10 @@ Steps:
 - Copy contents in `config/EuroSys2021PaperConf/varyCommand.config` to 
 `config/SafeHomeFramework.config` and run ***SafeHomeSimulator***. Results will be stored in 
 `results/varyCommand/`
-- In `results` folder, run `python3 gen_cdf.py -d varyCommand`
-- The generated figures are in sub-folders: `results/varyCommand/figure/`. The three 
-lines in Figure 15(c) are plotted respectively in:
-    - `minCmdCntPerRtn2.0/stretch.png` for C = 2
-    - `minCmdCntPerRtn4.0/stretch.png` for C = 4
-    - `minCmdCntPerRtn8.0/stretch.png` for C = 8  
-    **Note** The y-axis range in the three code-generated figures are from 0.0 - 1.0 
-    and the paper figure ranges from 0.7 - 1.0.
+- In `results` folder, run `python3 gen_fig15c.py`
+- Figure 15(c) is reproduced as `results/varyCommand/figure/aggregate_sr_for_fig15c.png`
+    **Note** The exact number might have very slight difference, but the trend and all 
+    paper claims hold.
 
 ## Figure 15 (d) Routine Scheduling Overhead
 Steps:
@@ -181,15 +168,15 @@ Steps:
 ## Figure 16 (a) (b) (c) Impact of Routine Size
 Steps:
 - Experiement results already collected in reproducing Figure 15(c). 
-- In `results` folder, run `python3 gen_avg.py -d varyCommand`
+- In `results` folder, run `python3 gen_avg.py -d varyCommand -merge True`
 - The result folder will be in `results/varyCommand/figure/overall/`.
     - Figure 16(a) is reproduced as `E2E_RTN_TIME.png`. Y-axis uses seconds as unit 
     while the paper uses minutes.
     - Figure 16(b) is reproduced as `PARALLEL_DELTA.png`
-    - Figure 16(c) two temporary incongruence lines is reproduced separately in 
-    `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png` and the order mismatch line is in 
-    `ORDERR_MISMATCH_BUBBLE.png`
-    **Note** The y-axis range in two code-generated figures are different.
+    - Figure 16(c) is reproduces as `MERGE_ISVL_ORDER.png`   
+    *Note*: The merged raw data is in `results/varyCommand/avg/MERGE_ISVL_ORDER.dat`,
+    which is aggregated from `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.dat` and 
+    `ORDERR_MISMATCH_BUBBLE.dat` in the same folder.
       
 ## Figure 16 (d) Impact of Device Popularity
 Steps:
@@ -208,21 +195,21 @@ Steps:
 - Copy contents in `config/EuroSys2021PaperConf/varyLngDuration.config` to 
 `config/SafeHomeFramework.config` and run ***SafeHomeSimulator***. Results will be stored in 
 `results/varyLngDuration/`
-- In `results` folder, run `python3 gen_avg.py -d varyLngDuration`
+- In `results` folder, run `python3 gen_avg.py -d varyLngDuration -merge True`
 - The result folder will be in `results/varyLngDuration/figure/overall/`.
-    - Figure 17(a) two temporary incongruence lines are reproduced separately in 
-    `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png` and the order mismatch line is in 
-    `ORDERR_MISMATCH_BUBBLE.png`  
-    **Note** The y-axis range in two code-generated figures are different.
+    - Figure 17(a) is reproduces as `MERGE_ISVL_ORDER.png`   
+    *Note*: The merged raw data is in `results/varyLngDuration/avg/MERGE_ISVL_ORDER.dat`,
+    which is aggregated from `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.dat` and 
+    `ORDERR_MISMATCH_BUBBLE.dat` in the same folder.
 
 ## Figure 17 (b) Impact of Percentage of Long Running Routines
 Steps:
 - Copy contents in `config/EuroSys2021PaperConf/varyLngPctg.config` to 
 `config/SafeHomeFramework.config` and run ***SafeHomeSimulator*** Results will be stored in 
 `results/varyLngPctg/`
-- In `results` folder, run `python3 gen_avg.py -d varyLngPctg`
+- In `results` folder, run `python3 gen_avg.py -d varyLngPctg -merge True`
 - The result folder will be in `results/varyLngPctg/figure/overall/`.
-    - Figure 17(b) two temporary incongruence lines are reproduced separately in 
-    `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png` and the order mismatch line is in
-    `ORDERR_MISMATCH_BUBBLE.png`  
-    **Note** The y-axis range in two code-generated figures are different.
+   - Figure 17(b) is reproduces as `MERGE_ISVL_ORDER.png`   
+   *Note*: The merged raw data is in `results/varyLngPctg/avg/MERGE_ISVL_ORDER.dat`,
+   which is aggregated from `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.dat` and 
+   `ORDERR_MISMATCH_BUBBLE.dat` in the same folder.

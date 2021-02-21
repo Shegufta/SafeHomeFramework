@@ -12,13 +12,18 @@ matplotlib.font_manager._rebuild()
 matplotlib.rcParams['font.family'] = 'Times New Roman'
 matplotlib.rcParams['font.weight'] = 'normal'
 
-color_dict = {'GSV': '#2a70ba', 'PSV' : '#f7c143', 'EV' : '#4ead5b', 'WV' : '#b96029', 'LAZY_FCFS' : 'r', 'LAZY_PRIORITY': 'chartreuse', 'FCFSV': 'orange', 'LzPRIOTY': 'chartreuse'}
-mark_dict = {'EV': '^', 'WV': 's'}
+color_dict = {'GSV': '#2a70ba', 'PSV' : '#f7c143', 'EV' : '#4ead5b', 'WV' : '#b96029', 
+              'LAZY_FCFS' : 'r', 'LAZY_PRIORITY': 'chartreuse', 'FCFSV': 'orange', 'LzPRIOTY': 'chartreuse', 
+              '4.0': 'g', '8.0': 'r',
+              'EV(incong)': 'g', 'WV(incong)': 'orange', 'EV(order)': 'g'}
+mark_dict = {'EV': '^', 'WV': 's', 
+             'EV(incong)': '^', 'EV(order)': 's', 'WV(incong)': 'o'}
 linestyle_dict = {'PSV': '--', 'EV': '-.', 'WV': (0, (8, 10)), 'GSV' : '-'}
 markfacecolor_dict = {'EV' : '#4ead5b', 'WV': '#cd783f'}
 markedgecolor_dict = {'EV': '#60803f', 'WV': '#b76b38'}
 markedgewidth_dict = {'EV': 1}
 target_lines = ['GSV', 'EV', 'WV', 'PSV', 'SUPER_GSV']
+artifact_lines = ['EV(incong)', 'WV(incong)', 'EV(order)']
 
 bar_color = ['#ffffff', '#DF8244', '#4EAD5B', '#B99130', '#E7E6E6']
 bar_edgecolor = ['#3f74b1', '#ffffff', '#4EAD5B', '#ffffff', '#000000']
@@ -188,10 +193,11 @@ class SinglePlot:
       os.makedirs(figure_folder)
 
     df = pd.read_csv(full_fname, sep='\t')
-    if self.fig_type == 'avg':
-      df.drop(df.columns[len(df.columns)-1], axis=1, inplace=True)
-    print(full_fname)
 
+    if self.fig_type == 'avg':
+      df.dropna(axis='columns', how='all', inplace=True)
+    print(full_fname)
+    
     if self.fig_type is 'avg':
       num_plot_lines = len(df.columns) - 1
       plot_line_names = df.columns[1:]
@@ -216,13 +222,13 @@ class SinglePlot:
 
     for i in range(num_plot_lines):
       line_name = plot_line_names[i]
-    # for line_name in plot_line_names:
-      if line_name not in target_lines:
+    
+      if self.fig_type is not 'cdf' and line_name not in target_lines and line_name not in artifact_lines:
         continue
 
       if self.fig_type is 'cdf':
         x_axis = df[data_names[i]].to_list()  
-
+        
       legend_name = line_name
       y_axis = df[line_name].to_list()
       y_axis = [item for item in y_axis if item >= 0]
@@ -240,6 +246,7 @@ class SinglePlot:
           markeredgecolor=get_markedgecolor(line_name), markeredgewidth=get_markedgewidth(line_name),
           label=line_name, linewidth = 1.6)
       else:
+        print("drawing one line")
         plt_line = Line2D(x_axis[:len_valid], y_axis[:len_valid], 
           color=get_color(line_name), linestyle = get_linestyle(line_name), 
           label=line_name, linewidth = 1.2)
