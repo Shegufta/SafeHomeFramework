@@ -34,7 +34,13 @@ same, but the curve might not be as smooth as in paper and may suffer a little d
 bias. 
 4. The provided configurations are supposed to be directly reusable for MacOS and 
 Linux. For windows, the dataStorageDirectory always need to be manually modified 
-correspondingly to use double backslash `\\` after copying.
+correspondingly to use double backslash `\\` after copying.  
+5. Note (2/22): Since the submission version, we have rerun all our plots (to double 
+check). We found and fixed 3 issues recently: a measurement bug, a config parameter 
+inconsistency, and (not) using the latest version of code. These have all been fixed 
+in the latest git version. This minorly affects Fig 13,14,15 -- in all these figures, 
+some lines/bars shift slightly, but our overall trends and conclusions remain 
+unchanged. More details below.
 
 ## Figure 12 (a) Real-Word Workload
 This experiment includes 4 sets of experiments:
@@ -88,7 +94,7 @@ python3 gen-es-bar.py
 This will generate Figure 12(b) named `end-state.png` in your current folder 
 `results/finalIncong/`.
 
-## Figure 13 (a) (c) Impact of Must Command Under Failure
+## Figure 13 Impact of Parameters Under Failure
 
 Figure 13(a)(c) are for impact of must command under failures and 13 (b)(d) are 
 for impact of number of device failure.
@@ -115,6 +121,10 @@ Steps:
   To get data in Figure 13(d), the reproduced result needs to be multiplied
   by `100.0/#cmdCntPerRtn`. `#cmdCntPerRtn=4` in this setting. Thus, the reproduced 
   value should multiply 25 for result (which will match Figure 13(d)).  
+- *Note*  (2/22): Fig 13cd are identical to the submitted version. Fig 13ab have 
+  shifted a few lines slightly (because of the 3 issues fixed - see 
+  [General Procedure](#general-procedure) Note 5) -- however, trends and conclusions 
+  remain unchanged, and we will include an explanation of trends in the revised paper.
 
 ## Figure 14 Scheduling Polices
 Steps:
@@ -130,10 +140,8 @@ Steps:
    - Figure 14(a) is reproduced as `E2E_RTN_TIME.png`
    - Figure 14(b) is reproduced as `ISVLTN5_RTN_LIFESPAN_COLLISION_PERCENT.png`
    - Figure 14(c) is reproduced as `PARALLEL_DELTA.png`
-- *Note*: The reproduced figures share the same trend with paper figure with slight number 
-difference. The reason behind is a later observed bug that the paper figure is the result 
-of a single run, so it suffers the bias. If you are interested in the single run result, you 
-could set the `totalSampleCount=1`.
+- *Note*  (2/22): Fig 14abc have shifted a few bars slightly (because of the 3 issues 
+fixed - see [General Procedure](#general-procedure) Note 5) -- however, trends and conclusions remain unchanged.
 
 ## Figure 15 (a)(b) Effectiveness of Pre-lease and Pose-lease
 - Copy contents in `config/EuroSys2021PaperConf/fig15ab-bothoff-con2.config` to 
@@ -153,8 +161,10 @@ Steps:
 `results/varyCommand/`
 - In `results` folder, run `python3 gen_fig15c.py`
 - Figure 15(c) is reproduced as `results/varyCommand/figure/aggregate_sr_for_fig15c.png`
-    **Note** The exact number might have very slight difference, but the trend and all 
-    paper claims hold.
+*Note*  (2/22): Fig 15abc have shifted a few lines slightly (because of the 3 issues 
+fixed - see [General Procedure](#general-procedure) Note 5) -- however, trends and 
+conclusions remain unchanged, and we will include an explanation of trends in the 
+revised paper.
 
 ## Figure 15 (d) Routine Scheduling Overhead
 Steps:
