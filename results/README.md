@@ -128,8 +128,6 @@ Steps:
 
 ## Figure 14 Scheduling Polices
 Steps:
-- Go to `src/main/java/SafeHomeSimulator/SafeHomeSimulator.java`. Modify as 
-`isGeneratingFigure14 = true` (around line 267)
 - Copy contents in `config/EuroSys2021PaperConf/fig14.config` to 
 `config/SafeHomeFramework.config` and run ***SafeHomeSimulator***. Results will be stored in 
 `results/fig14/`
